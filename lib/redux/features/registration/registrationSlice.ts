@@ -1,9 +1,10 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import axiosInstance from "@/lib/axios";
-// ✅ This import will now work correctly without circular dependency issues
 import { setCredentials } from "@/lib/redux/features/auth/authSlice";
 
-// --- Type Definitions ---
+// --- TYPE DEFINITIONS ---
+// These interfaces define the shape of your data for TypeScript, ensuring type safety.
+
 export interface Nominee {
   name: string;
   relation: string;
@@ -27,6 +28,23 @@ export interface VolunteerConfig {
   _id: string;
   name: string;
   code: string;
+}
+
+export interface ContributionGroup {
+  _id: string;
+  employmentType: string;
+  companies: {
+    _id: string;
+    companyName: string;
+    departments: {
+      _id: string;
+      departmentName: string;
+      plans: {
+        _id: string;
+        planDetails: string;
+      }[];
+    }[];
+  }[];
 }
 
 export interface FormData {
@@ -54,23 +72,7 @@ export interface FormData {
   nominees: Nominee[];
 }
 
-export interface ContributionGroup {
-  _id: string;
-  employmentType: string;
-  companies: {
-    _id: string;
-    companyName: string;
-    departments: {
-      _id: string;
-      departmentName: string;
-      plans: {
-        _id: string;
-        planDetails: string;
-      }[];
-    }[];
-  }[];
-}
-
+// Defines the structure of the entire state managed by this slice.
 interface RegistrationState {
   step: number;
   formData: FormData;
@@ -83,6 +85,7 @@ interface RegistrationState {
   contributionGroupsStatus: "idle" | "loading" | "succeeded" | "failed";
 }
 
+// The initial state when the application or registration form loads.
 const initialState: RegistrationState = {
   step: 1,
   formData: {
@@ -115,7 +118,11 @@ const initialState: RegistrationState = {
   contributionGroupsStatus: "idle",
 };
 
-// --- Async Thunks ---
+// --- ASYNC THUNKS (API Calls) ---
+
+/**
+ * @description Fetches initial configuration data (states, volunteers) needed for the form.
+ */
 export const fetchRegistrationConfig = createAsyncThunk(
   "registration/fetchConfig",
   async (_, { rejectWithValue }) => {
@@ -126,11 +133,16 @@ export const fetchRegistrationConfig = createAsyncThunk(
       ]);
       return { states: statesRes.data, volunteers: volunteersRes.data };
     } catch (error: any) {
-      return rejectWithValue("Failed to load registration data.");
+      return rejectWithValue(
+        "Failed to load registration data. Please refresh the page."
+      );
     }
   }
 );
 
+/**
+ * @description Fetches the structured contribution plans for the employment section.
+ */
 export const fetchContributionGroupsForRegistration = createAsyncThunk(
   "registration/fetchContributionGroups",
   async (_, { rejectWithValue }) => {
@@ -139,12 +151,15 @@ export const fetchContributionGroupsForRegistration = createAsyncThunk(
       return data as ContributionGroup[];
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Failed to fetch contribution groups"
+        error.response?.data?.message || "Failed to fetch contribution groups."
       );
     }
   }
 );
 
+/**
+ * @description Submits the complete registration form data, including files, to the backend.
+ */
 export const submitRegistration = createAsyncThunk(
   "registration/submit",
   async (
@@ -159,6 +174,7 @@ export const submitRegistration = createAsyncThunk(
     },
     { dispatch, rejectWithValue }
   ) => {
+    // We use FormData to handle file uploads along with JSON data.
     const dataToSubmit = new FormData();
     dataToSubmit.append("formData", JSON.stringify(formData));
     dataToSubmit.append("isPayingNow", JSON.stringify(isPayingNow));
@@ -171,24 +187,24 @@ export const submitRegistration = createAsyncThunk(
         "/api/members/register",
         dataToSubmit
       );
-      // After successful registration, if a token is received,
-      // dispatch the setCredentials action to log the user in.
-      if (data.token) {
-        dispatch(setCredentials(data));
-      }
+      // The backend will return paymentDetails if isPayingNow is true.
+      // We return the entire response to the component.
       return data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "An unknown error occurred"
+        error.response?.data?.message ||
+          "An unknown registration error occurred."
       );
     }
   }
 );
 
-// --- The Slice Definition ---
+// --- THE SLICE DEFINITION ---
+
 const registrationSlice = createSlice({
   name: "registration",
   initialState,
+  // Reducers for synchronous state updates
   reducers: {
     setStep: (state, action: PayloadAction<number>) => {
       state.step = action.payload;
@@ -229,7 +245,9 @@ const registrationSlice = createSlice({
     removeNominee: (state, action: PayloadAction<number>) => {
       state.formData.nominees.splice(action.payload, 1);
     },
+    // Resets the entire form to its initial state
     resetForm: () => initialState,
+    // Special reducer to handle cascading changes for employment type
     setEmploymentType: (state, action: PayloadAction<string>) => {
       state.formData.employment.type = action.payload;
       state.formData.employment.companyName = "";
@@ -237,8 +255,10 @@ const registrationSlice = createSlice({
       state.formData.employment.contributionPlan = "";
     },
   },
+  // Reducers for asynchronous actions (API calls) handled by thunks
   extraReducers: (builder) => {
     builder
+      // Cases for fetching form config
       .addCase(fetchRegistrationConfig.pending, (state) => {
         state.configStatus = "loading";
       })
@@ -250,22 +270,20 @@ const registrationSlice = createSlice({
       .addCase(fetchRegistrationConfig.rejected, (state, action) => {
         state.configStatus = "failed";
         state.error = action.payload as string;
-      });
-
-    builder
+      })
+      // Cases for submitting the registration
       .addCase(submitRegistration.pending, (state) => {
         state.status = "loading";
         state.error = null;
       })
-      .addCase(submitRegistration.fulfilled, (state, action) => {
+      .addCase(submitRegistration.fulfilled, (state) => {
         state.status = "succeeded";
       })
       .addCase(submitRegistration.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload as string;
-      });
-
-    builder
+      })
+      // Cases for fetching contribution groups
       .addCase(fetchContributionGroupsForRegistration.pending, (state) => {
         state.contributionGroupsStatus = "loading";
       })
@@ -276,12 +294,18 @@ const registrationSlice = createSlice({
           state.contributionGroups = action.payload;
         }
       )
-      .addCase(fetchContributionGroupsForRegistration.rejected, (state) => {
-        state.contributionGroupsStatus = "failed";
-      });
+      .addCase(
+        fetchContributionGroupsForRegistration.rejected,
+        (state, action) => {
+          state.contributionGroupsStatus = "failed";
+          state.error =
+            (action.payload as string) || "Failed to load employment data.";
+        }
+      );
   },
 });
 
+// Export the synchronous actions to be used in components
 export const {
   setStep,
   updateField,
@@ -293,4 +317,5 @@ export const {
   setEmploymentType,
 } = registrationSlice.actions;
 
+// Export the reducer to be included in the main store
 export default registrationSlice.reducer;
