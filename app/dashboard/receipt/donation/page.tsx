@@ -18,7 +18,8 @@ import { Button } from "@/components/ui/button";
 import { Loader2, Download, AlertCircle } from "lucide-react";
 import { format } from "date-fns";
 import jsPDF from "jspdf";
-import "jspdf-autotable";
+// ✅ Step 1: autoTable ko named import ke roop mein import karein
+import autoTable from 'jspdf-autotable';
 
 // Type definition for our donation data
 interface Donation {
@@ -34,14 +35,10 @@ interface Donation {
   };
 }
 
-// Extend jsPDF with autoTable for type safety
-interface jsPDFWithAutoTable extends jsPDF {
-  autoTable: (options: any) => jsPDF;
-}
-
 // Helper function to generate the PDF receipt
 const generatePdfReceipt = (donation: Donation) => {
-  const doc = new jsPDF() as jsPDFWithAutoTable;
+  // ✅ Step 2: jsPDF instance banayein
+  const doc = new jsPDF();
 
   // Header
   doc.setFontSize(22);
@@ -52,21 +49,17 @@ const generatePdfReceipt = (donation: Donation) => {
   doc.setFont("helvetica", "normal");
   doc.text("Jeevan Suraksha Foundation", 105, 30, { align: "center" });
 
-  // Donation Details
-  doc.autoTable({
+  // ✅ Step 3: autoTable function ko direct call karein aur 'doc' object pass karein
+  autoTable(doc, {
     startY: 40,
     theme: "grid",
     head: [["Field", "Details"]],
     body: [
       ["Receipt No:", donation.receiptNo || "N/A"],
-      [
-        "Date of Donation:",
-        format(new Date(donation.createdAt), "dd MMM, yyyy"),
-      ],
+      ["Date of Donation:", format(new Date(donation.createdAt), "dd MMM, yyyy")],
       ["Donor Name:", donation.member.fullName],
       ["Donor Email:", donation.member.email],
       ["Transaction ID:", donation.transactionId],
-      // ✅ FIX: Currency symbol ko template literal ke andar rakha
       ["Donation Amount:", `₹ ${donation.amount.toFixed(2)}`],
       ["Payment Status:", donation.status],
     ],
@@ -75,6 +68,7 @@ const generatePdfReceipt = (donation: Donation) => {
   });
 
   // Footer
+  // 'any' type ka istemal karna pad sakta hai kyunki 'lastAutoTable' dynamically add hota hai
   const finalY = (doc as any).lastAutoTable.finalY || 100;
   doc.setFontSize(10);
   doc.text(
@@ -100,11 +94,7 @@ export default function DonationReceiptPage() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "SUCCESS":
-        return (
-          <Badge className="bg-green-600 text-white hover:bg-green-700">
-            Success
-          </Badge>
-        );
+        return <Badge className="bg-green-600 text-white hover:bg-green-700">Success</Badge>;
       case "PENDING":
         return <Badge variant="secondary">Pending</Badge>;
       case "FAILED":
@@ -127,9 +117,7 @@ export default function DonationReceiptPage() {
       <div className="text-center p-12 bg-red-50 text-red-700 rounded-lg border border-red-200">
         <AlertCircle className="mx-auto h-12 w-12" />
         <h3 className="mt-4 text-xl font-semibold">Failed to Load Donations</h3>
-        <p className="mt-2 text-sm">
-          {(error as string) || "An unknown error occurred."}
-        </p>
+        <p className="mt-2 text-sm">{(error as string) || "An unknown error occurred."}</p>
       </div>
     );
   }
@@ -147,7 +135,7 @@ export default function DonationReceiptPage() {
         transition={{ duration: 0.5 }}
         className="mt-8 bg-white p-4 sm:p-6 rounded-xl shadow-lg border"
       >
-        {history.length > 0 ? (
+        {history && history.length > 0 ? (
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
@@ -160,19 +148,11 @@ export default function DonationReceiptPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {/* ✅ FIX: TypeScript ko bataya ki 'history' Donation[] type ka hai */}
                 {(history as Donation[]).map((donation) => (
                   <TableRow key={donation._id}>
-                    <TableCell>
-                      {format(new Date(donation.createdAt), "dd MMM, yyyy")}
-                    </TableCell>
-                    <TableCell className="font-medium">
-                      {donation.receiptNo || "N/A"}
-                    </TableCell>
-                    {/* ✅ FIX: Currency symbol ka syntax theek kiya */}
-                    <TableCell className="text-right font-semibold">
-                      ₹{donation.amount.toFixed(2)}
-                    </TableCell>
+                    <TableCell>{format(new Date(donation.createdAt), "dd MMM, yyyy")}</TableCell>
+                    <TableCell className="font-medium">{donation.receiptNo || "N/A"}</TableCell>
+                    <TableCell className="text-right font-semibold">₹{donation.amount.toFixed(2)}</TableCell>
                     <TableCell>{getStatusBadge(donation.status)}</TableCell>
                     <TableCell className="text-center">
                       <Button
@@ -192,9 +172,7 @@ export default function DonationReceiptPage() {
           </div>
         ) : (
           <div className="text-center py-16">
-            <h3 className="text-xl font-semibold text-gray-700">
-              No Donations Found
-            </h3>
+            <h3 className="text-xl font-semibold text-gray-700">No Donations Found</h3>
             <p className="mt-2 text-gray-500">
               Your donation history will appear here once you make a donation.
             </p>
