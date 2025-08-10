@@ -1,8 +1,7 @@
 import { Suspense } from "react";
 import { Loader2 } from "lucide-react";
-import RegistrationStatusClient from "./registration-status-client"; // Nayi file ko import karein
+import RegistrationStatusClient from "./registration-status-client"; 
 
-// Yeh ek simple loading component hai jo tab tak dikhega jab tak main component load na ho.
 const Fallback = () => (
   <div className="min-h-screen w-full bg-slate-100 flex items-center justify-center">
     <div className="flex flex-col items-center gap-4 text-center">
