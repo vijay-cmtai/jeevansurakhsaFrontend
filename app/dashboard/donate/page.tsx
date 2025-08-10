@@ -6,7 +6,13 @@ import Image from "next/image";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useForm, SubmitHandler } from "react-hook-form";
+import {
+  useForm,
+  SubmitHandler,
+  Path,
+  UseFormRegister,
+  FieldValues,
+} from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/lib/redux/store";
 import { getMemberProfile } from "@/lib/redux/features/auth/authSlice";
@@ -16,15 +22,9 @@ import { Loader2, ArrowLeft } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import Script from "next/script";
 
-// Cashfree SDK type definition - Correct v3 implementation
-declare const Cashfree: (options: { mode: string }) => {
-  checkout: (options: {
-    paymentSessionId: string;
-    redirectTarget?: string;
-  }) => Promise<any>;
-};
+declare const Cashfree: any;
 
-// Define the shape of our form data
+// The shape of our form data
 type FormData = {
   name: string;
   mobile: string;
@@ -32,8 +32,21 @@ type FormData = {
   panNumber?: string;
 };
 
-// A helper component for input fields
-const InputField = ({ label, name, register, errors, ...props }: any) => (
+// A generic, type-safe InputField component
+interface InputFieldProps<T extends FieldValues> {
+  label: string;
+  name: Path<T>;
+  register: UseFormRegister<T>;
+  errors: { [key: string]: any };
+  [key: string]: any;
+}
+const InputField = <T extends FieldValues>({
+  label,
+  name,
+  register,
+  errors,
+  ...props
+}: InputFieldProps<T>) => (
   <div className="space-y-1.5 text-left">
     <Label htmlFor={name} className="text-sm font-medium text-gray-500">
       {label}
@@ -74,85 +87,57 @@ export default function MemberDonatePage() {
       dispatch(getMemberProfile());
     }
   }, [dispatch, userInfo]);
-
   useEffect(() => {
     if (userInfo) {
-      reset({
-        name: userInfo.fullName,
-        mobile: userInfo.phone,
-      });
+      reset({ name: userInfo.fullName, mobile: userInfo.phone });
     }
   }, [userInfo, reset]);
 
-  // Function to handle Cashfree checkout - CORRECTED VERSION
-  const handleCashfreeCheckout = async (paymentSessionId: string) => {
+  const handleCashfreeCheckout = async (
+    paymentSessionId: string,
+    orderId: string
+  ) => {
     try {
-      if (typeof Cashfree !== "undefined") {
-        console.log("Initializing Cashfree with session ID:", paymentSessionId);
-
-        // Initialize Cashfree with mode (sandbox for testing)
-        const cashfree = Cashfree({
-          mode: "sandbox", // Change to "production" for live environment
-        });
-
-        // Open checkout with modal popup
-        const result = await cashfree.checkout({
-          paymentSessionId: paymentSessionId,
-          redirectTarget: "_modal", // Opens as popup modal
-        });
-
-        console.log("Cashfree checkout result:", result);
-
-        // Handle the result (success/failure/close events)
-        if (result && result.paymentDetails) {
-          // Payment successful
-          toast({
-            title: "Payment Successful",
-            description: "Thank you for your donation!",
-          });
-
-          // Redirect to success page or refresh
-          router.push("/payment/success");
-        }
-      } else {
-        throw new Error("Cashfree SDK not loaded properly");
-      }
+      if (typeof Cashfree === "undefined")
+        throw new Error("Cashfree SDK not loaded.");
+      const cashfree = Cashfree({ mode: "sandbox" }); // Use "production" for live
+      await cashfree.checkout({ paymentSessionId, redirectTarget: "_modal" });
+      router.push(`/payment-status?order_id=${orderId}`);
     } catch (error) {
-      console.error("Cashfree checkout error:", error);
       toast({
         variant: "destructive",
-        title: "Payment Error",
-        description: "Failed to open payment gateway. Please try again.",
+        title: "Payment Gateway Error",
+        description: "Could not open payment window.",
       });
     }
   };
 
   const onSubmit: SubmitHandler<FormData> = async (data) => {
     try {
-      const resultAction = await dispatch(initiateMemberDonation(data));
-
+      const resultAction = await dispatch(
+        initiateMemberDonation({
+          amount: data.amount,
+          panNumber: data.panNumber,
+        })
+      );
       if (initiateMemberDonation.fulfilled.match(resultAction)) {
-        const { payment_session_id } = resultAction.payload;
-        console.log("Payment session ID received:", payment_session_id);
-
-        // Small delay to ensure SDK is ready
-        setTimeout(() => {
-          handleCashfreeCheckout(payment_session_id);
-        }, 200);
+        const { payment_session_id, order_id } = resultAction.payload;
+        await handleCashfreeCheckout(payment_session_id, order_id);
       } else {
+        // This will now show the specific error from the backend, like the missing phone number message
         toast({
           variant: "destructive",
-          title: "Payment Error",
+          title: "Initiation Failed",
           description:
-            (donationError as string) || "Failed to initiate donation.",
+            (resultAction.payload as string) ||
+            "Could not start the donation process.",
         });
       }
     } catch (error) {
-      console.error("Donation submission error:", error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Something went wrong. Please try again.",
+        description: "An unexpected error occurred.",
       });
     }
   };
@@ -167,69 +152,37 @@ export default function MemberDonatePage() {
 
   return (
     <>
-      {/* Cashfree SDK Script - CORRECTED URL */}
       <Script
         src="https://sdk.cashfree.com/js/v3/cashfree.js"
-        strategy="afterInteractive" // Load immediately after page is interactive
-        onLoad={() => {
-          console.log("Cashfree SDK loaded successfully");
-
-          // Test if Cashfree is available
-          if (typeof Cashfree !== "undefined") {
-            console.log("✅ Cashfree SDK is ready to use");
-
-            // Test initialization
-            try {
-              const testCashfree = Cashfree({ mode: "sandbox" });
-              console.log(
-                "✅ Cashfree initialization test successful:",
-                testCashfree
-              );
-            } catch (e) {
-              console.error("❌ Cashfree initialization test failed:", e);
-            }
-          } else {
-            console.error("❌ Cashfree SDK not available after load");
-          }
-        }}
-        onError={(e) => {
-          console.error("❌ Failed to load Cashfree SDK:", e);
-          toast({
-            variant: "destructive",
-            title: "Error",
-            description:
-              "Failed to load payment gateway. Please refresh the page.",
-          });
-        }}
+        strategy="lazyOnload"
       />
-
-      <div className="min-h-screen w-full bg-[#34495e] flex flex-col items-center justify-center p-4">
+      <div className="min-h-screen w-full bg-slate-800 flex items-center justify-center p-4">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          className="relative w-full max-w-md bg-[#f4f7f6] rounded-xl shadow-2xl pt-14 pb-8 px-8"
+          className="relative w-full max-w-md bg-slate-50 rounded-xl shadow-2xl pt-16 pb-8 px-8"
         >
           <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2">
-            <div className="w-20 h-20 rounded-full bg-white p-2 shadow-lg flex items-center justify-center">
+            <div className="w-24 h-24 rounded-full bg-white p-2 shadow-lg flex items-center justify-center">
               <Image
                 src="https://jeevansuraksha.org/wp-content/uploads/2025/04/logo.webp"
                 alt="Logo"
-                width={64}
-                height={64}
+                width={80}
+                height={80}
                 className="rounded-full"
               />
             </div>
           </div>
-
-          <div className="text-center mb-6">
-            <h2 className="text-xl font-bold text-gray-800">Member Donation</h2>
+          <div className="text-center mb-8">
+            <h2 className="text-2xl font-bold text-gray-800">
+              Member Donation
+            </h2>
             <p className="text-sm text-gray-500">
               Thank you for your support, {userInfo.fullName}!
             </p>
           </div>
-
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <InputField
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+            <InputField<FormData>
               label="Name"
               name="name"
               register={register}
@@ -237,7 +190,7 @@ export default function MemberDonatePage() {
               readOnly
               disabled
             />
-            <InputField
+            <InputField<FormData>
               label="Mobile Number"
               name="mobile"
               type="tel"
@@ -246,35 +199,31 @@ export default function MemberDonatePage() {
               readOnly
               disabled
             />
-            <InputField
-              label="Enter Amount"
+            <InputField<FormData>
+              label="Enter Amount (INR)"
               name="amount"
               placeholder="e.g., 500"
               type="number"
               register={register}
               errors={errors}
-              required
             />
-
-            <div className="text-center pt-3 mt-4 border-t">
-              <p className="font-bold text-sm text-gray-700">
-                Tax Deduction (Optional)
+            <div className="text-center pt-4 mt-4 border-t">
+              <p className="font-semibold text-sm text-gray-600">
+                For Tax Deduction (Optional)
               </p>
             </div>
-
-            <InputField
+            <InputField<FormData>
               label="PAN No."
               name="panNumber"
-              placeholder="Enter Pan No (Optional)"
+              placeholder="Enter PAN No. to claim tax benefits"
               register={register}
               errors={errors}
             />
-
             <div className="pt-4 space-y-3">
               <Button
                 type="submit"
                 disabled={initiateStatus === "loading"}
-                className="w-full h-11 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-md"
+                className="w-full h-12 bg-green-600 hover:bg-green-700 text-white font-bold text-lg rounded-md"
               >
                 {initiateStatus === "loading" ? (
                   <Loader2 className="animate-spin" />
@@ -284,9 +233,9 @@ export default function MemberDonatePage() {
               </Button>
               <Button
                 type="button"
-                variant="outline"
+                variant="ghost"
                 onClick={() => router.back()}
-                className="w-full h-11 border-gray-300"
+                className="w-full h-11"
               >
                 <ArrowLeft className="mr-2 h-4 w-4" /> Go Back
               </Button>
