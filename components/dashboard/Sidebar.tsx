@@ -20,11 +20,7 @@ import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 
 const sidebarLinks = [
-  {
-    label: "Join Community",
-    icon: UserPlus,
-    href: "/dashboard/apply-membership",
-  },
+ 
   {
     label: "Membership Status",
     icon: BarChart,
