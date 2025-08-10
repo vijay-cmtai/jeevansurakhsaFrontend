@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios"; // Or your configured axiosInstance
+import axiosInstance from "@/lib/axios"; // Using your globally configured axios instance
 
-// Data types
+// Interfaces for type safety
 interface Donation {
   _id: string;
   amount: number;
@@ -28,7 +28,7 @@ const initialState: DonationState = {
   error: null,
 };
 
-// Async Thunks
+// Async Thunks that handle API communication
 export const initiateMemberDonation = createAsyncThunk(
   "memberDonation/initiate",
   async (
@@ -36,11 +36,15 @@ export const initiateMemberDonation = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const { data } = await axios.post("/api/member-donations", donationData);
+      const { data } = await axiosInstance.post(
+        "/api/member-donations",
+        donationData
+      );
       return data;
     } catch (error: any) {
+      // This will now catch the "Phone number is missing" error and pass it to the component
       return rejectWithValue(
-        error.response?.data?.message || "Failed to start donation."
+        error.response?.data?.message || "Failed to start donation process."
       );
     }
   }
@@ -49,13 +53,14 @@ export const verifyMemberPayment = createAsyncThunk(
   "memberDonation/verify",
   async (order_id: string, { rejectWithValue }) => {
     try {
-      const { data } = await axios.post("/api/member-donations/verify", {
-        order_id,
-      });
+      const { data } = await axiosInstance.post(
+        "/api/member-donations/verify",
+        { order_id }
+      );
       return data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Verification failed."
+        error.response?.data?.message || "Payment verification failed."
       );
     }
   }
@@ -64,17 +69,19 @@ export const fetchMyDonationHistory = createAsyncThunk(
   "memberDonation/fetchHistory",
   async (_, { rejectWithValue }) => {
     try {
-      const { data } = await axios.get("/api/member-donations/my-history");
+      const { data } = await axiosInstance.get(
+        "/api/member-donations/my-history"
+      );
       return data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Could not fetch history."
+        error.response?.data?.message || "Could not fetch donation history."
       );
     }
   }
 );
 
-// Slice
+// The Redux Slice
 const memberDonationSlice = createSlice({
   name: "memberDonation",
   initialState,
@@ -88,8 +95,10 @@ const memberDonationSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      // Cases for initiating a donation
       .addCase(initiateMemberDonation.pending, (state) => {
         state.initiateStatus = "loading";
+        state.error = null;
       })
       .addCase(initiateMemberDonation.fulfilled, (state) => {
         state.initiateStatus = "succeeded";
@@ -98,6 +107,7 @@ const memberDonationSlice = createSlice({
         state.initiateStatus = "failed";
         state.error = action.payload as string;
       })
+      // Cases for verifying payment
       .addCase(verifyMemberPayment.pending, (state) => {
         state.verifyStatus = "loading";
       })
@@ -109,6 +119,7 @@ const memberDonationSlice = createSlice({
         state.verifyStatus = "failed";
         state.error = action.payload as string;
       })
+      // Cases for fetching history
       .addCase(fetchMyDonationHistory.pending, (state) => {
         state.historyStatus = "loading";
       })
