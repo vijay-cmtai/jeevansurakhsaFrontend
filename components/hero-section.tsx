@@ -2,30 +2,27 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Button } from "@/components/ui/button"; // Assuming you use shadcn/ui
+import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
+import { useLanguage } from "@/context/LanguageContext"; 
 
-// Data extracted directly from the provided HTML inspect code
 const slides = [
   {
     id: 1,
-    title: "Jeevan Suraksha Social Security Collective",
-    subtitle:
-      "Jeevan Suraksha Social Security Collective, an initiative of Health Guard Foundation, is a community-driven initiative designed to provide financial support to families during their most challenging times.",
+    titleKey: "hero.title", 
+    subtitleKey: "hero.subtitle", 
     image:
       "https://jeevansuraksha.org/wp-content/uploads/slider/cache/1c1e1b2c2a9c924e80338d69bb51656d/10-scaled.jpg",
   },
   {
     id: 2,
-    title: "Jeevan Suraksha Social Security Collective",
-    subtitle:
-      "Jeevan Suraksha Social Security Collective, an initiative of Health Guard Foundation, is a community-driven initiative designed to provide financial support to families during their most challenging times.",
+    titleKey: "hero.title",
+    subtitleKey: "hero.subtitle",
     image:
       "https://jeevansuraksha.org/wp-content/uploads/slider/cache/3f9b264077696e3329e2f558c2dab81a/home-1_slider-2_2-11.jpg",
   },
 ];
 
-// Animation variants for the sliding effect
 const slideVariants = {
   enter: (direction: number) => ({
     x: direction > 0 ? "100%" : "-100%",
@@ -43,7 +40,6 @@ const slideVariants = {
   }),
 };
 
-// Animation variants for the text content
 const textVariants = {
   initial: { opacity: 0, y: 30 },
   animate: { opacity: 1, y: 0 },
@@ -51,6 +47,7 @@ const textVariants = {
 };
 
 export function HeroSection() {
+  const { t } = useLanguage(); 
   const [currentSlide, setCurrentSlide] = useState(0);
   const [direction, setDirection] = useState(1);
 
@@ -69,15 +66,12 @@ export function HeroSection() {
     setCurrentSlide(slideIndex);
   };
 
-  // Autoplay functionality, as seen in the original slider (8-second interval)
   useEffect(() => {
     const timer = setInterval(nextSlide, 8000);
     return () => clearInterval(timer);
   }, [currentSlide]);
 
   return (
-    // The original slider has a fixed height of 600px on desktop.
-    // This setup uses 600px as a base and expands to screen height on larger devices.
     <section className="relative h-[600px] md:h-screen w-full flex items-center justify-center overflow-hidden">
       <AnimatePresence initial={false} custom={direction}>
         <motion.div
@@ -96,10 +90,8 @@ export function HeroSection() {
         />
       </AnimatePresence>
 
-      {/* Adding a subtle overlay for better text readability */}
       <div className="absolute inset-0 bg-black/40" />
 
-      {/* Text Content Container */}
       <div className="relative z-10 text-center text-white px-4">
         <AnimatePresence mode="wait">
           <motion.div
@@ -115,19 +107,21 @@ export function HeroSection() {
               className="text-4xl md:text-6xl font-bold leading-tight drop-shadow-lg"
               style={{ fontFamily: "Quicksand, sans-serif" }}
             >
-              {slides[currentSlide].title}
+              {/* Step 3: Hardcoded text ko 't' function se replace karein */}
+              {t(slides[currentSlide].titleKey)}
             </h1>
             <p
               className="mt-4 text-base md:text-xl text-white/90 max-w-3xl mx-auto drop-shadow-md"
               style={{ fontFamily: "Open Sans, sans-serif" }}
             >
-              {slides[currentSlide].subtitle}
+              {/* Step 3: Hardcoded text ko 't' function se replace karein */}
+              {t(slides[currentSlide].subtitleKey)}
             </p>
           </motion.div>
         </AnimatePresence>
       </div>
 
-      {/* Left Arrow */}
+      {/* Left Arrow (No Change) */}
       <Button
         variant="ghost"
         size="icon"
@@ -138,7 +132,6 @@ export function HeroSection() {
         <ChevronLeft className="h-6 w-6" />
       </Button>
 
-      {/* Right Arrow */}
       <Button
         variant="ghost"
         size="icon"
@@ -149,7 +142,6 @@ export function HeroSection() {
         <ChevronRight className="h-6 w-6" />
       </Button>
 
-      {/* Bottom Dot Indicators */}
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex space-x-3 z-20">
         {slides.map((_, index) => (
           <button

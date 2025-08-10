@@ -3,8 +3,11 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { useLanguage } from "@/context/LanguageContext"; // Step 1: Hook import karein
 
 export function CTABanner() {
+  const { t } = useLanguage(); // Step 2: 't' function ko use karein
+
   return (
     <section className="relative py-24 px-4 bg-[#112A64] overflow-hidden">
       <div
@@ -24,7 +27,8 @@ export function CTABanner() {
           viewport={{ once: true }}
           className="text-4xl md:text-5xl font-bold text-white mb-4"
         >
-          Be Part of the Change
+          {/* Step 3: Text ko 't' function se replace karein */}
+          {t("cta.title")}
         </motion.h2>
 
         <motion.p
@@ -34,8 +38,7 @@ export function CTABanner() {
           viewport={{ once: true }}
           className="text-lg text-white/90 max-w-3xl mx-auto mb-10"
         >
-          Join us in building a collective that stands by you and your loved
-          ones. Secure your family's future today!
+          {t("cta.subtitle")}
         </motion.p>
 
         <motion.div
@@ -48,7 +51,7 @@ export function CTABanner() {
             asChild
             className="bg-white text-blue-800 hover:bg-gray-200 rounded-full px-10 py-4 font-bold text-sm tracking-widest transition-transform transform hover:scale-105"
           >
-            <Link href="/register">REGISTER NOW</Link>
+            <Link href="/register">{t("common.button.registerNow")}</Link>
           </Button>
         </motion.div>
       </div>

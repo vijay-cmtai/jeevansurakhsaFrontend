@@ -2,13 +2,17 @@
 
 import { motion } from "framer-motion";
 import { ArrowRight, CheckCircle } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext"; // Step 1: Hook import karein
 
 export function HowItWorksSection() {
+  const { t } = useLanguage(); // Step 2: 't' function ko use karein
+
+  // Step 3: Steps array ko 't' function se define karein
   const steps = [
-    "Pay registration fee ₹100 and renewal ₹100",
-    "Scheme starts with 1,000 members",
-    "Contributions only after a member passes (₹500 onwards)",
-    "Funds are disbursed directly to nominee",
+    t("howItWorks.step1"),
+    t("howItWorks.step2"),
+    t("howItWorks.step3"),
+    t("howItWorks.step4"),
   ];
 
   return (
@@ -21,11 +25,10 @@ export function HowItWorksSection() {
           viewport={{ once: true }}
           className="text-3xl md:text-4xl font-bold text-gray-900 text-center mb-12"
         >
-          How It Works?
+          {t("howItWorks.title")}
         </motion.h2>
 
         <div className="grid lg:grid-cols-2 gap-12 items-center">
-          {/* बाईं ओर का हिस्सा वैसा ही है */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -46,14 +49,13 @@ export function HowItWorksSection() {
               <div className="flex items-center space-x-3">
                 <CheckCircle className="h-6 w-6 text-white" />
                 <p className="text-white font-semibold">
-                  Jeevan Suraksha portal allows members to track contributions
-                  and payments.
+                  {t("howItWorks.portalInfo")}
                 </p>
               </div>
             </div>
 
             <p className="text-lg font-bold text-orange-600 mt-6">
-              Join today and be part of a community that cares!
+              {t("howItWorks.joinToday")}
             </p>
           </motion.div>
 

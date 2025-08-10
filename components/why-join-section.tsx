@@ -2,43 +2,44 @@
 
 import { motion } from "framer-motion";
 import Image from "next/image";
+import { useLanguage } from "@/context/LanguageContext"; // Step 1: Hook import karein
+
+// Step 3: Data ko translation keys ke saath define karein
+const featuresData = [
+  {
+    icon: "https://jeevansamarth.com/wp-content/uploads/2023/08/h15-i1.png",
+    titleKey: "whyJoin.feature1.title",
+    descriptionKey: "whyJoin.feature1.desc",
+  },
+  {
+    icon: "https://jeevansamarth.com/wp-content/uploads/2023/08/h15-i2.png",
+    titleKey: "whyJoin.feature2.title",
+    descriptionKey: "whyJoin.feature2.desc",
+  },
+  {
+    icon: "https://jeevansamarth.com/wp-content/uploads/2023/08/h15-i2.png",
+    titleKey: "whyJoin.feature3.title",
+    descriptionKey: "whyJoin.feature3.desc",
+  },
+  {
+    icon: "https://jeevansamarth.com/wp-content/uploads/2023/08/h15-i3.png",
+    titleKey: "whyJoin.feature4.title",
+    descriptionKey: "whyJoin.feature4.desc",
+  },
+  {
+    icon: "https://jeevansamarth.com/wp-content/uploads/2023/08/h15-i3.png",
+    titleKey: "whyJoin.feature5.title",
+    descriptionKey: "whyJoin.feature5.desc",
+  },
+  {
+    icon: "https://jeevansamarth.com/wp-content/uploads/2023/08/h15-i2.png",
+    titleKey: "whyJoin.feature6.title",
+    descriptionKey: "whyJoin.feature6.desc",
+  },
+];
 
 export function WhyJoinSection() {
-  const features = [
-    {
-      icon: "	https://jeevansamarth.com/wp-content/uploads/2023/08/h15-i1.png",
-      title: "Financial Security",
-      description:
-        "Ensure your family is protected in unforeseen circumstances.",
-    },
-    {
-      icon: "	https://jeevansamarth.com/wp-content/uploads/2023/08/h15-i2.png",
-      title: "Transparent Operations",
-      description: "No middlemen; direct transfers to the needy patient.",
-    },
-    {
-      icon: "https://jeevansamarth.com/wp-content/uploads/2023/08/h15-i2.png",
-      title: "Community Strength",
-      description:
-        "Be part of a network that supports each other in times of need.",
-    },
-    {
-      icon: "	https://jeevansamarth.com/wp-content/uploads/2023/08/h15-i3.png",
-      title: "Quick Disbursement",
-      description: "Funds are distributed promptly after verification.",
-    },
-    {
-      icon: "		https://jeevansamarth.com/wp-content/uploads/2023/08/h15-i3.png",
-      title: "Affordable Model",
-      description:
-        "Start small, contribute less over time, and benefit from collective security.",
-    },
-    {
-      icon: "https://jeevansamarth.com/wp-content/uploads/2023/08/h15-i2.png",
-      title: "Membership Growth Benefits Everyone",
-      description: "More members mean lower contributions per case.",
-    },
-  ];
+  const { t } = useLanguage(); // Step 2: 't' function ko use karein
 
   return (
     <section className="py-20 bg-white">
@@ -51,7 +52,7 @@ export function WhyJoinSection() {
           className="text-center mb-12"
         >
           <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-10">
-            Why Join Jeevan Suraksha Social Security Collective?
+            {t("whyJoin.title")}
           </h2>
           <Image
             src="https://jeevansamarth.com/wp-content/uploads/2025/03/ss.png"
@@ -62,7 +63,7 @@ export function WhyJoinSection() {
           />
         </motion.div>
         <div className="grid md:grid-cols-2 gap-x-12 gap-y-8">
-          {features.map((feature, index) => (
+          {featuresData.map((feature, index) => (
             <motion.div
               key={index}
               initial={{ opacity: 0, x: -20 }}
@@ -77,17 +78,17 @@ export function WhyJoinSection() {
               <div className="flex-shrink-0">
                 <Image
                   src={feature.icon}
-                  alt={`${feature.title} icon`}
+                  alt={t(feature.titleKey)} // Alt text ko bhi translate karein
                   width={60}
                   height={60}
                 />
               </div>
               <div>
                 <h3 className="text-lg font-bold text-gray-800">
-                  {feature.title}
+                  {t(feature.titleKey)}
                 </h3>
                 <p className="text-sm text-gray-600 mt-1">
-                  {feature.description}
+                  {t(feature.descriptionKey)}
                 </p>
               </div>
             </motion.div>

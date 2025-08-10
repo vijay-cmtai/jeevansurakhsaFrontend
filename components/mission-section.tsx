@@ -1,8 +1,11 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useLanguage } from "@/context/LanguageContext"; // Step 1: Hook import karein
 
 export function MissionSection() {
+  const { t } = useLanguage(); // Step 2: 't' function ko use karein
+
   return (
     <section className="py-20 bg-white">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -13,7 +16,8 @@ export function MissionSection() {
           viewport={{ once: true }}
           className="text-3xl md:text-4xl font-bold text-gray-900 mb-8"
         >
-          Our Mission
+          {/* Step 3: Text ko 't' function se replace karein */}
+          {t("mission.title")}
         </motion.h2>
 
         <motion.div
@@ -37,9 +41,8 @@ export function MissionSection() {
           viewport={{ once: true }}
           className="text-xl md:text-2xl text-gray-700 leading-relaxed max-w-3xl mx-auto"
         >
-          To build a caring and supportive community where members stand
-          together to provide financial security to beneficiaries through small
-          contributions.
+          {/* Step 3: Text ko 't' function se replace karein */}
+          {t("mission.text")}
         </motion.p>
       </div>
     </section>

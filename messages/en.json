@@ -1,0 +1,72 @@
+{
+  "navbar": {
+    "home": "Home",
+    "whoWeAre": "Who We Are",
+    "ourTeam": "Our Team",
+    "faqs": "FAQ'S",
+    "ourCollectives": "Our Collectives",
+    "itGovtEmployees": "IT & Govt. Employees Collective",
+    "privateEmployees": "Private Employees & Business Owners",
+    "reportClaim": "Report Claim",
+    "donate": "Donate Us"
+  },
+  "hero": {
+    "title": "Secure Your Future with Jeevan Suraksha",
+    "subtitle": "Join our community-driven insurance platform",
+    "description": "Transparent, affordable, and reliable insurance solutions for everyone",
+    "joinNow": "Join Now",
+    "learnMore": "Learn More"
+  },
+  "about": {
+    "title": "About Jeevan Suraksha",
+    "subtitle": "Your Trusted Insurance Partner",
+    "description": "We provide comprehensive insurance solutions with transparency and trust at the core of everything we do."
+  },
+  "mission": {
+    "title": "Our Mission",
+    "subtitle": "Empowering Communities Through Insurance",
+    "description": "To make insurance accessible, transparent, and community-driven for everyone."
+  },
+  "howItWorks": {
+    "title": "How It Works",
+    "subtitle": "Simple Steps to Get Started",
+    "step1": "Register",
+    "step2": "Choose Plan",
+    "step3": "Make Payment",
+    "step4": "Get Protected"
+  },
+  "collectives": {
+    "title": "Our Collectives",
+    "subtitle": "Choose Your Community",
+    "itEmployees": "IT & Government Employees",
+    "privateEmployees": "Private Employees & Business Owners"
+  },
+  "contributionTable": {
+    "title": "Contribution Plans",
+    "subtitle": "Transparent Pricing",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "coverage": "Coverage Amount"
+  },
+  "whyJoin": {
+    "title": "Why Join Jeevan Suraksha?",
+    "subtitle": "Benefits of Our Platform",
+    "transparency": "Full Transparency",
+    "community": "Community Driven",
+    "affordable": "Affordable Plans",
+    "support": "24/7 Support"
+  },
+  "cta": {
+    "title": "Ready to Get Started?",
+    "subtitle": "Join thousands of satisfied members",
+    "description": "Start your journey towards financial security today",
+    "joinNow": "Join Now",
+    "contactUs": "Contact Us"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "viewMore": "View More",
+    "getStarted": "Get Started"
+  }
+}

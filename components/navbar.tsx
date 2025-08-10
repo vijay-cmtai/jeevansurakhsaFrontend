@@ -2,263 +2,256 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import Image from "next/image";
-import { Button } from "@/components/ui/button";
-import { Menu, X, ChevronDown } from "lucide-react";
+import { Menu, X, ChevronDown, UserPlus, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
+import { useLanguage, LanguageCode } from "@/context/LanguageContext";
 
-// Flag Icon Components
-const IndianFlagIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 900 600"
-    width="24"
-    height="16"
-  >
-    <rect width="900" height="600" fill="#f93" />
-    <rect width="900" height="200" y="200" fill="#fff" />
-    <rect width="900" height="200" y="400" fill="#128807" />
-    <g transform="translate(450 300)">
-      <circle r="90" fill="#000080" />
-      <circle r="80" fill="#fff" />
-      <circle r="35" fill="#000080" />
-      <g id="d">
-        <g id="c">
-          <g id="b">
-            <g id="a" fill="#000080">
-              <circle r="9" transform="rotate(7.5 -90 0)" />
-              <path d="M0 17.5l-3.5 17.5h7z" />
-            </g>
-            <use href="#a" transform="rotate(15)" />
-          </g>
-          <use href="#b" transform="rotate(30)" />
-        </g>
-        <use href="#c" transform="rotate(60)" />
-      </g>
-      <use href="#d" transform="rotate(120)" />
-      <use href="#d" transform="rotate(240)" />
-    </g>
-  </svg>
-);
+// --- Reusable Language Switcher Component ---
+type LanguageOption = { code: LanguageCode; nameKey: string; flag: string };
+const languages: LanguageOption[] = [
+  { code: "en", nameKey: "language.english", flag: "🇬🇧" },
+  { code: "te", nameKey: "language.telugu", flag: "🇮🇳" },
+];
 
-const UKFlagIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 60 30"
-    width="24"
-    height="16"
-  >
-    <clipPath id="t">
-      <path d="M0 0v30h60V0z" />
-    </clipPath>
-    <path d="M0 0v30h60V0z" fill="#00247d" />
-    <path
-      d="M0 0l60 30m0-30L0 30"
-      stroke="#fff"
-      strokeWidth="6"
-      clipPath="url(#t)"
-    />
-    <path
-      d="M0 0l60 30m0-30L0 30"
-      stroke="#cf142b"
-      strokeWidth="4"
-      clipPath="url(#t)"
-    />
-    <path d="M30 0v30M0 15h60" stroke="#fff" strokeWidth="10" />
-    <path d="M30 0v30M0 15h60" stroke="#cf142b" strokeWidth="6" />
-  </svg>
-);
+const LanguageSwitcher = () => {
+  const { language, setLanguage, t } = useLanguage();
+  const selectedLanguage =
+    languages.find((lang) => lang.code === language) || languages[0];
 
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="outline"
+          className="flex items-center gap-x-2 w-full sm:w-[150px] justify-between h-10 rounded-md border-gray-300 bg-gray-50 text-gray-700 hover:bg-gray-100 px-3"
+        >
+          <div className="flex items-center gap-x-2">
+            <span className="text-xl">{selectedLanguage.flag}</span>
+            <span className="font-semibold text-sm">
+              {t(selectedLanguage.nameKey)}
+            </span>
+          </div>
+          <ChevronDown className="h-4 w-4 opacity-50" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-[150px]">
+        {languages.map((lang) => (
+          <DropdownMenuItem
+            key={lang.code}
+            onSelect={() => setLanguage(lang.code)}
+            className="flex items-center gap-x-2 cursor-pointer"
+          >
+            <span className="text-lg">{lang.flag}</span>
+            <span className="font-semibold text-sm">{t(lang.nameKey)}</span>
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+};
+
+// --- Main Navbar Component ---
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [activeLink, setActiveLink] = useState("Home");
+  const pathname = usePathname();
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
-
-  // Language Switcher State
-  const languages = [
-    { code: "en", name: "English", Icon: UKFlagIcon },
-    { code: "te", name: "Telugu", Icon: IndianFlagIcon },
-  ];
-  const [selectedLanguage, setSelectedLanguage] = useState(languages[0]); // English default
-  const [isLangDropdownOpen, setIsLangDropdownOpen] = useState(false);
+  const { t } = useLanguage();
 
   useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 48);
+    const handleScroll = () => setIsScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const navLinks = [
-    { href: "/", label: "Home" },
-    { href: "/who-we-are", label: "Who We Are" },
-    { href: "/our-team", label: "Our Team" },
-    { href: "/faqs", label: "FAQ'S" },
+    { href: "/", label: t("navbar.home") },
+    { href: "/who-we-are", label: t("navbar.whoWeAre") },
+    { href: "/our-team", label: t("navbar.ourTeam") },
+    { href: "/faqs", label: t("navbar.faqs") },
     {
-      href: "/our-collectives",
-      label: "Our Collectives",
+      href: "#",
+      label: t("navbar.collectives"),
       dropdown: [
         {
           href: "/it-govt-employees-collective",
-          label: "IT & Govt. Employees Collective",
+          label: t("navbar.itGovtCollective"),
         },
         {
           href: "/private-employees-business-owners",
-          label: "Private Employees & Business Owners",
+          label: t("navbar.privateBusinessCollective"),
         },
       ],
     },
-    { href: "/report-claim", label: "Report Claim" },
-    { href: "/donate", label: "Donate Us" },
+    { href: "/report-claim", label: t("navbar.reportClaim") },
+    { href: "/donate", label: t("navbar.donate") },
   ];
 
   const dropdownVariants = {
-    hidden: { opacity: 0, y: 10, scale: 0.98, transition: { duration: 0.2 } },
-    visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.2 } },
+    hidden: { opacity: 0, y: 10 },
+    visible: { opacity: 1, y: 0 },
   };
 
   return (
-    // --- YAHAN BADLAV KIYA GAYA HAI ---
-    <motion.nav
-      className={`sticky top-0 z-50 w-full bg-white transition-shadow duration-300 ${
-        isScrolled ? "shadow-md" : ""
-      }`}
+    <header
+      className={cn(
+        "sticky top-0 z-50 bg-white w-full transition-shadow duration-300",
+        isScrolled && "shadow-md"
+      )}
     >
       <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-24">
-          {/* Logo */}
+        {/* Mobile-Specific Header Section (This remains as is) */}
+        <div className="lg:hidden py-3 border-b">
+          <div className="flex justify-between items-center mb-4">
+            <Button
+              variant="outline"
+              className="rounded-full border-[#55ACEE] text-[#55ACEE] h-10 px-4"
+            >
+              Translate This Website
+            </Button>
+            <LanguageSwitcher />
+          </div>
+          <div className="flex items-center gap-3">
+            <Button
+              asChild
+              className="flex-1 bg-[#55ACEE] hover:bg-[#4A99D4] rounded-full text-sm font-semibold h-11 justify-center"
+            >
+              <Link href="/register">{t("common.button.applyMembership")}</Link>
+            </Button>
+            <Button
+              asChild
+              className="flex-1 bg-[#55ACEE] hover:bg-[#4A99D4] rounded-full text-sm font-semibold h-11 justify-center"
+            >
+              <Link href="/login">
+                {t("common.button.login")}{" "}
+                <ChevronRight size={16} className="ml-1" />
+              </Link>
+            </Button>
+          </div>
+        </div>
+
+        {/* Main Navbar */}
+        <div className="flex justify-between items-center h-20">
           <Link href="/" className="flex-shrink-0">
             <Image
-              src="https://jeevansuraksha.org/wp-content/uploads/2025/04/logo-1024x336.webp"
+              src="https://jeevansuraksha.org/wp-content/uploads/2025/04/logo.webp"
               alt="Jeevan Suraksha Logo"
-              width={1024}
-              height={336}
-              className="h-12 w-auto"
+              width={180}
+              height={60}
               priority
             />
           </Link>
 
-          {/* Right side items container */}
-          <div className="flex items-center gap-x-6">
-            {/* Desktop Navigation */}
-            <div className="hidden lg:flex items-center gap-x-8">
-              {navLinks.map((link) => (
-                <div
-                  key={link.label}
-                  className="relative"
-                  onMouseEnter={() =>
-                    link.dropdown && setOpenDropdown(link.label)
-                  }
-                  onMouseLeave={() => link.dropdown && setOpenDropdown(null)}
-                >
-                  <Link
-                    href={link.href}
-                    onClick={() => setActiveLink(link.label)}
-                    className={`flex items-center text-base font-bold transition-colors duration-200 ${
-                      activeLink === link.label
-                        ? "text-blue-500"
-                        : "text-gray-800 hover:text-blue-500"
-                    }`}
-                  >
-                    {link.label}
-                    {link.dropdown && (
-                      <ChevronDown
-                        size={16}
-                        className={`ml-1 text-gray-500 transition-transform duration-200 ${
-                          openDropdown === link.label ? "rotate-180" : ""
-                        }`}
-                      />
-                    )}
-                  </Link>
-                  <AnimatePresence>
-                    {link.dropdown && openDropdown === link.label && (
-                      <motion.div
-                        variants={dropdownVariants}
-                        initial="hidden"
-                        animate="visible"
-                        exit="hidden"
-                        className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-72 bg-white rounded-md shadow-lg border border-gray-200 z-50"
-                      >
-                        <div className="p-2">
-                          {link.dropdown.map((item) => (
-                            <Link
-                              key={item.href}
-                              href={item.href}
-                              className="block w-full text-left px-4 py-2.5 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-blue-600"
-                              onClick={() => setOpenDropdown(null)}
-                            >
-                              {item.label}
-                            </Link>
-                          ))}
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              ))}
-            </div>
-
-            {/* Language Switcher */}
-            <div className="hidden lg:flex relative">
-              <button
-                onClick={() => setIsLangDropdownOpen(!isLangDropdownOpen)}
-                className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-gray-100 transition-colors"
+          {/* Desktop Navigation Links */}
+          <nav className="hidden lg:flex items-center gap-x-6">
+            {" "}
+            {/* Changed gap-x-8 to gap-x-6 */}
+            {navLinks.map((link) => (
+              <div
+                key={link.label}
+                className="relative"
+                onMouseEnter={() =>
+                  link.dropdown && setOpenDropdown(link.label)
+                }
+                onMouseLeave={() => link.dropdown && setOpenDropdown(null)}
               >
-                <selectedLanguage.Icon />
-                <span className="font-semibold text-sm text-gray-700">
-                  {selectedLanguage.name}
-                </span>
-                <ChevronDown
-                  size={16}
-                  className={`text-gray-500 transition-transform duration-200 ${isLangDropdownOpen ? "rotate-180" : ""}`}
-                />
-              </button>
-              <AnimatePresence>
-                {isLangDropdownOpen && (
-                  <motion.div
-                    variants={dropdownVariants}
-                    initial="hidden"
-                    animate="visible"
-                    exit="hidden"
-                    className="absolute top-full right-0 mt-2 w-40 bg-white rounded-md shadow-lg border border-gray-200 z-50"
-                  >
-                    <div className="p-1">
-                      {languages
-                        .filter((lang) => lang.code !== selectedLanguage.code)
-                        .map((lang) => (
-                          <button
-                            key={lang.code}
-                            onClick={() => {
-                              setSelectedLanguage(lang);
-                              setIsLangDropdownOpen(false);
-                            }}
-                            className="w-full flex items-center gap-2 text-left px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100"
+                <Link
+                  href={link.href}
+                  className={cn(
+                    "flex items-center text-base font-bold transition-colors duration-200",
+                    pathname === link.href
+                      ? "text-blue-500"
+                      : "text-gray-800 hover:text-blue-500"
+                  )}
+                >
+                  {link.label}
+                  {link.dropdown && (
+                    <ChevronDown
+                      size={16}
+                      className={cn(
+                        "ml-1 text-gray-500 transition-transform duration-200",
+                        openDropdown === link.label && "rotate-180"
+                      )}
+                    />
+                  )}
+                </Link>
+                <AnimatePresence>
+                  {link.dropdown && openDropdown === link.label && (
+                    <motion.div
+                      variants={dropdownVariants}
+                      initial="hidden"
+                      animate="visible"
+                      exit="hidden"
+                      className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-72 bg-white rounded-md shadow-lg border z-50"
+                    >
+                      <div className="p-2">
+                        {link.dropdown.map((item) => (
+                          <Link
+                            key={item.href}
+                            href={item.href}
+                            className="block w-full text-left px-4 py-2.5 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-blue-600"
+                            onClick={() => setOpenDropdown(null)}
                           >
-                            <lang.Icon />
-                            {lang.name}
-                          </button>
+                            {item.label}
+                          </Link>
                         ))}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            ))}
+            {/* --- 🚨 CODE FIX: Language switcher added for desktop view --- */}
+            <LanguageSwitcher />
+          </nav>
 
-            {/* Mobile menu button */}
-            <button
-              onClick={() => setIsOpen(!isOpen)}
-              className="lg:hidden p-2 rounded-md text-gray-700"
-              aria-label="Toggle mobile menu"
-            >
-              {isOpen ? (
-                <X className="h-7 w-7" />
-              ) : (
-                <Menu className="h-7 w-7" />
-              )}
-            </button>
-          </div>
+          {/* Mobile Menu Icon */}
+          <button
+            onClick={() => setIsOpen(!isOpen)}
+            className="lg:hidden p-2 rounded-md bg-blue-500 text-white hover:bg-blue-600"
+            aria-label="Toggle mobile menu"
+          >
+            {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </button>
         </div>
       </div>
-    </motion.nav>
+
+      {/* Mobile Menu Dropdown */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="lg:hidden bg-white border-t"
+          >
+            <div className="p-4">
+              <nav className="space-y-2">
+                {navLinks.map((link) => (
+                  <Link
+                    key={link.label}
+                    href={link.href}
+                    className="block font-semibold text-gray-800 py-2.5 px-3 rounded-md hover:bg-gray-100"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+              </nav>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </header>
   );
 }

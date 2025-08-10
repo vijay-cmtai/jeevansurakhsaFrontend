@@ -1,66 +1,63 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image"; // Image component ko import karein
+import Image from "next/image";
 import { MapPin, Mail, Phone } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext"; // Step 1: Hook import karein
 
 export function Footer() {
+  const { t } = useLanguage(); // Step 2: 't' function ko use karein
+
   return (
     <footer className="bg-gray-900 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid md:grid-cols-3 gap-12">
           {/* Logo and About */}
           <div className="space-y-4">
-            {/* LOGO SECTION UPDATED */}
             <Link href="/" className="inline-block">
               <Image
-                src="https://jeevansuraksha.org/wp-content/uploads/2025/04/white-1024x336-1.webp" // Safed logo for dark background
+                src="https://jeevansuraksha.org/wp-content/uploads/2025/04/white-1024x336-1.webp"
                 alt="Jeevan Suraksha Logo"
-                width={180} // Size ko adjust karein
+                width={180}
                 height={60}
                 className="h-auto"
               />
             </Link>
+            {/* Step 3: Text ko 't' function se replace karein */}
             <p className="text-gray-400 leading-relaxed pt-2">
-              A community-driven initiative providing financial security through
-              collective support and mutual care during challenging times.
+              {t("footer.about")}
             </p>
           </div>
 
           {/* Contact Info */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold mb-4 text-gray-200 border-b border-gray-700 pb-2">
-              Contact Information
+              {t("footer.contactInfo")}
             </h3>
             <div className="space-y-4">
               <div className="flex items-start space-x-3">
                 <MapPin className="h-5 w-5 text-blue-400 mt-1 flex-shrink-0" />
-                <p className="text-gray-400">
-                  Health Guard Foundation
-                  <br />
-                  1-63, Amadabakula (Village),
-                  <br />
-                  Kothakota (Mandal), Wanaparty (District),
-                  <br />
-                  Telangana, India - 509381
+                {/* Address ko translate karein, line breaks preserve honge */}
+                <p className="text-gray-400 whitespace-pre-line">
+                  {t("footer.address")}
                 </p>
               </div>
               <div className="flex items-center space-x-3">
                 <Mail className="h-5 w-5 text-blue-400 flex-shrink-0" />
                 <a
-                  href="mailto:info@jeevansuraksha.org"
+                  href={`mailto:${t("topHeader.email")}`}
                   className="text-gray-400 hover:text-white transition-colors"
                 >
-                  info@jeevansuraksha.org
+                  {t("topHeader.email")}
                 </a>
               </div>
               <div className="flex items-center space-x-3">
                 <Phone className="h-5 w-5 text-blue-400 flex-shrink-0" />
                 <a
-                  href="tel:+917816058717"
+                  href={`tel:${t("topHeader.phone")}`}
                   className="text-gray-400 hover:text-white transition-colors"
                 >
-                  +91-78160 58717
+                  {t("topHeader.phone")}
                 </a>
               </div>
             </div>
@@ -69,56 +66,56 @@ export function Footer() {
           {/* Quick Links */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold mb-4 text-gray-200 border-b border-gray-700 pb-2">
-              Quick Links
+              {t("footer.quickLinks")}
             </h3>
             <div className="grid grid-cols-2 gap-2">
               <Link
                 href="/"
                 className="text-gray-400 hover:text-white transition-colors"
               >
-                Home
+                {t("footer.link.home")}
               </Link>
               <Link
                 href="/who-we-are"
                 className="text-gray-400 hover:text-white transition-colors"
               >
-                About Us
+                {t("footer.link.about")}
               </Link>
               <Link
                 href="/faqs"
                 className="text-gray-400 hover:text-white transition-colors"
               >
-                FAQ
+                {t("footer.link.faq")}
               </Link>
               <Link
                 href="/our-collectives"
                 className="text-gray-400 hover:text-white transition-colors"
               >
-                Collectives
+                {t("footer.link.collectives")}
               </Link>
               <Link
                 href="/contact"
                 className="text-gray-400 hover:text-white transition-colors"
               >
-                Contact
+                {t("footer.link.contact")}
               </Link>
               <Link
                 href="/terms"
                 className="text-gray-400 hover:text-white transition-colors"
               >
-                Terms
+                {t("footer.link.terms")}
               </Link>
               <Link
                 href="/privacy"
                 className="text-gray-400 hover:text-white transition-colors"
               >
-                Privacy
+                {t("footer.link.privacy")}
               </Link>
               <Link
                 href="/report-claim"
                 className="text-gray-400 hover:text-white transition-colors"
               >
-                Report Claim
+                {t("footer.link.reportClaim")}
               </Link>
             </div>
           </div>
@@ -126,8 +123,8 @@ export function Footer() {
 
         <div className="border-t border-gray-800 mt-12 pt-8 text-center text-sm">
           <p className="text-gray-400">
-            © {new Date().getFullYear()} Jeevan Suraksha Social Security
-            Collective. All rights reserved.
+            {/* Dynamic year ke saath copyright text */}
+            {t("footer.copyright", { year: new Date().getFullYear() })}
           </p>
         </div>
       </div>

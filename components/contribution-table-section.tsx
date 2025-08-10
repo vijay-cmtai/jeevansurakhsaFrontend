@@ -1,4 +1,5 @@
 "use client";
+
 import { motion } from "framer-motion";
 import {
   Table,
@@ -8,7 +9,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useLanguage } from "@/context/LanguageContext"; // Step 1: Hook import karein
+
 export function ContributionTableSection() {
+  const { t } = useLanguage(); // Step 2: 't' function ko use karein
+
+  // Table ka data (numbers) translate nahi hoga, isliye isse change nahi kiya
   const tableData = [
     { members: "1,000", contribution: "500", total: "500,000" },
     { members: "5,000", contribution: "300", total: "1,500,000" },
@@ -29,16 +35,15 @@ export function ContributionTableSection() {
           viewport={{ once: true }}
           className="text-center mb-12"
         >
+          {/* Step 3: Text ko 't' function se replace karein */}
           <h3 className="text-lg font-semibold text-blue-600 mb-2 tracking-wide">
-            Illustration Table
+            {t("contribution.table.illustration")}
           </h3>
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-            Contribution Calculation Based on Membership Growth
+            {t("contribution.table.title")}
           </h2>
           <p className="text-md text-gray-600 max-w-3xl mx-auto">
-            The total amount collected per case depends on the number of active
-            members contributing. Below is an estimate of how the per-member
-            contribution reduces as membership increases:
+            {t("contribution.table.subtitle")}
           </p>
         </motion.div>
 
@@ -53,13 +58,13 @@ export function ContributionTableSection() {
             <TableHeader>
               <TableRow className="bg-gray-50/70">
                 <TableHead className="px-6 py-4 font-semibold text-gray-600 uppercase text-xs tracking-wider">
-                  Total Members
+                  {t("contribution.table.header1")}
                 </TableHead>
                 <TableHead className="px-6 py-4 font-semibold text-gray-600 uppercase text-xs tracking-wider text-right">
-                  Contribution Per Member (₹)
+                  {t("contribution.table.header2")}
                 </TableHead>
                 <TableHead className="px-6 py-4 font-semibold text-gray-600 uppercase text-xs tracking-wider text-right">
-                  Total Collected Fund (₹)
+                  {t("contribution.table.header3")}
                 </TableHead>
               </TableRow>
             </TableHeader>

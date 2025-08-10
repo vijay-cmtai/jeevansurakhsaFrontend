@@ -9,7 +9,9 @@ import {
   UserPlus,
   HeartHandshake,
 } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
+// Social Icons...
 const FacebookIcon = () => (
   <svg
     className="w-4 h-4"
@@ -62,76 +64,71 @@ const LinkedinIcon = () => (
 );
 
 export function TopHeader() {
+  const { t } = useLanguage();
+
   return (
-    // Yeh component sirf desktop par dikhega (lg screen size se upar)
-    <div className="bg-[#212529] text-white hidden lg:block">
+    <div className="bg-[#212529] text-white">
       <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-12">
-        <div className="flex items-center gap-x-6">
-          {/* Social Icons */}
+        <div className="flex items-center gap-x-3 sm:gap-x-6">
           <div className="flex items-center gap-x-2">
             <a
               href="#"
               aria-label="Facebook"
-              className="w-8 h-8 rounded-full bg-[#55ACEE] flex items-center justify-center hover:opacity-80 transition-opacity"
+              className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#55ACEE] flex items-center justify-center hover:opacity-80 transition-opacity"
             >
               <FacebookIcon />
             </a>
             <a
               href="#"
               aria-label="Twitter"
-              className="w-8 h-8 rounded-full bg-[#55ACEE] flex items-center justify-center hover:opacity-80 transition-opacity"
+              className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#55ACEE] flex items-center justify-center hover:opacity-80 transition-opacity"
             >
               <TwitterIcon />
             </a>
             <a
               href="#"
               aria-label="YouTube"
-              className="w-8 h-8 rounded-full bg-[#55ACEE] flex items-center justify-center hover:opacity-80 transition-opacity"
+              className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#55ACEE] flex items-center justify-center hover:opacity-80 transition-opacity"
             >
               <YoutubeIcon />
             </a>
             <a
               href="#"
               aria-label="Instagram"
-              className="w-8 h-8 rounded-full bg-[#55ACEE] flex items-center justify-center hover:opacity-80 transition-opacity"
+              className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#55ACEE] flex items-center justify-center hover:opacity-80 transition-opacity"
             >
               <InstagramIcon />
             </a>
             <a
               href="#"
               aria-label="LinkedIn"
-              className="w-8 h-8 rounded-full bg-[#55ACEE] flex items-center justify-center hover:opacity-80 transition-opacity"
+              className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#55ACEE] flex items-center justify-center hover:opacity-80 transition-opacity"
             >
               <LinkedinIcon />
             </a>
           </div>
-          {/* Contact Info */}
-          <div className="flex items-center gap-x-6 text-sm font-medium">
+
+          {/* --- 🚨 CODE FIX: Icons will now show on mobile too --- */}
+          <div className="flex items-center gap-x-4 sm:gap-x-6 text-xs sm:text-sm font-medium">
             <a
-              href="tel:+917816058717"
-              className="flex items-center gap-x-2 hover:text-gray-300 transition-colors"
+              href={`tel:${t("topHeader.phone")}`}
+              className="flex items-center gap-x-3 hover:text-gray-300"
             >
-              <Phone size={16} />
-              <span>+91-78160 58717</span>
-            </a>
-            <a
-              href="mailto:info@jeevansuraksha.org"
-              className="flex items-center gap-x-2 hover:text-gray-300 transition-colors"
-            >
-              <Mail size={16} />
-              <span>info@jeevansuraksha.org</span>
+              <Phone size={14} />
+              {/* The `span` will now be visible on all screen sizes */}
+              <span>{t("topHeader.phone")}</span>
             </a>
           </div>
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex items-center gap-x-3">
+        <div className="hidden lg:flex items-center gap-x-3">
           <Button
             asChild
             className="bg-[#55ACEE] hover:bg-[#4A99D4] rounded-full text-sm font-semibold px-5 h-9"
           >
             <Link href="/login">
-              Login <ChevronRight size={16} className="ml-1" />
+              {t("common.button.login")}{" "}
+              <ChevronRight size={16} className="ml-1" />
             </Link>
           </Button>
           <Button
@@ -139,7 +136,8 @@ export function TopHeader() {
             className="bg-[#55ACEE] hover:bg-[#4A99D4] rounded-full text-sm font-semibold px-5 h-9"
           >
             <Link href="/register">
-              Apply For Membership <UserPlus size={16} className="ml-2" />
+              {t("common.button.applyMembership")}{" "}
+              <UserPlus size={16} className="ml-2" />
             </Link>
           </Button>
           <Button
@@ -147,7 +145,8 @@ export function TopHeader() {
             className="bg-[#55ACEE] hover:bg-[#4A99D4] rounded-full text-sm font-semibold px-5 h-9"
           >
             <Link href="/donate">
-              Donate Us <HeartHandshake size={16} className="ml-2" />
+              {t("common.button.donateUs")}{" "}
+              <HeartHandshake size={16} className="ml-2" />
             </Link>
           </Button>
         </div>
