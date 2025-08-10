@@ -1,204 +1,197 @@
-"use client";
+"use-client";
 
-import { useEffect, useState, Suspense } from "react";
-import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/lib/redux/store";
+import { setCredentials } from "@/lib/redux/features/auth/authSlice";
+import axiosInstance from "@/lib/axios";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardFooter,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useRouter, useSearchParams } from "next/navigation";
-import { Check, Copy, Home, LogIn, Loader2 } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
+import { Loader2, CheckCircle, XCircle, Home, LogIn } from "lucide-react";
 import Link from "next/link";
+import { useToast } from "@/components/ui/use-toast";
+import Confetti from "react-confetti";
 
-// Framer Motion ke saath ShadCN Button ko use karne ke liye
-const MotionButton = motion(Button);
-
-// Chhota sa Confetti component
-const ConfettiPiece = ({ styles }) => (
-  <motion.div
-    className="absolute h-2 w-2 rounded-full"
-    style={styles.style}
-    initial={{ y: -20, opacity: 0 }}
-    animate={{ y: "100vh", opacity: [1, 1, 0] }}
-    transition={styles.transition}
-  />
-);
-
-// Pura Confetti background
-const Confetti = () => {
-  const confetti_styles = Array.from({ length: 25 }).map(() => ({
-    style: {
-      left: `${Math.random() * 100}%`,
-      background: ["#00C853", "#64DD17", "#AEEA00", "#FFD600"][
-        Math.floor(Math.random() * 4)
-      ],
-    },
-    transition: {
-      duration: Math.random() * 3 + 2,
-      ease: "linear",
-      repeat: Infinity,
-      delay: Math.random() * 2,
-    },
-  }));
-
-  return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      {confetti_styles.map((styles, i) => (
-        <ConfettiPiece key={i} styles={styles} />
-      ))}
-    </div>
-  );
-};
-
-// Main success content component
-function SuccessContent() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const { toast } = useToast();
-  const [orderId, setOrderId] = useState("Loading...");
-
-  useEffect(() => {
-    const orderIdFromUrl = searchParams.get("order_id") || "N/A";
-    setOrderId(orderIdFromUrl);
-
-    // Page load par ek baar toast dikhayein
-    toast({
-      title: "✅ Registration & Payment Successful!",
-      description: "Aapka Jeevan Suraksha parivaar mein swagat hai.",
-      duration: 5000,
-    });
-  }, [searchParams, toast]);
-
-  const handleCopy = () => {
-    navigator.clipboard.writeText(orderId);
-    toast({
-      title: "Copied to clipboard!",
-      description: "Order ID has been copied.",
-    });
-  };
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.5, ease: "easeOut" }}
-      className="relative w-full max-w-md bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl overflow-hidden border border-gray-200"
-    >
-      {/* Card ke upar gradient border */}
-      <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-green-400 to-blue-400" />
-
-      <div className="p-8 md:p-10 text-center">
-        {/* Success Icon ka naya design */}
-        <motion.div
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{
-            delay: 0.2,
-            type: "spring",
-            stiffness: 260,
-            damping: 20,
-          }}
-          className="mx-auto w-20 h-20 mb-6 flex items-center justify-center rounded-full bg-green-100"
-        >
-          <Check className="w-12 h-12 text-green-600" />
-        </motion.div>
-
-        {/* Success Message */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4, duration: 0.5 }}
-        >
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2">
-            Payment Successful!
-          </h1>
-          <p className="text-gray-600 text-base mb-6">
-            Aapka Jeevan Suraksha parivaar mein swagat hai.
-          </p>
-        </motion.div>
-
-        {/* Order ID section */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5, duration: 0.5 }}
-          className="mb-8 p-4 bg-gray-50 rounded-lg border border-gray-200"
-        >
-          <p className="text-sm text-gray-500 mb-2">Your Order ID:</p>
-          <div className="flex items-center justify-center space-x-2">
-            <p className="font-mono text-lg text-gray-700">{orderId}</p>
-            <Button
-              onClick={handleCopy}
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8"
-            >
-              <Copy className="w-4 h-4 text-gray-500" />
-            </Button>
-          </div>
-        </motion.div>
-
-        {/* Action Buttons */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6, duration: 0.5 }}
-          className="space-y-3"
-        >
-          <MotionButton
-            onClick={() => router.push("/login")}
-            className="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-3"
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            <LogIn className="w-4 h-4 mr-2" />
-            Go to Dashboard
-          </MotionButton>
-
-          <MotionButton
-            onClick={() => router.push("/")}
-            variant="outline"
-            className="w-full py-3"
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            <Home className="w-4 h-4 mr-2" />
-            Back to Home
-          </MotionButton>
-        </motion.div>
-
-        {/* Footer Message */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.8 }}
-          className="mt-8 pt-6 border-t border-gray-200"
-        >
-          <p className="text-xs text-gray-500">
-            A confirmation has been sent to your registered email.
-            <br />
-            For queries, contact{" "}
-            <Link
-              href="mailto:support@jeevansuraksha.org"
-              className="text-green-600 font-medium hover:underline"
-            >
-              support@jeevansuraksha.org
-            </Link>
-          </p>
-        </motion.div>
-      </div>
-    </motion.div>
-  );
+// Interface for the backend response
+interface VerificationResponse {
+  status: "SUCCESS" | "PENDING" | "FAILED";
+  message: string;
+  user?: any;
 }
 
-// Main page component jo Suspense aur naye background ke saath hai
-export default function RegistrationSuccessPage() {
+// Main Page Component
+export default function RegistrationStatusPage() {
+  const searchParams = useSearchParams();
+  const dispatch = useDispatch<AppDispatch>();
+  const { toast } = useToast();
+  const router = useRouter();
+  const orderId = searchParams.get("order_id");
+
+  const [status, setStatus] = useState<
+    "LOADING" | "SUCCESS" | "PENDING" | "FAILED"
+  >("LOADING");
+  const [message, setMessage] = useState(
+    "Verifying your registration payment..."
+  );
+
+  // State to control confetti
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
+
+  useEffect(() => {
+    // Handle window resize for confetti
+    const handleResize = () => {
+      setWindowSize({ width: window.innerWidth, height: window.innerHeight });
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  useEffect(() => {
+    if (!orderId) {
+      setStatus("FAILED");
+      setMessage("No order ID found. Cannot verify payment.");
+      return;
+    }
+
+    const verifyPayment = async () => {
+      try {
+        const { data } = await axiosInstance.post<VerificationResponse>(
+          "/api/payment/verify-registration",
+          { order_id: orderId }
+        );
+
+        // Only update state if it has changed to avoid unnecessary re-renders
+        if (data.status !== status) setStatus(data.status);
+        if (data.message !== message) setMessage(data.message);
+
+        if (data.status === "SUCCESS" && data.user) {
+          dispatch(setCredentials(data.user));
+          setShowConfetti(true); // Trigger confetti on success
+          toast({
+            title: "Registration Complete!",
+            description: "Welcome! You are now logged in.",
+          });
+        }
+      } catch (err) {
+        setStatus("FAILED");
+        setMessage(
+          "An error occurred during verification. Please contact support."
+        );
+      }
+    };
+
+    const interval = setInterval(() => {
+      if (status !== "LOADING" && status !== "PENDING") {
+        clearInterval(interval);
+        return;
+      }
+      verifyPayment();
+    }, 4000);
+
+    const timeout = setTimeout(() => {
+      if (status === "PENDING" || status === "LOADING") {
+        setMessage(
+          "Verification is taking longer than usual. Please check your dashboard later or contact support."
+        );
+        setStatus("FAILED"); // Set to a final state
+      }
+      clearInterval(interval);
+    }, 35000); // Slightly longer timeout
+
+    return () => {
+      clearInterval(interval);
+      clearTimeout(timeout);
+    };
+  }, [orderId, status, dispatch, toast, message]);
+
+  const renderStatusContent = () => {
+    switch (status) {
+      case "SUCCESS":
+        return {
+          icon: <CheckCircle className="h-20 w-20 text-green-500" />,
+          title: "Welcome Aboard!",
+          colorClass: "text-green-600",
+        };
+      case "FAILED":
+        return {
+          icon: <XCircle className="h-20 w-20 text-red-500" />,
+          title: "Something Went Wrong",
+          colorClass: "text-red-600",
+        };
+      default: // LOADING or PENDING
+        return {
+          icon: <Loader2 className="h-20 w-20 animate-spin text-indigo-500" />,
+          title: "Finalizing Your Account...",
+          colorClass: "text-indigo-600",
+        };
+    }
+  };
+
+  const { icon, title, colorClass } = renderStatusContent();
+
   return (
-    <div className="relative min-h-screen w-full bg-gray-50 flex items-center justify-center p-4 overflow-hidden">
-      <Confetti />
-      <Suspense
-        fallback={<Loader2 className="h-10 w-10 animate-spin text-gray-600" />}
+    <div className="min-h-screen w-full bg-gradient-to-br from-gray-50 to-gray-200 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center p-4">
+      {showConfetti && (
+        <Confetti
+          width={windowSize.width}
+          height={windowSize.height}
+          recycle={false}
+        />
+      )}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5 }}
       >
-        <SuccessContent />
-      </Suspense>
+        <Card className="w-full max-w-md shadow-2xl rounded-2xl border-none bg-white/80 backdrop-blur-sm dark:bg-slate-800/80 text-center">
+          <CardHeader className="items-center p-8">
+            <motion.div
+              initial={{ scale: 0.5 }}
+              animate={{ scale: 1 }}
+              transition={{ type: "spring", delay: 0.2 }}
+            >
+              {icon}
+            </motion.div>
+            <h1 className={`text-3xl font-bold ${colorClass} mt-4`}>{title}</h1>
+          </CardHeader>
+          <CardContent className="px-8 pb-8">
+            <p className="text-slate-600 dark:text-slate-300 text-lg">
+              {message}
+            </p>
+          </CardContent>
+          <CardFooter className="p-6 bg-gray-50 dark:bg-slate-900/50 rounded-b-2xl">
+            {status === "SUCCESS" ? (
+              <Button
+                asChild
+                className="w-full h-12 text-base bg-indigo-600 hover:bg-indigo-700"
+              >
+                <Link href="/dashboard">
+                  <Home className="mr-2 h-5 w-5" /> Go to Your Dashboard
+                </Link>
+              </Button>
+            ) : (
+              <Button
+                asChild
+                className="w-full h-12 text-base"
+                variant="secondary"
+              >
+                <Link href="/login">
+                  <LogIn className="mr-2 h-5 w-5" /> Go to Login Page
+                </Link>
+              </Button>
+            )}
+          </CardFooter>
+        </Card>
+      </motion.div>
     </div>
   );
 }
