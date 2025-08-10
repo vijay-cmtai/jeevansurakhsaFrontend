@@ -21,7 +21,7 @@ import { cn } from "@/lib/utils";
 
 const sidebarLinks = [
   {
-    label: "Joi Community",
+    label: "Join Community",
     icon: UserPlus,
     href: "/dashboard/apply-membership",
   },
