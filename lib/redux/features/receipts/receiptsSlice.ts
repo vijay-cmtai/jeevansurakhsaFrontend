@@ -1,171 +1,203 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import axiosInstance from "@/lib/axios";
 
-// --- TypeScript Type Definitions ---
-// These types should match your Payment model and the populated user/member data
+// --- TYPE DEFINITIONS ---
+// This interface defines the shape of a single receipt object, including the nested member details.
 export interface Receipt {
   _id: string;
   receiptNo: string;
-  paymentType:
-    | "MEMBERSHIP_FEE"
-    | "MEMBER_DONATION"
-    | "VISITOR_DONATION"
-    | "CASH_DONATION";
+  receiptType: "REGISTRATION" | "MEMBER_DONATION" | "VISITOR_DONATION";
   amount: number;
-  paymentMode: "Online" | "Cash";
-  transactionId?: string;
-  paymentImageUrl?: string; // Added for cash donations
-  paymentDate: string;
   createdAt: string;
-  user?: {
-    // For registered members
+  
+  member?: {
     _id: string;
-    name: string; // Assuming 'fullName' is aliased or present
+    fullName: string;
     memberId?: string;
     email?: string;
     mobile?: string;
   };
-  nonMemberDetails?: {
-    // For visitors/cash donations
-    name: string;
-    email?: string;
-    mobile?: string;
-  };
 }
 
+// Defines the structure of the entire state managed by this slice.
 interface ReceiptsState {
-  receipts: Receipt[];
+  // State for a logged-in member viewing their own receipts
+  myReceipts: Receipt[];
+  myReceiptsStatus: "idle" | "loading" | "succeeded" | "failed";
+
+  // State for an admin viewing all receipts
+  allReceipts: Receipt[];
   totalAmount: number;
   listStatus: "idle" | "loading" | "succeeded" | "failed";
+
+  // Status for actions like deleting a receipt
   actionStatus: "idle" | "loading" | "succeeded" | "failed";
-  listError: string | null;
-  actionError: string | null;
+
+  // A general field to store any errors from API calls
+  error: string | null;
 }
 
+// The initial state when the application loads.
 const initialState: ReceiptsState = {
-  receipts: [],
+  // Member-specific state
+  myReceipts: [],
+  myReceiptsStatus: "idle",
+
+  // Admin-specific state
+  allReceipts: [],
   totalAmount: 0,
   listStatus: "idle",
+
+  // Action status
   actionStatus: "idle",
-  listError: null,
-  actionError: null,
+
+  // General state
+  error: null,
 };
 
-// --- Async Thunks for API Calls ---
+// --- ASYNC THUNKS (API Calls) ---
 
-interface FetchParams {
-  type:
-    | "MEMBERSHIP_FEE"
-    | "MEMBER_DONATION"
-    | "VISITOR_DONATION"
-    | "CASH_DONATION"
-    | "ALL";
-  keyword?: string;
-}
-
-// Thunk to fetch receipts based on type and keyword
-export const fetchReceipts = createAsyncThunk(
-  "receipts/fetchAll",
-  async ({ type, keyword = "" }: FetchParams, { rejectWithValue }) => {
+/**
+ * @description [MEMBER] Fetches the receipts for the currently logged-in member.
+ */
+export const fetchMyReceipts = createAsyncThunk(
+  "receipts/fetchMy",
+  async (_, { rejectWithValue }) => {
     try {
-      const params: any = {};
-      if (type !== "ALL") {
-        params.type = type;
-      }
-      if (keyword) {
-        params.keyword = keyword;
-      }
-
-      // CORRECTED URL based on your backend route setup
-      const { data } = await axiosInstance.get("/api/receipts/", {
-        params,
-      });
+      const { data } = await axiosInstance.get("/api/receipts/my-receipts");
       return data as Receipt[];
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Failed to fetch receipts"
+        error.response?.data?.message || "Failed to fetch your receipts."
       );
     }
   }
 );
 
-// Thunk to DELETE a receipt
+/**
+ * @description [ADMIN] Fetches all receipts from all members.
+ */
+export const fetchAllReceipts = createAsyncThunk(
+  "receipts/fetchAllAdmin",
+  async (_, { rejectWithValue }) => {
+    try {
+      // The endpoint is the root of receipt routes, e.g., /api/receipts/
+      const { data } = await axiosInstance.get("/api/receipts/");
+      return data as Receipt[];
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message ||
+          "Failed to fetch all receipts for admin."
+      );
+    }
+  }
+);
+
+/**
+ * @description [ADMIN] Deletes a specific receipt by its ID.
+ */
 export const deleteReceipt = createAsyncThunk(
   "receipts/delete",
   async (receiptId: string, { rejectWithValue }) => {
     try {
-      // CORRECTED URL
       await axiosInstance.delete(`/api/receipts/${receiptId}`);
-      return receiptId; // Return ID for easy removal from state
+      return receiptId; // Return the ID on success for easy removal from state
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Failed to delete receipt"
+        error.response?.data?.message || "Failed to delete the receipt."
       );
     }
   }
 );
 
-// --- The Slice Definition ---
+// --- THE REDUX SLICE DEFINITION ---
+
 const receiptsSlice = createSlice({
   name: "receipts",
   initialState,
+  // Reducers for synchronous state updates, like clearing state on logout
   reducers: {
-    // Synchronous action to clear state when navigating away, if needed
-    clearReceipts: (state) => {
-      state.receipts = [];
-      state.totalAmount = 0;
+    clearReceiptsState: (state) => {
+      state.myReceipts = [];
+      state.myReceiptsStatus = "idle";
+      state.allReceipts = [];
       state.listStatus = "idle";
-      state.listError = null;
+      state.error = null;
     },
   },
+  // Reducers for handling the lifecycle of async thunks
   extraReducers: (builder) => {
     builder
-      // Reducers for fetching list
-      .addCase(fetchReceipts.pending, (state) => {
-        state.listStatus = "loading";
+      // Cases for: Fetching a single member's receipts
+      .addCase(fetchMyReceipts.pending, (state) => {
+        state.myReceiptsStatus = "loading";
+        state.error = null;
       })
       .addCase(
-        fetchReceipts.fulfilled,
+        fetchMyReceipts.fulfilled,
+        (state, action: PayloadAction<Receipt[]>) => {
+          state.myReceiptsStatus = "succeeded";
+          state.myReceipts = action.payload;
+        }
+      )
+      .addCase(fetchMyReceipts.rejected, (state, action) => {
+        state.myReceiptsStatus = "failed";
+        state.error = action.payload as string;
+      })
+
+      // Cases for: Fetching ALL member receipts (for Admin)
+      .addCase(fetchAllReceipts.pending, (state) => {
+        state.listStatus = "loading";
+        state.error = null;
+      })
+      .addCase(
+        fetchAllReceipts.fulfilled,
         (state, action: PayloadAction<Receipt[]>) => {
           state.listStatus = "succeeded";
-          state.receipts = action.payload;
-          // Calculate total amount on the client-side
+          state.allReceipts = action.payload;
+          // Calculate the total amount from all fetched receipts
           state.totalAmount = action.payload.reduce(
             (sum, receipt) => sum + receipt.amount,
             0
           );
         }
       )
-      .addCase(fetchReceipts.rejected, (state, action) => {
+      .addCase(fetchAllReceipts.rejected, (state, action) => {
         state.listStatus = "failed";
-        state.listError = action.payload as string;
+        state.error = action.payload as string;
       })
 
-      // Reducers for deleting a receipt
+      // Cases for: Deleting a receipt (for Admin)
       .addCase(deleteReceipt.pending, (state) => {
         state.actionStatus = "loading";
+        state.error = null;
       })
       .addCase(
         deleteReceipt.fulfilled,
         (state, action: PayloadAction<string>) => {
           state.actionStatus = "succeeded";
-          const deletedReceipt = state.receipts.find(
+          // Find the deleted receipt to subtract its amount from the total
+          const deletedReceipt = state.allReceipts.find(
             (r) => r._id === action.payload
           );
           if (deletedReceipt) {
             state.totalAmount -= deletedReceipt.amount;
           }
-          state.receipts = state.receipts.filter(
+          // Remove the deleted receipt from the state array
+          state.allReceipts = state.allReceipts.filter(
             (r) => r._id !== action.payload
           );
         }
       )
       .addCase(deleteReceipt.rejected, (state, action) => {
         state.actionStatus = "failed";
-        state.actionError = action.payload as string;
+        state.error = action.payload as string;
       });
   },
 });
 
-export const { clearReceipts } = receiptsSlice.actions;
+// Export the synchronous actions to be used in components
+export const { clearReceiptsState } = receiptsSlice.actions;
+
+// Export the reducer to be included in the main Redux store
 export default receiptsSlice.reducer;
