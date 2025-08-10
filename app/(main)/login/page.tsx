@@ -1,5 +1,3 @@
-// 📁 File: app/login/page.tsx
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -10,7 +8,6 @@ import Image from "next/image";
 
 // Redux Imports
 import { AppDispatch, RootState } from "@/lib/redux/store";
-// ✅✅ Naya login thunk import karein ✅✅
 import {
   loginUser,
   loginAdmin,
@@ -28,14 +25,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Switch } from "@/components/ui/switch"; // ✅ Switch component import karein
+import { Switch } from "@/components/ui/switch";
 import { Shield, Eye, EyeOff, LogIn, User as UserIcon } from "lucide-react";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  // ✅ Naya state: User Member hai ya Dashboard User
   const [isDashboardLogin, setIsDashboardLogin] = useState(false);
 
   const dispatch = useDispatch<AppDispatch>();
@@ -49,10 +45,8 @@ export default function LoginPage() {
   useEffect(() => {
     if (userInfo) {
       if (userInfo.isAdmin) {
-        // Admin aur Manager dono ko /admin par bhejein
         router.push("/admin");
       } else {
-        // Public Member ko /dashboard par bhejein
         router.push("/dashboard");
       }
     }
@@ -64,29 +58,25 @@ export default function LoginPage() {
       return;
     }
 
-    // ✅✅ SMART LOGIN LOGIC ✅✅
     if (isDashboardLogin) {
-      // Agar user Dashboard User (Admin/Manager) ke taur par login kar raha hai
       if (
         email.toLowerCase() ===
         (process.env.NEXT_PUBLIC_ADMIN_EMAIL || "healthguard0102@gmail.com")
       ) {
-        // Hardcoded Super Admin ke liye check
         dispatch(loginAdmin({ email, password }));
       } else {
-        // Database-based Admin/Manager ke liye check
         dispatch(loginDashboardUser({ email, password }));
       }
     } else {
-      // Agar user Public Member ke taur par login kar raha hai
       dispatch(loginUser({ email, password }));
     }
   };
 
   return (
     <div className="min-h-screen w-full bg-gray-50 flex items-center justify-center p-4">
-      <div className="relative w-full max-w-4xl mx-auto grid lg:grid-cols-2 bg-white rounded-2xl shadow-2xl overflow-hidden">
-        {/* Left Side - Image */}
+      {/* 👉 Responsive Card Container: Mobile par max-width set kiya gaya hai. */}
+      <div className="w-full max-w-md lg:max-w-4xl mx-auto grid lg:grid-cols-2 bg-white rounded-2xl shadow-2xl overflow-hidden">
+        {/* Left Side - Image (Yeh 'hidden lg:block' ke kaaran mobile par nahi dikhega) */}
         <div className="hidden lg:block relative">
           <Image
             src="https://tse1.mm.bing.net/th/id/OIP.yzBw0jD8ft6sOHYOlwAJ2QHaHl?pid=Api&P=0&h=180"
@@ -107,10 +97,13 @@ export default function LoginPage() {
         </div>
 
         {/* Right Side - Form */}
-        <div className="p-8 sm:p-12 flex flex-col justify-center">
+        {/* 👉 Responsive Padding: Mobile ke liye padding kam ki gayi hai. */}
+        <div className="p-6 sm:p-8 lg:p-12 flex flex-col justify-center">
           <Card className="border-none shadow-none">
-            <CardHeader className="text-left pb-6">
-              <CardTitle className="text-3xl font-bold text-gray-900">
+            {/* 👉 Responsive Header: Mobile par text center mein aur bade screen par left mein. */}
+            <CardHeader className="text-center lg:text-left pb-6">
+              {/* 👉 Responsive Title: Mobile par font size chhota rakha gaya hai. */}
+              <CardTitle className="text-2xl sm:text-3xl font-bold text-gray-900">
                 Welcome Back!
               </CardTitle>
               <CardDescription>
@@ -118,15 +111,16 @@ export default function LoginPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-6">
-                {/* ✅✅ LOGIN AS TOGGLE ✅✅ */}
+              {/* 👉 Responsive Spacing: Form elements ke beech ka space mobile ke liye adjust kiya gaya hai. */}
+              <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
+                {/* LOGIN AS TOGGLE */}
                 <div className="flex items-center justify-center space-x-2 p-2 bg-gray-100 rounded-md">
                   <UserIcon
                     className={`h-5 w-5 transition-colors ${!isDashboardLogin ? "text-blue-600" : "text-gray-400"}`}
                   />
                   <Label
                     htmlFor="login-as"
-                    className={`transition-colors cursor-pointer ${!isDashboardLogin ? "font-bold text-gray-800" : "text-gray-500"}`}
+                    className={`text-sm sm:text-base transition-colors cursor-pointer ${!isDashboardLogin ? "font-bold text-gray-800" : "text-gray-500"}`}
                   >
                     Member
                   </Label>
@@ -137,7 +131,7 @@ export default function LoginPage() {
                   />
                   <Label
                     htmlFor="login-as"
-                    className={`transition-colors cursor-pointer ${isDashboardLogin ? "font-bold text-gray-800" : "text-gray-500"}`}
+                    className={`text-sm sm:text-base transition-colors cursor-pointer ${isDashboardLogin ? "font-bold text-gray-800" : "text-gray-500"}`}
                   >
                     Admin/Manager
                   </Label>
@@ -190,7 +184,8 @@ export default function LoginPage() {
                 )}
                 <Button
                   type="submit"
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white h-12 text-lg font-bold flex items-center gap-x-2"
+                  // 👉 Responsive Button: Mobile ke liye text size adjust kiya gaya hai.
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white h-12 text-base sm:text-lg font-bold flex items-center gap-x-2"
                   disabled={loading}
                 >
                   {loading ? (
