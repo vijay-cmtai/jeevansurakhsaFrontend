@@ -1,19 +1,24 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/lib/redux/store";
 import { DataTable } from "@/components/admin/DataTable";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Trash2, Download, Eye, Loader2 } from "lucide-react";
+import { Trash2, Download } from "lucide-react";
 import {
   VisitorDonation,
   fetchAllVisitorDonations,
   deleteVisitorDonation,
 } from "@/lib/redux/features/visitordonations/visitorDonationSlice";
+import { format } from "date-fns";
+// ✅ Step 1: PDF libraries import karein
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
+// Status Badge component (No changes needed)
 const StatusBadge = ({ status }: { status: VisitorDonation["status"] }) => {
   const styles = {
     SUCCESS: "bg-green-100 text-green-800",
@@ -21,6 +26,52 @@ const StatusBadge = ({ status }: { status: VisitorDonation["status"] }) => {
     FAILED: "bg-red-100 text-red-800",
   };
   return <Badge className={styles[status] || "bg-gray-100"}>{status}</Badge>;
+};
+
+// ✅ Step 2: PDF generate karne ke liye helper function banayein
+const generatePdfReceipt = (donation: VisitorDonation) => {
+  const doc = new jsPDF();
+
+  // Header
+  doc.setFontSize(22);
+  doc.setFont("helvetica", "bold");
+  doc.text("Visitor Donation Receipt", 105, 20, { align: "center" });
+  doc.setFontSize(12);
+  doc.text("Jeevan Suraksha Foundation", 105, 30, { align: "center" });
+
+  // Donation Details Table
+  autoTable(doc, {
+    startY: 40,
+    theme: "grid",
+    head: [["Field", "Details"]],
+    body: [
+      ["Receipt No:", donation.receiptNo || "N/A"],
+      [
+        "Date of Donation:",
+        format(new Date(donation.createdAt), "dd MMM, yyyy"),
+      ],
+      ["Donor Name:", donation.name],
+      ["Donor Email:", donation.email || "N/A"],
+      ["Donor Mobile:", donation.mobile],
+      ["Transaction ID:", donation.transactionId],
+      ["Donation Amount:", `₹ ${donation.amount.toFixed(2)}`],
+      ["Payment Status:", donation.status],
+      ["PAN Number:", donation.panNumber || "N/A"],
+    ],
+    styles: { fontSize: 11 },
+    headStyles: { fillColor: [41, 128, 185], textColor: 255 },
+  });
+
+  // Footer
+  const finalY = (doc as any).lastAutoTable.finalY || 100;
+  doc.setFontSize(10);
+  doc.text("Thank you for your generous contribution.", 105, finalY + 15, {
+    align: "center",
+  });
+
+  doc.save(
+    `Visitor-Donation-Receipt-${donation.receiptNo || donation._id}.pdf`
+  );
 };
 
 export default function AllVisitorDonationPage() {
@@ -32,7 +83,6 @@ export default function AllVisitorDonationPage() {
   } = useSelector((state: RootState) => state.visitorDonation);
   const { userInfo } = useSelector((state: RootState) => state.auth);
   const userIsAdmin = userInfo?.role === "Admin";
-  const [downloadingId, setDownloadingId] = useState<string | null>(null);
 
   useEffect(() => {
     dispatch(fetchAllVisitorDonations());
@@ -44,22 +94,12 @@ export default function AllVisitorDonationPage() {
     }
   };
 
-  const handleDownload = (donation: VisitorDonation) => {
-    alert("Download functionality needs a dedicated thunk in the slice.");
-  };
-
-  const handleView = (donation: VisitorDonation) => {
-    alert(
-      "View functionality needs a modal and a 'selectDonation' action in the slice."
-    );
-  };
-
   const columns = [
-    {
-      key: "select",
-      label: <>{userIsAdmin && <Checkbox />}</>,
-      render: () => <>{userIsAdmin && <Checkbox />}</>,
-    },
+    // {
+    //   key: "select",
+    //   label: <>{userIsAdmin && <Checkbox />}</>,
+    //   render: () => <>{userIsAdmin && <Checkbox />}</>,
+    // },
     {
       key: "sr",
       label: "Sr.No.",
@@ -91,43 +131,26 @@ export default function AllVisitorDonationPage() {
     {
       key: "amount",
       label: "Amount",
-      render: (row: VisitorDonation) => `₹${row.amount}`,
+      render: (row: VisitorDonation) => `₹${row.amount.toFixed(2)}`,
     },
     { key: "paymentMode", label: "Payment Mode", render: () => "Online" },
-    {
-      key: "detailsBtn",
-      label: "Details",
-      render: (row: VisitorDonation) => (
-        <Button
-          size="sm"
-          variant="outline"
-          className="text-green-600 border-green-500"
-          onClick={() => handleView(row)}
-        >
-          <Eye className="h-4 w-4" />
-        </Button>
-      ),
-    },
+    // ✅ Step 3: "View" column hata diya gaya hai
     {
       key: "download",
       label: "Download",
-      render: (row: VisitorDonation) => {
-        const isDownloading = downloadingId === row._id;
-        return (
-          <Button
-            size="sm"
-            className="bg-blue-500 hover:bg-blue-600"
-            onClick={() => handleDownload(row)}
-            disabled={isDownloading || row.status !== "SUCCESS"}
-          >
-            {isDownloading ? (
-              <Loader2 className="animate-spin h-4 w-4" />
-            ) : (
-              <Download className="h-4 w-4" />
-            )}
-          </Button>
-        );
-      },
+      render: (row: VisitorDonation) => (
+        <Button
+          size="sm"
+          className="bg-blue-500 hover:bg-blue-600"
+          // ✅ Step 4: onClick handler ko update karein
+          onClick={() => generatePdfReceipt(row)}
+          // Button sirf tab enable hoga jab status SUCCESS ho
+          disabled={row.status !== "SUCCESS"}
+        >
+          <Download className="mr-2 h-4 w-4" />
+          Receipt
+        </Button>
+      ),
     },
     {
       key: "action",
@@ -149,13 +172,23 @@ export default function AllVisitorDonationPage() {
     },
   ];
 
+  // Calculate total amount only from successful donations
+  const totalAmount = donations.reduce(
+    (sum, donation) =>
+      donation.status === "SUCCESS" ? sum + donation.amount : sum,
+    0
+  );
+
   return (
     <DataTable
-      title="All Visitor Donation"
+      title="All Visitor Donations"
       columns={columns}
       data={donations || []}
       totalEntries={donations?.length || 0}
       isLoading={listStatus === "loading"}
+      // ✅ Optional: Total amount ko bhi display kar sakte hain
+      totalLabel="Total Successful Donation"
+      totalValue={totalAmount}
     />
   );
 }
