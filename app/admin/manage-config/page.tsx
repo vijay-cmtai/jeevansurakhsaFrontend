@@ -18,6 +18,13 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2, AlertCircle, Trash2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 function AddStateForm() {
   const dispatch = useDispatch<AppDispatch>();
@@ -92,53 +99,132 @@ function AddStateForm() {
   );
 }
 
-function AddVolunteerForm() {
+// --- HIGHLIGHT: Yeh poora component update ho gaya hai ---
+function AddVolunteerForm({ states }: { states: any[] }) {
   const dispatch = useDispatch<AppDispatch>();
   const [volunteerName, setVolunteerName] = useState("");
   const [volunteerCode, setVolunteerCode] = useState("");
+  const [phone, setPhone] = useState("");
+  const [selectedState, setSelectedState] = useState("");
+  const [selectedDistrict, setSelectedDistrict] = useState("");
+
   const { status, error } = useSelector((state: RootState) => state.config);
   const isLoading = status === "loading";
+
+  const availableDistricts =
+    states.find((s) => s.name === selectedState)?.districts || [];
+
+  const handleStateChange = (value: string) => {
+    setSelectedState(value);
+    setSelectedDistrict(""); // State badalne par district reset karein
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     dispatch(clearConfigError());
-    if (!volunteerName.trim() || !volunteerCode.trim()) return;
+    if (
+      !volunteerName.trim() ||
+      !volunteerCode.trim() ||
+      !phone.trim() ||
+      !selectedState ||
+      !selectedDistrict
+    ) {
+      alert("Please fill all volunteer fields.");
+      return;
+    }
     dispatch(
-      addVolunteer({ name: volunteerName.trim(), code: volunteerCode.trim() })
+      addVolunteer({
+        name: volunteerName.trim(),
+        code: volunteerCode.trim(),
+        phone: phone.trim(),
+        state: selectedState,
+        district: selectedDistrict,
+      })
     )
       .unwrap()
       .then(() => {
         setVolunteerName("");
         setVolunteerCode("");
+        setPhone("");
+        setSelectedState("");
+        setSelectedDistrict("");
       });
   };
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Add New Volunteer (Optional)</CardTitle>
+        <CardTitle>Add New Volunteer</CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="volunteerName">Volunteer Name</Label>
+              <Input
+                id="volunteerName"
+                value={volunteerName}
+                onChange={(e) => setVolunteerName(e.target.value)}
+                placeholder="e.g., John Doe"
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="volunteerCode">Volunteer Code</Label>
+              <Input
+                id="volunteerCode"
+                value={volunteerCode}
+                onChange={(e) => setVolunteerCode(e.target.value)}
+                placeholder="e.g., VOL123"
+                required
+              />
+            </div>
+          </div>
           <div>
-            <Label htmlFor="volunteerName">Volunteer Name</Label>
+            <Label htmlFor="phone">Phone Number</Label>
             <Input
-              id="volunteerName"
-              value={volunteerName}
-              onChange={(e) => setVolunteerName(e.target.value)}
-              placeholder="e.g., John Doe"
+              id="phone"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="e.g., 9876543210"
               required
             />
           </div>
-          <div>
-            <Label htmlFor="volunteerCode">Volunteer Code</Label>
-            <Input
-              id="volunteerCode"
-              value={volunteerCode}
-              onChange={(e) => setVolunteerCode(e.target.value)}
-              placeholder="e.g., VOL123"
-              required
-            />
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="state">State</Label>
+              <Select value={selectedState} onValueChange={handleStateChange}>
+                <SelectTrigger id="state">
+                  <SelectValue placeholder="Select a state" />
+                </SelectTrigger>
+                <SelectContent>
+                  {states.map((s) => (
+                    <SelectItem key={s._id} value={s.name}>
+                      {s.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="district">District</Label>
+              <Select
+                value={selectedDistrict}
+                onValueChange={setSelectedDistrict}
+                disabled={!selectedState}
+              >
+                <SelectTrigger id="district">
+                  <SelectValue placeholder="Select a district" />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableDistricts.map((d: any) => (
+                    <SelectItem key={d._id} value={d.name}>
+                      {d.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
           {error && <p className="text-sm text-red-600">{error}</p>}
           <Button type="submit" disabled={isLoading} className="w-full">
@@ -226,12 +312,10 @@ export default function ManageConfigPage() {
   return (
     <div className="p-6 space-y-8">
       <h1 className="text-3xl font-bold">Manage Configuration</h1>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
         <AddStateForm />
-        <AddVolunteerForm />
+        <AddVolunteerForm states={states} />
       </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <Card>
           <CardHeader>
@@ -287,16 +371,29 @@ export default function ManageConfigPage() {
             <CardTitle>Existing Volunteers</CardTitle>
           </CardHeader>
           <CardContent className="max-h-96 overflow-y-auto">
-            <ul className="space-y-1">
+            <ul className="space-y-2">
               {volunteers.map((vol) => (
                 <li
                   key={vol._id}
-                  className="flex justify-between items-center text-sm p-2 border-b last:border-b-0"
+                  className="flex justify-between items-center p-2 border-b last:border-b-0"
                 >
-                  <span>
-                    <span className="font-semibold">{vol.name}</span> -{" "}
-                    <span className="text-gray-500">{vol.code}</span>
-                  </span>
+                  <div className="flex-1">
+                    <p className="font-semibold">
+                      {vol.name} -{" "}
+                      <span className="font-normal text-blue-600">
+                        {vol.code}
+                      </span>
+                    </p>
+                    {/* HIGHLIGHT: Naye fields yahaan dikhayein (optional check ke saath) */}
+                    {vol.phone && (
+                      <p className="text-xs text-gray-500">Ph: {vol.phone}</p>
+                    )}
+                    {vol.state && vol.district && (
+                      <p className="text-xs text-gray-500">
+                        {vol.district}, {vol.state}
+                      </p>
+                    )}
+                  </div>
                   {userIsAdmin && (
                     <Button
                       variant="ghost"
