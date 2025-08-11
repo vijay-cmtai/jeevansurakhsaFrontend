@@ -117,6 +117,12 @@ export function Footer() {
               >
                 {t("footer.link.reportClaim")}
               </Link>
+              <Link
+                href="/volunteers"
+                className="text-gray-400 hover:text-white transition-colors"
+              >
+                {t("footer.link.volunteers")}
+              </Link>
             </div>
           </div>
         </div>
