@@ -161,7 +161,7 @@ const enTranslations: Record<string, string> = {
   "whoWeAre.mission.foundationP1":
     "Health Guard Foundation (HGF), an NGO registered in Telangana, India, founded by IT Employees with the vision of creating a community-driven safety net. HGF aim to provide instant financial assistance to individuals during health crises, regardless of their background or income level.",
   "whoWeAre.mission.foundationP2":
-    "Our initiative is simple yet powerful—members contribute ₹2010 per month, pooling resources into a common fund. When a medical emergency strikes, this fund becomes a lifeline, ensuring that urgent care is accessible without financial stress.",
+    "Our initiative is simple yet powerful—members contribute ₹20 per month, pooling resources into a common fund. When a medical emergency strikes, this fund becomes a lifeline, ensuring that urgent care is accessible without financial stress.",
 
   "whoWeAre.mission.missionTitle": "Our Mission",
   "whoWeAre.mission.missionP":
