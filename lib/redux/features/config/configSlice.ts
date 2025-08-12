@@ -1,7 +1,18 @@
+// File: lib/redux/features/config/configSlice.ts
+
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import axiosInstance from "@/lib/axios";
 
-// Interfaces
+// --- HIGHLIGHT: Volunteer interface update ho gayi hai ---
+export interface Volunteer {
+  _id: string;
+  name: string;
+  code: string;
+  phone: string;
+  state: string;
+  district: string;
+}
+
 export interface District {
   _id: string;
   name: string;
@@ -10,11 +21,6 @@ export interface State {
   _id: string;
   name: string;
   districts: District[];
-}
-export interface Volunteer {
-  _id: string;
-  name: string;
-  code: string;
 }
 
 interface ConfigState {
@@ -69,16 +75,23 @@ export const addStateWithDistricts = createAsyncThunk(
   }
 );
 
+// --- HIGHLIGHT: addVolunteer async thunk ab poora data bhejega ---
 export const addVolunteer = createAsyncThunk(
   "config/addVolunteer",
   async (
-    { name, code }: { name: string; code: string },
+    volunteerData: {
+      name: string;
+      code: string;
+      phone: string;
+      state: string;
+      district: string;
+    },
     { rejectWithValue }
   ) => {
     try {
       const { data } = await axiosInstance.post(
         "/api/members/config/volunteers",
-        { name, code }
+        volunteerData // Poora object bhej rahe hain
       );
       return data as Volunteer[];
     } catch (error: any) {
@@ -89,7 +102,7 @@ export const addVolunteer = createAsyncThunk(
   }
 );
 
-// NAYE ASYNC THUNKS (DELETE)
+// Delete Thunks
 export const deleteState = createAsyncThunk(
   "config/deleteState",
   async (stateId: string, { rejectWithValue }) => {
@@ -149,7 +162,6 @@ const configSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Fetch
       .addCase(fetchConfigData.pending, (state) => {
         state.status = "loading";
       })
@@ -162,7 +174,6 @@ const configSlice = createSlice({
         state.status = "failed";
         state.error = action.payload as string;
       })
-      // Add State
       .addCase(
         addStateWithDistricts.fulfilled,
         (state, action: PayloadAction<State[]>) => {
@@ -170,7 +181,6 @@ const configSlice = createSlice({
           state.states = action.payload;
         }
       )
-      // Add Volunteer
       .addCase(
         addVolunteer.fulfilled,
         (state, action: PayloadAction<Volunteer[]>) => {
@@ -178,7 +188,6 @@ const configSlice = createSlice({
           state.volunteers = action.payload;
         }
       )
-      // Delete State
       .addCase(
         deleteState.fulfilled,
         (state, action: PayloadAction<string>) => {
@@ -186,7 +195,6 @@ const configSlice = createSlice({
           state.states = state.states.filter((s) => s._id !== action.payload);
         }
       )
-      // Delete District
       .addCase(
         deleteDistrict.fulfilled,
         (
@@ -203,7 +211,6 @@ const configSlice = createSlice({
           }
         }
       )
-      // Delete Volunteer
       .addCase(
         deleteVolunteer.fulfilled,
         (state, action: PayloadAction<string>) => {
@@ -213,7 +220,6 @@ const configSlice = createSlice({
           );
         }
       )
-      // Matcher for all pending/rejected states of add/delete actions
       .addMatcher(
         (action) =>
           (action.type.startsWith("config/add") ||
