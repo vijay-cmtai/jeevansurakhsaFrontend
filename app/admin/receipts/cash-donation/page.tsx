@@ -27,7 +27,6 @@ const DonorDetailsCell = ({ donation }: { donation: CashDonation }) => (
   </div>
 );
 
-// 🔻🔻🔻 यह नया फंक्शन जोड़ा गया है 🔻🔻🔻
 const generatePdfReceipt = async (donation: CashDonation) => {
   const doc = new jsPDF();
 
@@ -78,20 +77,39 @@ const generatePdfReceipt = async (donation: CashDonation) => {
     styles: { cellPadding: 2.5, fontSize: 10 },
   });
 
+  // 🔻🔻🔻 यह हिस्सा बदला गया है (फुटर) 🔻🔻🔻
   const finalY = (doc as any).lastAutoTable.finalY || 100;
-  doc.setFontSize(10);
+  doc.setFontSize(9);
+  doc.setTextColor(100);
+
+  let footerY = finalY + 12;
+  doc.setLineWidth(0.2);
+  doc.line(20, footerY, 190, footerY);
+  footerY += 5;
+
+  doc.setFont("helvetica", "bold");
+  doc.text("Health Guard Foundation", 105, footerY, { align: "center" });
+  footerY += 4;
+  doc.setFont("helvetica", "normal");
   doc.text(
-    "This is a computer-generated receipt and does not require a signature.",
+    "1-63, Amadabakula (Village), Kothakota (Mandal), Wanaparty (District),",
     105,
-    finalY + 15,
-    {
-      align: "center",
-    }
+    footerY,
+    { align: "center" }
   );
+  footerY += 4;
+  doc.text("Telangana, India - 509381", 105, footerY, { align: "center" });
+  footerY += 5;
+  doc.text(
+    "Email: info@jeevansuraksha.org | Phone: +91-78160 58717",
+    105,
+    footerY,
+    { align: "center" }
+  );
+  // 🔺🔺🔺 बदलाव यहाँ समाप्त होता है 🔺🔺🔺
 
   doc.save(`Cash-Donation-Receipt-${donation.receiptNo}.pdf`);
 };
-// 🔺🔺🔺 बदलाव यहाँ समाप्त होता है 🔺🔺🔺
 
 export default function CashDonationReceiptsPage() {
   const dispatch = useDispatch<AppDispatch>();
@@ -118,7 +136,6 @@ export default function CashDonationReceiptsPage() {
     }
   };
 
-  // 🔻🔻🔻 यह फंक्शन बदला गया है 🔻🔻🔻
   const handleDownload = async (donation: CashDonation) => {
     if (downloadingId) return;
     setDownloadingId(donation._id);
@@ -131,7 +148,6 @@ export default function CashDonationReceiptsPage() {
       setDownloadingId(null);
     }
   };
-  // 🔺🔺🔺 बदलाव यहाँ समाप्त होता है 🔺🔺🔺
 
   const columns = [
     {
