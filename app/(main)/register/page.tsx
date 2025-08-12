@@ -112,7 +112,6 @@ export default function RegisterMultiStepPage() {
   }>({});
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
-  // === BADLAAV 1: Loading state ke liye alag se state banaya ===
   const [submissionType, setSubmissionType] = useState<
     "payNow" | "payLater" | null
   >(null);
@@ -179,7 +178,6 @@ export default function RegisterMultiStepPage() {
   const handleSubmit = async (isPayingNow: boolean) => {
     if (!validateStep(step)) return;
 
-    // === BADLAAV 2: Kaunsa button click hua, uske hisaab se state set karein ===
     setSubmissionType(isPayingNow ? "payNow" : "payLater");
 
     try {
@@ -214,22 +212,17 @@ export default function RegisterMultiStepPage() {
     if (currentStep === 1) {
       if (!formData.state) newErrors.state = "State is required.";
       if (!formData.district) newErrors.district = "District is required.";
+      // --- VOLUNTEER VALIDATION ADDED HERE ---
+      if (!formData.volunteerCode)
+        newErrors.volunteerCode = "Volunteer is required.";
     } else if (currentStep === 2) {
       if (!formData.dateOfBirth) {
         newErrors.dateOfBirth = "Date of Birth is required.";
       } else {
-        // === BADLAAV 3: Age validation (18-60 saal) ===
         const today = new Date();
         const dob = new Date(formData.dateOfBirth);
-        const age = today.getFullYear() - dob.getFullYear();
+        let calculatedAge = today.getFullYear() - dob.getFullYear();
         const monthDiff = today.getMonth() - dob.getMonth();
-        if (
-          monthDiff < 0 ||
-          (monthDiff === 0 && today.getDate() < dob.getDate())
-        ) {
-          // This condition is true if birthday hasn't occurred yet this year
-        }
-        let calculatedAge = age;
         if (
           monthDiff < 0 ||
           (monthDiff === 0 && today.getDate() < dob.getDate())
@@ -356,7 +349,6 @@ export default function RegisterMultiStepPage() {
     [selectedDepartment, availableDepartments]
   );
 
-  // === BADLAAV 4: Dynamic date range for calendar ===
   const today = new Date();
   const maxDate = new Date(new Date().setFullYear(today.getFullYear() - 18));
   const minDate = new Date(new Date().setFullYear(today.getFullYear() - 60));
@@ -431,6 +423,12 @@ export default function RegisterMultiStepPage() {
                   ))}
                 </SelectContent>
               </Select>
+              {/* --- ERROR MESSAGE FOR VOLUNTEER ADDED HERE --- */}
+              {formErrors.volunteerCode && (
+                <p className="text-red-500 text-sm mt-1">
+                  {formErrors.volunteerCode}
+                </p>
+              )}
             </div>
             <div className="flex justify-end mt-8">
               <Button
@@ -479,7 +477,6 @@ export default function RegisterMultiStepPage() {
                       })
                     )
                   }
-                  // === BADLAAV 5: Dynamic date range yahan use karein ===
                   fromDate={minDate}
                   toDate={maxDate}
                   defaultMonth={maxDate}
@@ -1067,7 +1064,6 @@ export default function RegisterMultiStepPage() {
                 >
                   I accept Terms & Conditions
                 </label>
-                {/* === BADLAAV: `href` ko PDF file par point kiya gaya hai === */}
                 <Link
                   href="/jeevanterm.pdf"
                   target="_blank"
@@ -1258,7 +1254,6 @@ export default function RegisterMultiStepPage() {
                   disabled={submissionType !== null}
                   className="h-11 px-8"
                 >
-                  {/* === BADLAAV 6: Loading state check karein === */}
                   {submissionType === "payLater" ? (
                     <Loader2 className="animate-spin" />
                   ) : (
@@ -1270,7 +1265,6 @@ export default function RegisterMultiStepPage() {
                   disabled={submissionType !== null || !isSDKLoaded}
                   className="bg-green-500 hover:bg-green-600 h-11 px-8"
                 >
-                  {/* === BADLAAV 7: Loading state check karein === */}
                   {submissionType === "payNow" ? (
                     <Loader2 className="animate-spin" />
                   ) : (
