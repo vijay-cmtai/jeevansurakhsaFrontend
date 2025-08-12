@@ -55,8 +55,8 @@ const IDCardFront = ({ member }: { member: Member }) => {
               <Image
                 src="https://jeevansuraksha.org/wp-content/uploads/2025/04/logo.webp"
                 alt="Logo"
-                width={50}
-                height={50}
+                width={100} // Changed from 50 to 64
+                height={64} // Changed from 50 to 64
                 className="rounded-full"
               />
             </div>
@@ -78,8 +78,8 @@ const IDCardFront = ({ member }: { member: Member }) => {
                 <Image
                   src={member.profileImageUrl}
                   alt="Profile"
-                  width={88}
-                  height={88}
+                  width={100}
+                  height={64}
                   className="object-cover w-full h-full"
                 />
               ) : (
@@ -92,8 +92,8 @@ const IDCardFront = ({ member }: { member: Member }) => {
               <Image
                 src={`https://api.qrserver.com/v1/create-qr-code/?size=88x88&data=${member._id}`}
                 alt="QR Code"
-                width={88}
-                height={88}
+                width={100}
+                height={64}
               />
               <span className="text-[10px] font-semibold text-gray-500 transform -rotate-90 whitespace-nowrap -ml-2">
                 Scan To Verify
@@ -156,8 +156,8 @@ const IDCardBack = ({ member }: { member: Member }) => (
           <Image
             src="https://jeevansuraksha.org/wp-content/uploads/2025/04/logo.webp"
             alt="Logo"
-            width={50}
-            height={50}
+            width={100} // Changed from 50 to 64
+            height={64} // Changed from 50 to 64
             className="rounded-full"
           />
         </div>
