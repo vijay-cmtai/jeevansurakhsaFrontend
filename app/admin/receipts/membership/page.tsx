@@ -1,4 +1,4 @@
-"use client"; // ✅ CRITICAL FIX: Changed "use-client" to "use client"
+"use client";
 
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -8,19 +8,14 @@ import { DataTable } from "@/components/admin/DataTable";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Download, Trash2 } from "lucide-react";
-
-// Import the correct admin action and type from your slice
 import {
   fetchAllReceipts,
   deleteReceipt,
   Receipt,
 } from "@/lib/redux/features/receipts/receiptsSlice";
-
-// Import PDF libraries
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
-// Reusable Type Badge component
 const TypeBadge = ({ type }: { type: Receipt["receiptType"] }) => {
   const styles = {
     REGISTRATION: "bg-blue-100 text-blue-800",
@@ -33,18 +28,36 @@ const TypeBadge = ({ type }: { type: Receipt["receiptType"] }) => {
   );
 };
 
-// Helper function to generate PDF receipt
-const generatePdfReceipt = (receipt: Receipt) => {
+const generatePdfReceipt = async (receipt: Receipt) => {
   const doc = new jsPDF();
 
-  doc.setFontSize(22);
+  const imageResponse = await fetch("/logo.jpg");
+  const imageBlob = await imageResponse.blob();
+  const imageBase64 = await new Promise<string>((resolve) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(imageBlob);
+    reader.onloadend = () => {
+      resolve(reader.result as string);
+    };
+  });
+
+  doc.addImage(imageBase64, "JPEG", 85, 15, 40, 40);
+
   doc.setFont("helvetica", "bold");
-  doc.text("Payment Receipt", 105, 20, { align: "center" });
-  doc.setFontSize(12);
-  doc.text("Jeevan Suraksha Foundation", 105, 30, { align: "center" });
+  doc.setFontSize(22);
+  doc.text("Jeevan Suraksha", 105, 65, { align: "center" });
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(10);
+  doc.text(
+    "A Social Security Collective, An Initiative of Health Guard Foundation.",
+    105,
+    72,
+    { align: "center" }
+  );
 
   autoTable(doc, {
-    startY: 40,
+    startY: 85,
     theme: "grid",
     head: [["Field", "Details"]],
     body: [
@@ -59,13 +72,20 @@ const generatePdfReceipt = (receipt: Receipt) => {
       ["Receipt Type:", receipt.receiptType.replace("_", " ")],
       ["Amount Paid:", `₹ ${receipt.amount.toFixed(2)}`],
     ],
+    headStyles: { fillColor: [45, 55, 72] }, // Dark header for better look
+    styles: { cellPadding: 2.5, fontSize: 10 },
   });
 
   const finalY = (doc as any).lastAutoTable.finalY || 100;
   doc.setFontSize(10);
-  doc.text("This is a computer-generated receipt.", 105, finalY + 15, {
-    align: "center",
-  });
+  doc.text(
+    "This is a computer-generated receipt and does not require a signature.",
+    105,
+    finalY + 15,
+    {
+      align: "center",
+    }
+  );
 
   doc.save(`Receipt-${receipt.receiptNo}.pdf`);
 };
@@ -77,7 +97,6 @@ export default function AllMemberReceiptsAdminPage() {
     useSelector((state: RootState) => state.receipts);
 
   useEffect(() => {
-    // Dispatch the admin-specific action to fetch all receipts
     dispatch(fetchAllReceipts());
   }, [dispatch]);
 
