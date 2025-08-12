@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
 import Image from "next/image";
-import Link from "next/link"; // Zaroori Import
+import Link from "next/link";
 
 // Redux Imports
 import { AppDispatch, RootState } from "@/lib/redux/store";
@@ -42,7 +42,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { CalendarIcon, Edit, UserPlus, Trash2, Loader2 } from "lucide-react";
-import { Checkbox } from "@/components/ui/checkbox"; // Zaroori Import
+import { Checkbox } from "@/components/ui/checkbox";
 
 // Declare Cashfree type
 declare global {
@@ -111,10 +111,13 @@ export default function RegisterMultiStepPage() {
     panImage?: File | null;
   }>({});
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [isSDKLoaded, setIsSDKLoaded] = useState(false);
 
-  // Terms acceptance ke liye naya state
+  // === BADLAAV 1: Loading state ke liye alag se state banaya ===
+  const [submissionType, setSubmissionType] = useState<
+    "payNow" | "payLater" | null
+  >(null);
+
+  const [isSDKLoaded, setIsSDKLoaded] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
 
   useEffect(() => {
@@ -152,7 +155,7 @@ export default function RegisterMultiStepPage() {
   const launchCheckout = async (paymentSessionId: string, orderId: string) => {
     if (!isSDKLoaded || typeof window.Cashfree !== "function") {
       alert("Payment gateway is not ready. Please wait a moment.");
-      setIsProcessing(false);
+      setSubmissionType(null);
       return;
     }
     try {
@@ -169,13 +172,15 @@ export default function RegisterMultiStepPage() {
     } catch (error: any) {
       alert(`Payment Gateway Error: ${error.message}`);
     } finally {
-      setIsProcessing(false);
+      setSubmissionType(null);
     }
   };
 
   const handleSubmit = async (isPayingNow: boolean) => {
     if (!validateStep(step)) return;
-    setIsProcessing(true);
+
+    // === BADLAAV 2: Kaunsa button click hua, uske hisaab se state set karein ===
+    setSubmissionType(isPayingNow ? "payNow" : "payLater");
 
     try {
       const resultAction = await dispatch(
@@ -191,7 +196,7 @@ export default function RegisterMultiStepPage() {
         } else {
           alert("Registration successful! Please login to complete payment.");
           router.push("/login");
-          setIsProcessing(false);
+          setSubmissionType(null);
         }
       } else {
         throw new Error(
@@ -200,7 +205,7 @@ export default function RegisterMultiStepPage() {
       }
     } catch (e: any) {
       alert(`Error: ${e.message}`);
-      setIsProcessing(false);
+      setSubmissionType(null);
     }
   };
 
@@ -210,8 +215,32 @@ export default function RegisterMultiStepPage() {
       if (!formData.state) newErrors.state = "State is required.";
       if (!formData.district) newErrors.district = "District is required.";
     } else if (currentStep === 2) {
-      if (!formData.dateOfBirth)
+      if (!formData.dateOfBirth) {
         newErrors.dateOfBirth = "Date of Birth is required.";
+      } else {
+        // === BADLAAV 3: Age validation (18-60 saal) ===
+        const today = new Date();
+        const dob = new Date(formData.dateOfBirth);
+        const age = today.getFullYear() - dob.getFullYear();
+        const monthDiff = today.getMonth() - dob.getMonth();
+        if (
+          monthDiff < 0 ||
+          (monthDiff === 0 && today.getDate() < dob.getDate())
+        ) {
+          // This condition is true if birthday hasn't occurred yet this year
+        }
+        let calculatedAge = age;
+        if (
+          monthDiff < 0 ||
+          (monthDiff === 0 && today.getDate() < dob.getDate())
+        ) {
+          calculatedAge--;
+        }
+
+        if (calculatedAge < 18 || calculatedAge > 60) {
+          newErrors.dateOfBirth = "Age must be between 18 and 60 years.";
+        }
+      }
     } else if (currentStep === 3) {
       if (!formData.fullName) newErrors.fullName = "Full name is required.";
       if (!/^\d{10}$/.test(formData.phone))
@@ -326,6 +355,11 @@ export default function RegisterMultiStepPage() {
         ?.plans || [],
     [selectedDepartment, availableDepartments]
   );
+
+  // === BADLAAV 4: Dynamic date range for calendar ===
+  const today = new Date();
+  const maxDate = new Date(new Date().setFullYear(today.getFullYear() - 18));
+  const minDate = new Date(new Date().setFullYear(today.getFullYear() - 60));
 
   const renderStep = () => {
     switch (step) {
@@ -445,8 +479,10 @@ export default function RegisterMultiStepPage() {
                       })
                     )
                   }
-                  fromYear={1960}
-                  toYear={2006}
+                  // === BADLAAV 5: Dynamic date range yahan use karein ===
+                  fromDate={minDate}
+                  toDate={maxDate}
+                  defaultMonth={maxDate}
                   captionLayout="dropdown-buttons"
                 />
               </PopoverContent>
@@ -882,7 +918,6 @@ export default function RegisterMultiStepPage() {
             </div>
           </FormWrapper>
         );
-
       case 5:
         return (
           <FormWrapper>
@@ -1032,8 +1067,9 @@ export default function RegisterMultiStepPage() {
                 >
                   I accept Terms & Conditions
                 </label>
+                {/* === BADLAAV: `href` ko PDF file par point kiya gaya hai === */}
                 <Link
-                  href="/termcondition"
+                  href="/jeevanterm.pdf"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-sm text-blue-600 hover:underline"
@@ -1061,7 +1097,6 @@ export default function RegisterMultiStepPage() {
             </div>
           </FormWrapper>
         );
-
       case 6:
         return (
           <FormWrapper>
@@ -1211,7 +1246,7 @@ export default function RegisterMultiStepPage() {
               <Button
                 variant="outline"
                 onClick={handlePrev}
-                disabled={isProcessing}
+                disabled={submissionType !== null}
                 className="h-11 px-6 bg-white"
               >
                 Previous
@@ -1220,10 +1255,11 @@ export default function RegisterMultiStepPage() {
                 <Button
                   variant="secondary"
                   onClick={() => handleSubmit(false)}
-                  disabled={isProcessing}
+                  disabled={submissionType !== null}
                   className="h-11 px-8"
                 >
-                  {isProcessing ? (
+                  {/* === BADLAAV 6: Loading state check karein === */}
+                  {submissionType === "payLater" ? (
                     <Loader2 className="animate-spin" />
                   ) : (
                     "Pay Later"
@@ -1231,10 +1267,11 @@ export default function RegisterMultiStepPage() {
                 </Button>
                 <Button
                   onClick={() => handleSubmit(true)}
-                  disabled={isProcessing || !isSDKLoaded}
+                  disabled={submissionType !== null || !isSDKLoaded}
                   className="bg-green-500 hover:bg-green-600 h-11 px-8"
                 >
-                  {isProcessing ? (
+                  {/* === BADLAAV 7: Loading state check karein === */}
+                  {submissionType === "payNow" ? (
                     <Loader2 className="animate-spin" />
                   ) : (
                     "Proceed to Pay"
