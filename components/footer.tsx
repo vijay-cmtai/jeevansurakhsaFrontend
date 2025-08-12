@@ -3,10 +3,10 @@
 import Link from "next/link";
 import Image from "next/image";
 import { MapPin, Mail, Phone } from "lucide-react";
-import { useLanguage } from "@/context/LanguageContext"; // Step 1: Hook import karein
+import { useLanguage } from "@/context/LanguageContext";
 
 export function Footer() {
-  const { t } = useLanguage(); // Step 2: 't' function ko use karein
+  const { t } = useLanguage();
 
   return (
     <footer className="bg-gray-900 text-white">
@@ -23,7 +23,6 @@ export function Footer() {
                 className="h-auto"
               />
             </Link>
-            {/* Step 3: Text ko 't' function se replace karein */}
             <p className="text-gray-400 leading-relaxed pt-2">
               {t("footer.about")}
             </p>
@@ -37,7 +36,6 @@ export function Footer() {
             <div className="space-y-4">
               <div className="flex items-start space-x-3">
                 <MapPin className="h-5 w-5 text-blue-400 mt-1 flex-shrink-0" />
-                {/* Address ko translate karein, line breaks preserve honge */}
                 <p className="text-gray-400 whitespace-pre-line">
                   {t("footer.address")}
                 </p>
@@ -99,18 +97,26 @@ export function Footer() {
               >
                 {t("footer.link.contact")}
               </Link>
+              {/* === BADLAAV YAHAN KIYE GAYE HAIN === */}
               <Link
-                href="/terms"
+                href="/termcondition" // Folder name se match kiya gaya
                 className="text-gray-400 hover:text-white transition-colors"
               >
                 {t("footer.link.terms")}
               </Link>
               <Link
-                href="/privacy"
+                href="/policy" // Folder name se match kiya gaya
                 className="text-gray-400 hover:text-white transition-colors"
               >
                 {t("footer.link.privacy")}
               </Link>
+              <Link
+                href="/returnandrefund" // Naya link add kiya gaya
+                className="text-gray-400 hover:text-white transition-colors"
+              >
+                {t("footer.link.refund")}
+              </Link>
+              {/* === BADLAAV KHATAM === */}
               <Link
                 href="/report-claim"
                 className="text-gray-400 hover:text-white transition-colors"
@@ -129,7 +135,6 @@ export function Footer() {
 
         <div className="border-t border-gray-800 mt-12 pt-8 text-center text-sm">
           <p className="text-gray-400">
-            {/* Dynamic year ke saath copyright text */}
             {t("footer.copyright", { year: new Date().getFullYear() })}
           </p>
         </div>
