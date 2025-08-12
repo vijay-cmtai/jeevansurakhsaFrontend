@@ -151,14 +151,6 @@ export default function ActiveMembersPage() {
           >
             ID Card
           </Button>
-          <Button
-            size="sm"
-            onClick={() =>
-              handleNavigation(`/admin/members/${row._id}/receipt`)
-            }
-          >
-            Receipt
-          </Button>
         </div>
       ),
     },
