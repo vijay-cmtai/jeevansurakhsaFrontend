@@ -22,7 +22,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
-import { Shield, Eye, EyeOff, LogIn, User as UserIcon } from "lucide-react";
+// 🔻🔻🔻 BADLAV: Shield ko import se hataya gaya 🔻🔻🔻
+import { Eye, EyeOff, LogIn, User as UserIcon } from "lucide-react";
 
 export default function LoginPage() {
   const [adminIdentifier, setAdminIdentifier] = useState("");
@@ -54,13 +55,14 @@ export default function LoginPage() {
 
     if (isDashboardLogin) {
       if (!adminIdentifier || !password) return;
+      // Since loginDashboardUser now takes an identifier, we use it for both
       if (
         adminIdentifier.toLowerCase() ===
         (process.env.NEXT_PUBLIC_ADMIN_EMAIL || "healthguard0102@gmail.com")
       ) {
         dispatch(loginAdmin({ email: adminIdentifier, password }));
       } else {
-        dispatch(loginDashboardUser({ email: adminIdentifier, password }));
+        dispatch(loginDashboardUser({ identifier: adminIdentifier, password }));
       }
     } else {
       if (!memberIdentifier || !password) return;
@@ -81,7 +83,15 @@ export default function LoginPage() {
           />
           <div className="absolute inset-0 bg-blue-900/70 flex flex-col items-center justify-center p-8 text-white text-center">
             <div>
-              <Shield className="h-16 w-16 mx-auto mb-6" />
+              {/* 🔻🔻🔻 BADLAV: Shield icon ko Image se badla gaya 🔻🔻🔻 */}
+              <Image
+                src="/logo.jpg"
+                alt="Jeevan Suraksha Logo"
+                width={64}
+                height={64}
+                className="mx-auto mb-6"
+              />
+              {/* 🔺🔺🔺 Badlav yahan samapt hota hai 🔺🔺🔺 */}
               <h1 className="text-4xl font-bold mb-4">Jeevan Suraksha</h1>
               <p className="text-lg text-blue-100">
                 Your community-driven financial safety net.
@@ -92,7 +102,15 @@ export default function LoginPage() {
 
         <div className="flex flex-col justify-center min-h-screen lg:min-h-0 px-4 py-8 sm:px-6 lg:px-8 xl:px-12">
           <div className="lg:hidden text-center mb-8">
-            <Shield className="h-12 w-12 mx-auto mb-4 text-blue-600" />
+            {/* 🔻🔻🔻 BADLAV: Shield icon ko Image se badla gaya 🔻🔻🔻 */}
+            <Image
+              src="/logo.jpg"
+              alt="Jeevan Suraksha Logo"
+              width={48}
+              height={48}
+              className="mx-auto mb-4"
+            />
+            {/* 🔺🔺🔺 Badlav yahan samapt hota hai 🔺🔺🔺 */}
             <h1 className="text-2xl font-bold text-gray-900">
               Jeevan Suraksha
             </h1>
@@ -150,19 +168,24 @@ export default function LoginPage() {
                     >
                       Admin/Manager
                     </Label>
-                    <Shield
-                      className={`h-4 w-4 transition-colors ${
-                        isDashboardLogin ? "text-blue-600" : "text-gray-400"
+                    {/* 🔻🔻🔻 BADLAV: Shield icon ko Image se badla gaya 🔻🔻🔻 */}
+                    <Image
+                      src="/logo.jpg"
+                      alt="Admin Logo"
+                      width={16}
+                      height={16}
+                      className={`transition-opacity ${
+                        isDashboardLogin ? "opacity-100" : "opacity-40"
                       }`}
                     />
+                    {/* 🔺🔺🔺 Badlav yahan samapt hota hai 🔺🔺🔺 */}
                   </div>
                 </div>
 
-                {/* --- यह हिस्सा बदला गया है --- */}
                 <div className="space-y-2">
                   <Label htmlFor="identifier" className="text-sm font-medium">
                     {isDashboardLogin
-                      ? "Email Address"
+                      ? "Email or Phone Number"
                       : "Email or Phone Number"}
                   </Label>
                   <Input
@@ -170,7 +193,7 @@ export default function LoginPage() {
                     type="text"
                     placeholder={
                       isDashboardLogin
-                        ? "you@example.com"
+                        ? "Email / Phone Number"
                         : "Email / Phone Number"
                     }
                     value={
