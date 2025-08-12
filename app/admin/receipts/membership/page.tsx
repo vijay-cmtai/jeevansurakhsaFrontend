@@ -72,20 +72,40 @@ const generatePdfReceipt = async (receipt: Receipt) => {
       ["Receipt Type:", receipt.receiptType.replace("_", " ")],
       ["Amount Paid:", `₹ ${receipt.amount.toFixed(2)}`],
     ],
-    headStyles: { fillColor: [45, 55, 72] }, // Dark header for better look
+    headStyles: { fillColor: [45, 55, 72] },
     styles: { cellPadding: 2.5, fontSize: 10 },
   });
 
+  // 🔻🔻🔻 यह हिस्सा बदला गया है (फुटर) 🔻🔻🔻
   const finalY = (doc as any).lastAutoTable.finalY || 100;
-  doc.setFontSize(10);
+  doc.setFontSize(9);
+  doc.setTextColor(100);
+
+  let footerY = finalY + 12;
+  doc.setLineWidth(0.2);
+  doc.line(20, footerY, 190, footerY);
+  footerY += 5;
+
+  doc.setFont("helvetica", "bold");
+  doc.text("Health Guard Foundation", 105, footerY, { align: "center" });
+  footerY += 4;
+  doc.setFont("helvetica", "normal");
   doc.text(
-    "This is a computer-generated receipt and does not require a signature.",
+    "1-63, Amadabakula (Village), Kothakota (Mandal), Wanaparty (District),",
     105,
-    finalY + 15,
-    {
-      align: "center",
-    }
+    footerY,
+    { align: "center" }
   );
+  footerY += 4;
+  doc.text("Telangana, India - 509381", 105, footerY, { align: "center" });
+  footerY += 5;
+  doc.text(
+    "Email: info@jeevansuraksha.org | Phone: +91-78160 58717",
+    105,
+    footerY,
+    { align: "center" }
+  );
+  // 🔺🔺🔺 बदलाव यहाँ समाप्त होता है 🔺🔺🔺
 
   doc.save(`Receipt-${receipt.receiptNo}.pdf`);
 };
