@@ -273,13 +273,17 @@ export default function UpdateProfilePage() {
               }
               placeholder="Company Name"
             />
+            {/* === BADLAAV YAHAN KIYA GAYA HAI === */}
             <Select
               value={formData.employment?.contributionPlan || ""}
               onValueChange={(value) =>
                 handleNestedSelect("employment", "contributionPlan", value)
               }
+              disabled // Dropdown ko disable kar diya gaya hai
             >
-              <SelectTrigger>
+              <SelectTrigger className="bg-gray-100">
+                {" "}
+                {/* Visual feedback ke liye background color */}
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
