@@ -13,8 +13,10 @@ import {
   CashDonation,
   fetchCashDonations,
   deleteCashDonation,
-  downloadCashDonationReceipt,
 } from "@/lib/redux/features/donations/cashDonationsSlice";
+import { format } from "date-fns";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 const DonorDetailsCell = ({ donation }: { donation: CashDonation }) => (
   <div className="text-left text-sm">
@@ -24,6 +26,72 @@ const DonorDetailsCell = ({ donation }: { donation: CashDonation }) => (
     </p>
   </div>
 );
+
+// 🔻🔻🔻 यह नया फंक्शन जोड़ा गया है 🔻🔻🔻
+const generatePdfReceipt = async (donation: CashDonation) => {
+  const doc = new jsPDF();
+
+  const imageResponse = await fetch("/logo.jpg");
+  const imageBlob = await imageResponse.blob();
+  const imageBase64 = await new Promise<string>((resolve) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(imageBlob);
+    reader.onloadend = () => {
+      resolve(reader.result as string);
+    };
+  });
+
+  doc.addImage(imageBase64, "JPEG", 85, 15, 40, 40);
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(22);
+  doc.text("Jeevan Suraksha", 105, 65, { align: "center" });
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(10);
+  doc.text(
+    "A Social Security Collective, An Initiative of Health Guard Foundation.",
+    105,
+    72,
+    { align: "center" }
+  );
+
+  autoTable(doc, {
+    startY: 85,
+    theme: "grid",
+    head: [["Field", "Details"]],
+    body: [
+      ["Receipt No:", donation.receiptNo],
+      [
+        "Date of Donation:",
+        donation.createdAt
+          ? format(new Date(donation.createdAt), "dd MMM, yyyy")
+          : "N/A",
+      ],
+      ["Type:", "Cash Donation"],
+      ["Donor Name:", donation.name],
+      ["Donor Mobile:", donation.mobile],
+      ["Donation Amount:", `₹ ${donation.amount.toFixed(2)}`],
+      ["Payment Mode:", donation.mode || "Cash"],
+    ],
+    headStyles: { fillColor: [45, 55, 72] },
+    styles: { cellPadding: 2.5, fontSize: 10 },
+  });
+
+  const finalY = (doc as any).lastAutoTable.finalY || 100;
+  doc.setFontSize(10);
+  doc.text(
+    "This is a computer-generated receipt and does not require a signature.",
+    105,
+    finalY + 15,
+    {
+      align: "center",
+    }
+  );
+
+  doc.save(`Cash-Donation-Receipt-${donation.receiptNo}.pdf`);
+};
+// 🔺🔺🔺 बदलाव यहाँ समाप्त होता है 🔺🔺🔺
 
 export default function CashDonationReceiptsPage() {
   const dispatch = useDispatch<AppDispatch>();
@@ -35,7 +103,6 @@ export default function CashDonationReceiptsPage() {
     totalDonationAmount,
     listStatus,
     actionStatus,
-    downloadStatus,
   } = useSelector((state: RootState) => state.cashDonations);
   const { userInfo } = useSelector((state: RootState) => state.auth);
   const userIsAdmin = userInfo?.role === "Admin";
@@ -51,14 +118,20 @@ export default function CashDonationReceiptsPage() {
     }
   };
 
-  const handleDownload = (donationId: string, receiptNo: string) => {
+  // 🔻🔻🔻 यह फंक्शन बदला गया है 🔻🔻🔻
+  const handleDownload = async (donation: CashDonation) => {
     if (downloadingId) return;
-    setDownloadingId(donationId);
-    const fileName = `receipt-${receiptNo}.pdf`;
-    dispatch(downloadCashDonationReceipt({ donationId, fileName })).finally(
-      () => setDownloadingId(null)
-    );
+    setDownloadingId(donation._id);
+    try {
+      await generatePdfReceipt(donation);
+    } catch (error) {
+      console.error("Failed to generate PDF:", error);
+      alert("Could not generate the PDF. Please try again.");
+    } finally {
+      setDownloadingId(null);
+    }
   };
+  // 🔺🔺🔺 बदलाव यहाँ समाप्त होता है 🔺🔺🔺
 
   const columns = [
     {
@@ -126,7 +199,7 @@ export default function CashDonationReceiptsPage() {
         return (
           <Button
             size="sm"
-            onClick={() => handleDownload(row._id, row.receiptNo)}
+            onClick={() => handleDownload(row)}
             disabled={isDownloading}
           >
             {isDownloading ? (
