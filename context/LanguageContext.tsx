@@ -157,17 +157,18 @@ const enTranslations: Record<string, string> = {
   "whoWeAre.mission.tab2": "Our Mission",
   "whoWeAre.mission.tab3": "Our Vision",
   "whoWeAre.mission.foundationTitle": "What is Health Guard Foundation?",
+
   "whoWeAre.mission.foundationP1":
-    "Health Guard Foundation (HGF), an NGO registered in Telangana, India, founded with the vision of creating a community-driven safety net. HGF aim to provide instant financial assistance to individuals during health crises, regardless of their background or income level.",
+    "Health Guard Foundation (HGF), an NGO registered in Telangana, India, founded by IT Employees with the vision of creating a community-driven safety net. HGF aim to provide instant financial assistance to individuals during health crises, regardless of their background or income level.",
   "whoWeAre.mission.foundationP2":
-    "Our initiative is simple yet powerful—members contribute ₹10 per month, pooling resources into a common fund. When a medical emergency strikes, this fund becomes a lifeline, ensuring that urgent care is accessible without financial stress.",
+    "Our initiative is simple yet powerful—members contribute ₹2010 per month, pooling resources into a common fund. When a medical emergency strikes, this fund becomes a lifeline, ensuring that urgent care is accessible without financial stress.",
+
   "whoWeAre.mission.missionTitle": "Our Mission",
   "whoWeAre.mission.missionP":
     "To build a caring and supportive community where members stand together to provide financial security to beneficiaries through small contributions, ensuring no family faces hardship alone during their most challenging times.",
   "whoWeAre.mission.visionTitle": "Our Vision",
   "whoWeAre.mission.visionP":
     "To create a nationwide network of social security collectives that provides comprehensive financial protection to every family, fostering a society where mutual support and community care are the foundation of security.",
-
   // Our Team Page
   "ourTeam.hero.title": "Our Team",
   "ourTeam.hero.breadcrumbHome": "HOME",
@@ -809,7 +810,7 @@ const teTranslations: Record<string, string> = {
   "footer.copyright":
     "© {year} జీవన్ సురక్ష సోషల్ సెక్యూరిటీ కలెక్టివ్. అన్ని హక్కులు ప్రత్యేకించబడ్డాయి.",
 
-  // Who We Are Page
+  /// Who We Are Page
   "whoWeAre.hero.title": "మా గురించి",
   "whoWeAre.hero.breadcrumbHome": "హోమ్",
   "whoWeAre.hero.breadcrumbAbout": "మా గురించి",
@@ -823,10 +824,12 @@ const teTranslations: Record<string, string> = {
   "whoWeAre.mission.tab2": "మా లక్ష్యం",
   "whoWeAre.mission.tab3": "మా దృష్టి",
   "whoWeAre.mission.foundationTitle": "హెల్త్ గార్డ్ ఫౌండేషన్ అంటే ఏమిటి?",
+
   "whoWeAre.mission.foundationP1":
-    "హెల్త్ గార్డ్ ఫౌండేషన్ (HGF), తెలంగాణ, భారతదేశంలో నమోదు చేయబడిన ఒక NGO, ఒక సమాజ-ఆధారిత భద్రతా వలయాన్ని సృష్టించే దృష్టితో స్థాపించబడింది. HGF వారి నేపథ్యం లేదా ఆదాయ స్థాయితో సంబంధం లేకుండా, ఆరోగ్య సంక్షోభాల సమయంలో వ్యక్తులకు తక్షణ ఆర్థిక సహాయం అందించాలని లక్ష్యంగా పెట్టుకుంది.",
+    "హెల్త్ గార్డ్ ఫౌండేషన్ (HGF), తెలంగాణ, భారతదేశంలో నమోదు చేయబడిన ఒక NGO, ఒక సమాజ-ఆధారిత భద్రతా వలయాన్ని సృష్టించే దృష్టితో ఐటీ ఉద్యోగులచే స్థాపించబడింది. HGF వారి నేపథ్యం లేదా ఆదాయ స్థాయితో సంబంధం లేకుండా, ఆరోగ్య సంక్షోభాల సమయంలో వ్యక్తులకు తక్షణ ఆర్థిక సహాయం అందించాలని లక్ష్యంగా పెట్టుకుంది.",
   "whoWeAre.mission.foundationP2":
-    "మా చొరవ సరళమైనది ఇంకా శక్తివంతమైనది—సభ్యులు నెలకు ₹10 అందిస్తారు, వనరులను ఒక ఉమ్మడి నిధిలోకి సమీకరిస్తారు. ఒక వైద్య అత్యవసర పరిస్థితి సంభవించినప్పుడు, ఈ నిధి ఒక జీవనాధారంగా మారుతుంది, ఆర్థిక ఒత్తిడి లేకుండా అత్యవసర సంరక్షణ అందుబాటులో ఉండేలా నిర్ధారిస్తుంది.",
+    "మా చొరవ సరళమైనది ఇంకా శక్తివంతమైనది—సభ్యులు నెలకు ₹2010 అందిస్తారు, వనరులను ఒక ఉమ్మడి నిధిలోకి సమీకరిస్తారు. ఒక వైద్య అత్యవసర పరిస్థితి సంభవించినప్పుడు, ఈ నిధి ఒక జీవనాధారంగా మారుతుంది, ఆర్థిక ఒత్తిడి లేకుండా అత్యవసర సంరక్షణ అందుబాటులో ఉండేలా నిర్ధారిస్తుంది.",
+
   "whoWeAre.mission.missionTitle": "మా లక్ష్యం",
   "whoWeAre.mission.missionP":
     "చిన్న విరాళాల ద్వారా లబ్ధిదారులకు ఆర్థిక భద్రతను అందించడానికి సభ్యులు కలిసి నిలబడే ఒక శ్రద్ధగల మరియు సహాయక సమాజాన్ని నిర్మించడం, వారి అత్యంత సవాలు సమయాల్లో ఏ కుటుంబం ఒంటరిగా కష్టాలను ఎదుర్కోకుండా నిర్ధారించడం.",
