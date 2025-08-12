@@ -3,24 +3,20 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import axiosInstance from "@/lib/axios";
 import { Member } from "../members/membersSlice";
-import { isAxiosError } from "axios";
 import { RootState } from "../../store";
 
-// Interface to define the shape of user data in the Redux state
 interface UserInfo extends Member {
   isAdmin?: boolean;
   token?: string;
   role?: "Admin" | "Manager";
 }
 
-// Interface to define the shape of the entire auth slice state
 interface AuthState {
   userInfo: UserInfo | null;
   status: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
 }
 
-// Helper function to safely get user info from localStorage on initial load
 const getUserInfoFromStorage = (): UserInfo | null => {
   if (typeof window !== "undefined") {
     const userInfoString = localStorage.getItem("userInfo");
@@ -37,23 +33,21 @@ const getUserInfoFromStorage = (): UserInfo | null => {
   return null;
 };
 
-// The initial state of the auth slice
 const initialState: AuthState = {
   userInfo: getUserInfoFromStorage(),
   status: "idle",
   error: null,
 };
 
-// --- Async Thunk for PUBLIC MEMBER LOGIN ---
 export const loginUser = createAsyncThunk(
   "auth/loginUser",
   async (
-    { email, password }: { email: string; password: string },
+    { identifier, password }: { identifier: string; password: string },
     { rejectWithValue }
   ) => {
     try {
       const { data } = await axiosInstance.post("/api/members/login", {
-        email,
+        identifier,
         password,
       });
       return data as UserInfo;
@@ -63,7 +57,6 @@ export const loginUser = createAsyncThunk(
   }
 );
 
-// --- Async Thunk for HARDCODED SUPER ADMIN LOGIN ---
 export const loginAdmin = createAsyncThunk(
   "auth/loginAdmin",
   async (
@@ -75,9 +68,6 @@ export const loginAdmin = createAsyncThunk(
         email,
         password,
       });
-      // ✅✅✅ YAHAN PAR FIX HAI ✅✅✅
-      // Backend se aaye response mein 'role' field ko manually add karein.
-      // Isse Redux state hamesha consistent rahega.
       return { ...data, role: "Admin" } as UserInfo;
     } catch (error: any) {
       return rejectWithValue(
@@ -87,7 +77,6 @@ export const loginAdmin = createAsyncThunk(
   }
 );
 
-// --- Async Thunk for DATABASE-BASED ADMINS & MANAGERS ---
 export const loginDashboardUser = createAsyncThunk(
   "auth/loginDashboardUser",
   async (
@@ -99,7 +88,6 @@ export const loginDashboardUser = createAsyncThunk(
         email,
         password,
       });
-      // Set 'isAdmin' to true for both Admins and Managers for redirection purposes.
       return { ...data, isAdmin: true } as UserInfo;
     } catch (error: any) {
       return rejectWithValue(
@@ -109,7 +97,6 @@ export const loginDashboardUser = createAsyncThunk(
   }
 );
 
-// --- Async Thunk to fetch Member's own profile ---
 export const getMemberProfile = createAsyncThunk(
   "auth/getMemberProfile",
   async (_, { getState, rejectWithValue }) => {
@@ -135,7 +122,6 @@ const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    // Reducer to set user credentials after a successful login
     setCredentials: (state, action: PayloadAction<UserInfo>) => {
       state.userInfo = action.payload;
       state.status = "succeeded";
@@ -144,7 +130,6 @@ const authSlice = createSlice({
         localStorage.setItem("userInfo", JSON.stringify(action.payload));
       }
     },
-    // Reducer to handle user logout
     logout: (state) => {
       if (typeof window !== "undefined") {
         localStorage.removeItem("userInfo");
@@ -156,7 +141,6 @@ const authSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    // Helper functions to reduce code duplication
     const handlePending = (state: AuthState) => {
       state.status = "loading";
       state.error = null;
@@ -167,28 +151,24 @@ const authSlice = createSlice({
     };
 
     builder
-      // Member Login Lifecycle
       .addCase(loginUser.pending, handlePending)
       .addCase(loginUser.fulfilled, (state, action) => {
         authSlice.caseReducers.setCredentials(state, action);
       })
       .addCase(loginUser.rejected, handleRejected)
 
-      // Hardcoded Admin Login Lifecycle
       .addCase(loginAdmin.pending, handlePending)
       .addCase(loginAdmin.fulfilled, (state, action) => {
         authSlice.caseReducers.setCredentials(state, action);
       })
       .addCase(loginAdmin.rejected, handleRejected)
 
-      // Database Admin/Manager Login Lifecycle
       .addCase(loginDashboardUser.pending, handlePending)
       .addCase(loginDashboardUser.fulfilled, (state, action) => {
         authSlice.caseReducers.setCredentials(state, action);
       })
       .addCase(loginDashboardUser.rejected, handleRejected)
 
-      // Get Member Profile Lifecycle
       .addCase(getMemberProfile.pending, (state) => {
         state.status = "loading";
       })
