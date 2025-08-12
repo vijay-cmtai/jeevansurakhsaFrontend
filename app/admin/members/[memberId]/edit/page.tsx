@@ -13,7 +13,7 @@ import {
   Member,
 } from "@/lib/redux/features/members/membersSlice";
 import { format } from "date-fns";
-import Image from "next/image";
+import Image from "next/image"; // Image component imported
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,7 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, Shield, Trash2 } from "lucide-react";
+import { Loader2, Trash2 } from "lucide-react"; // Shield is removed as it's no longer used
 
 // --- Form Validation Schema (using Zod) ---
 const formSchema = z.object({
@@ -61,25 +61,21 @@ export default function EditMemberPage() {
     name: "nominees",
   });
 
-  // Fetch member data when the page loads
   useEffect(() => {
     if (memberId) {
       dispatch(fetchMemberById(memberId));
     }
   }, [dispatch, memberId]);
 
-  // Pre-fill the form once the member data is loaded from Redux
   useEffect(() => {
     if (member) {
       reset(member);
     }
   }, [member, reset]);
 
-  // Handle form submission
   const onSubmit = (data: Member) => {
     const formData = new FormData();
 
-    // Append all fields to FormData
     Object.keys(data).forEach((key) => {
       const value = (data as any)[key];
       if (key === "nominees" || key === "address" || key === "employment") {
@@ -117,14 +113,21 @@ export default function EditMemberPage() {
     <div className="min-h-screen bg-gray-800 p-4 sm:p-8 flex justify-center">
       <div className="w-full max-w-2xl bg-white shadow-lg rounded-lg">
         <div className="bg-gray-100 p-4 text-center border-b">
-          <Shield className="h-12 w-12 mx-auto mb-2 text-blue-600" />
+          {/* 🔻🔻🔻 BADLAV 1: Shield icon ko Image se badla gaya 🔻🔻🔻 */}
+          <Image
+            src="/logo.jpg"
+            alt="Logo"
+            width={64}
+            height={64}
+            className="mx-auto mb-2"
+          />
+          {/* 🔺🔺🔺 Badlav yahan samapt hota hai 🔺🔺🔺 */}
           <h1 className="text-2xl font-bold text-gray-800">
             Edit Your Profile
           </h1>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-6">
-          {/* State Selection */}
           <Section title="State Selection">
             <Input defaultValue={member.state} {...register("state")} />
             <Input defaultValue={member.district} {...register("district")} />
@@ -135,7 +138,6 @@ export default function EditMemberPage() {
             />
           </Section>
 
-          {/* Personal Details */}
           <Section title="Personal & Address Details">
             <FormRow label="Name">
               <Input defaultValue={member.fullName} {...register("fullName")} />
@@ -189,7 +191,7 @@ export default function EditMemberPage() {
             </FormRow>
           </Section>
 
-          {/* Employment Details */}
+          {/* 🔻🔻🔻 BADLAV 2: Employment Details section mein naya field joda gaya 🔻🔻🔻 */}
           <Section title="Employment Details">
             <Input
               placeholder="Type"
@@ -206,9 +208,14 @@ export default function EditMemberPage() {
               defaultValue={member.employment?.companyName}
               {...register("employment.companyName")}
             />
+            <Input
+              placeholder="Contribution Plan"
+              defaultValue={member.employment?.contributionPlan}
+              {...register("employment.contributionPlan")}
+            />
           </Section>
+          {/* 🔺🔺🔺 Badlav yahan samapt hota hai 🔺🔺🔺 */}
 
-          {/* Nominee Details */}
           <Section title="Nominee Details">
             {fields.map((field, index) => (
               <div
@@ -285,7 +292,6 @@ export default function EditMemberPage() {
   );
 }
 
-// --- Helper Components for Form Structure ---
 const Section = ({
   title,
   children,
