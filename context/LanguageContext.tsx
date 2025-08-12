@@ -135,9 +135,11 @@ const enTranslations: Record<string, string> = {
   "footer.link.faq": "FAQ",
   "footer.link.collectives": "Collectives",
   "footer.link.contact": "Contact",
-  "footer.link.terms": "Terms",
-  "footer.link.privacy": "Privacy",
+  "footer.link.terms": "Terms & Condition",
+  "footer.link.privacy": "Privacy Policy",
   "footer.link.reportClaim": "Report Claim",
+  "footer.link.refund": "Refund and Return Policy",
+  "footer.link.volunteers": "Volunteers",
   "footer.copyright":
     "© {year} Jeevan Suraksha Social Security Collective. All rights reserved.",
 
@@ -557,6 +559,134 @@ const enTranslations: Record<string, string> = {
     "The full claim value is not guaranteed; the actual amount depends on contributions received.",
   "privateCollective.disclaimer.item3":
     "If the required amount is not collected, the nominee will receive only the total contributed by the active members.",
+  // Terms & Conditions Page
+  "terms.hero.title": "Terms & Conditions",
+  "terms.hero.breadcrumb": "TERMS & CONDITIONS",
+  "terms.content.title": "Terms and Conditions",
+  "terms.content.intro":
+    "Welcome to {companyName}. By accessing and using our website, you agree to the following terms and conditions. Please read them carefully. If you do not agree with these terms, please do not use our website.",
+  "terms.content.thankYou":
+    "Thank you for visiting our website and supporting our mission.",
+  "terms.section.acceptance.title": "1. Acceptance of Terms",
+  "terms.section.acceptance.p1":
+    "By using our website, you acknowledge that you have read, understood, and agree to be bound by these Terms and Conditions and any applicable laws and regulations. We may update these terms from time to time, and it is your responsibility to review them periodically.",
+  "terms.section.useOfWebsite.title": "2. Use of Website",
+  "terms.section.useOfWebsite.p1":
+    "You agree to use our website for lawful purposes only. You must not use our site to:",
+  "terms.section.useOfWebsite.l1":
+    "Engage in any unlawful activity or violate any applicable laws or regulations.",
+  "terms.section.useOfWebsite.l2":
+    "Transmit harmful or malicious content, including viruses, malware, or other harmful code.",
+  "terms.section.useOfWebsite.l3":
+    "Impersonate any person or entity or misrepresent your affiliation with any person or entity.",
+  "terms.section.intellectualProperty.title": "3. Intellectual Property",
+  "terms.section.intellectualProperty.p1":
+    "All content on our website, including text, images, logos, and other materials, is the property of {companyName} or its licensors and is protected by intellectual property laws. You may not reproduce, distribute, modify, or create derivative works from any content without our prior written consent.",
+  "terms.section.userContributions.title": "4. User Contributions",
+  "terms.section.userContributions.p1":
+    "If you submit any content or materials to our website, such as comments or feedback, you grant us a non-exclusive, royalty-free, perpetual, and worldwide license to use, reproduce, modify, and distribute such content. You represent and warrant that you have the rights to grant this license and that your content does not infringe any third-party rights.",
+  "terms.section.thirdParty.title": "5. Links to Third-Party Websites",
+  "terms.section.thirdParty.p1":
+    "Our website may contain links to third-party websites for your convenience. We do not endorse or take responsibility for the content or practices of these sites. Accessing and using third-party websites is at your own risk.",
+  "terms.section.liability.title": "6. Limitation of Liability",
+  "terms.section.liability.p1":
+    "To the fullest extent permitted by law, {companyName} shall not be liable for any direct, indirect, incidental, consequential, or punitive damages arising from your use of our website or any content on our site. We make no warranties or representations about the accuracy, reliability, or completeness of the content on our site.",
+  "terms.section.indemnification.title": "7. Indemnification",
+  "terms.section.indemnification.p1":
+    "You agree to indemnify and hold harmless {companyName}, its affiliates, officers, directors, employees, and agents from any claims, damages, losses, liabilities, or expenses arising out of your use of our website or violation of these terms.",
+  "terms.section.governingLaw.title": "8. Governing Law",
+  "terms.section.governingLaw.p1":
+    "These Terms and Conditions are governed by and construed in accordance with the laws, without regard to its conflict of law principles. Any disputes arising under or in connection with these terms shall be subject to the exclusive jurisdiction of the courts.",
+  "terms.section.contact.title": "9. Contact Information",
+  "terms.section.contact.p1":
+    "If you have any questions or concerns about these Terms and Conditions, please contact us at:",
+  "terms.section.contact.p2": "{companyName}",
+  // Refund Policy Page
+  "refund.hero.title": "Refund and Return Policy",
+  "refund.hero.breadcrumb": "REFUND AND RETURN POLICY",
+  "refund.content.effectiveDate": "Effective Date: March 23, 2025",
+  "refund.content.intro":
+    "At Jeevan Suraksha Social Security Collective, an initiative of Health Guard Foundation, we strive to ensure transparency in our financial transactions. This Refund Policy explains the conditions under which refunds may be granted.",
+  "refund.content.conclusion":
+    "By using our services, you agree to the terms outlined in these policies.",
+  "refund.section.eligibility.title": "1. Eligibility for Refunds",
+  "refund.section.eligibility.p1":
+    "Refunds may be issued in cases of erroneous transactions or duplicate payments.",
+  "refund.section.eligibility.p2":
+    "Refunds will be considered only if the request is made within 72 hours of making membership charges before claiming your receipt which ever happens first.",
+  "refund.section.nonRefundable.title": "2. Non-Refundable Transactions",
+  "refund.section.nonRefundable.p1":
+    "Any transactional charges are non-refundable.",
+  "refund.section.nonRefundable.p2":
+    "Claims and benefits once processed are non-reversible.",
+  "refund.section.process.title": "3. Refund Process",
+  "refund.section.process.p1":
+    "Users must submit a formal request with transaction details and supporting documents.",
+  "refund.section.process.p2":
+    "Refunds, if approved, will be processed within 72 hours through the original payment method.",
+  "refund.section.contact.title": "4. Contact Information",
+  "refund.section.contact.p1":
+    "For questions regarding our Privacy Policy, Terms of Use, or Refund Policy, please contact us at:",
+  "refund.section.contact.visitUs": "Visit Us:",
+  "refund.section.contact.address.l1": "1-63, Amadabakula (Village),",
+  "refund.section.contact.address.l2": "Kothakota (Mandal),",
+  "refund.section.contact.address.l3": "Wanaparthy (District),",
+  "refund.section.contact.address.l4": "Telangana, India",
+  "refund.section.contact.mailUs": "Mail Us:",
+  "refund.section.contact.email": "info@healthguard.org.in",
+  "refund.section.contact.phoneUs": "Phone Us:",
+  "refund.section.contact.phone": "+91 7816068717",
+  // Privacy Policy Page
+  "privacy.hero.title": "Privacy Policy",
+  "privacy.hero.breadcrumb": "PRIVACY POLICY",
+  "privacy.content.effectiveDate": "Effective Date: March 23, 2025",
+  "privacy.content.intro":
+    'Jeevan Suraksha Social Security Collective, a part of Health Guard Foundation, ("we," "our," "us") is committed to protecting the privacy and security of our users\' information. This Privacy Policy explains how we collect, use, disclose, and protect your information when you interact with our services.',
+  "privacy.section.collect.title": "1. Information We Collect",
+  "privacy.section.collect.personal":
+    "<strong>Personal Information:</strong> Name, contact details, date of birth, government-issued identification, financial details, and other related information.",
+  "privacy.section.collect.nonPersonal":
+    "<strong>Non-Personal Information:</strong> Browser type, IP address, and usage data collected through cookies and analytics tools.",
+  "privacy.section.use.title": "2. How We Use Your Information",
+  "privacy.section.use.l1": "To provide, maintain, and improve our services.",
+  "privacy.section.use.l2": "To process applications, payments, and claims.",
+  "privacy.section.use.l3":
+    "To communicate updates, notifications, and marketing materials.",
+  "privacy.section.use.l4": "To comply with legal obligations.",
+  "privacy.section.sharing.title": "3. Sharing of Information",
+  "privacy.section.sharing.p1":
+    "We do not sell or rent personal information to third parties.",
+  "privacy.section.sharing.p2":
+    "Information may be shared with government agencies, legal authorities, or service providers where required by law.",
+  "privacy.section.security.title": "4. Security Measures",
+  "privacy.section.security.p1":
+    "We implement industry-standard security measures to safeguard your information.",
+  "privacy.section.security.p2":
+    "However, no online service is 100% secure; users are advised to take personal security precautions.",
+  "privacy.section.rights.title": "5. Your Rights",
+  "privacy.section.rights.p1":
+    "You may request access, correction, or deletion of your personal data.",
+  "privacy.section.rights.p2":
+    "You may opt out of receiving promotional communications.",
+  // Homepage Contact Form
+  "contactForm.title": "Have a Question? Get in Touch!",
+  "contactForm.subtitle":
+    "We are here to help and answer any question you might have. We look forward to hearing from you.",
+  "contactForm.label.name": "Full Name *",
+  "contactForm.label.email": "Email Address *",
+  "contactForm.label.phone": "Phone Number *",
+  "contactForm.label.message": "Message *",
+  "contactForm.error.nameRequired": "Name is required.",
+  "contactForm.error.emailRequired": "A valid email is required.",
+  "contactForm.error.phoneRequired": "Phone number is required.",
+  "contactForm.error.messageRequired": "Message cannot be empty.",
+  "contactForm.button.submitting": "Submitting...",
+  "contactForm.button.send": "Send Message",
+  "contactForm.status.success":
+    "Thank you for your message! We will get back to you soon.",
+  "contactForm.status.errorPrefix": "Error:",
+  "contactForm.status.networkError":
+    "An error occurred. Please try again later.",
 };
 
 // --- Telugu Translations ---
@@ -662,7 +792,6 @@ const teTranslations: Record<string, string> = {
   "cta.title": "మార్పులో భాగం అవ్వండి",
   "cta.subtitle":
     "మీకు మరియు మీ ప్రియమైన వారికి అండగా నిలిచే ఒక కలెక్టివ్‌ను నిర్మించడంలో మాతో చేరండి. ఈరోజే మీ కుటుంబ భవిష్యత్తును భద్రపరచుకోండి!",
-
   // Footer
   "footer.about":
     "సవాళ్లతో కూడిన సమయాల్లో సామూహిక మద్దతు మరియు పరస్పర శ్రద్ధ ద్వారా ఆర్థిక భద్రతను అందించే సమాజ-ఆధారిత చొరవ.",
@@ -678,6 +807,8 @@ const teTranslations: Record<string, string> = {
   "footer.link.terms": "నిబంధనలు",
   "footer.link.privacy": "గోప్యత",
   "footer.link.reportClaim": "క్లెయిమ్ నివేదించండి",
+  "footer.link.refund": "వాపసు మరియు రిటర్న్ విధానం", // Yeh add kiya gaya hai
+  "footer.link.volunteers": "వాలంటీర్లు", // Yeh add kiya gaya hai
   "footer.copyright":
     "© {year} జీవన్ సురక్ష సోషల్ సెక్యూరిటీ కలెక్టివ్. అన్ని హక్కులు ప్రత్యేకించబడ్డాయి.",
 
@@ -1132,6 +1263,137 @@ const teTranslations: Record<string, string> = {
     "పూర్తి క్లెయిమ్ విలువకు హామీ లేదు; వాస్తవ మొత్తం అందుకున్న విరాళాలపై ఆధారపడి ఉంటుంది.",
   "privateCollective.disclaimer.item3":
     "అవసరమైన మొత్తం సేకరించబడకపోతే, నామినీ క్రియాశీల సభ్యులు అందించిన మొత్తం మాత్రమే అందుకుంటారు.",
+
+  // Terms & Conditions Page
+  "terms.hero.title": "నిబంధనలు & షరతులు",
+  "terms.hero.breadcrumb": "నిబంధనలు & షరతులు",
+  "terms.content.title": "నిబంధనలు మరియు షరతులు",
+  "terms.content.intro":
+    "{companyName}కు స్వాగతం. మా వెబ్‌సైట్‌ను యాక్సెస్ చేయడం మరియు ఉపయోగించడం ద్వారా, మీరు ఈ క్రింది నిబంధనలు మరియు షరతులకు అంగీకరిస్తున్నారు. దయచేసి వాటిని జాగ్రత్తగా చదవండి. మీరు ఈ నిబంధనలతో ఏకీభవించకపోతే, దయచేసి మా వెబ్‌సైట్‌ను ఉపయోగించవద్దు.",
+  "terms.content.thankYou":
+    "మా వెబ్‌సైట్‌ను సందర్శించినందుకు మరియు మా మిషన్‌కు మద్దతు ఇచ్చినందుకు ధన్యవాదాలు.",
+  "terms.section.acceptance.title": "1. నిబంధనల అంగీకారం",
+  "terms.section.acceptance.p1":
+    "మా వెబ్‌సైట్‌ను ఉపయోగించడం ద్వారా, మీరు ఈ నిబంధనలు మరియు షరతులను మరియు వర్తించే ఏవైనా చట్టాలు మరియు నిబంధనలను చదివి, అర్థం చేసుకుని, కట్టుబడి ఉంటారని మీరు అంగీకరిస్తున్నారు. మేము ఎప్పటికప్పుడు ఈ నిబంధనలను నవీకరించవచ్చు మరియు వాటిని క్రమానుగతంగా సమీక్షించడం మీ బాధ్యత.",
+  "terms.section.useOfWebsite.title": "2. వెబ్‌సైట్ వాడకం",
+  "terms.section.useOfWebsite.p1":
+    "మీరు మా వెబ్‌సైట్‌ను చట్టబద్ధమైన ప్రయోజనాల కోసం మాత్రమే ఉపయోగించడానికి అంగీకరిస్తున్నారు. మీరు మా సైట్‌ను దీని కోసం ఉపయోగించకూడదు:",
+  "terms.section.useOfWebsite.l1":
+    "ఏదైనా చట్టవిరుద్ధమైన కార్యకలాపాలలో పాల్గొనడం లేదా వర్తించే ఏవైనా చట్టాలు లేదా నిబంధనలను ఉల్లంఘించడం.",
+  "terms.section.useOfWebsite.l2":
+    "వైరస్‌లు, మాల్వేర్ లేదా ఇతర హానికరమైన కోడ్‌తో సహా హానికరమైన లేదా హానికరమైన కంటెంట్‌ను ప్రసారం చేయడం.",
+  "terms.section.useOfWebsite.l3":
+    "ఏదైనా వ్యక్తి లేదా సంస్థను అనుకరించడం లేదా ఏదైనా వ్యక్తి లేదా సంస్థతో మీ అనుబంధాన్ని తప్పుగా సూచించడం.",
+  "terms.section.intellectualProperty.title": "3. మేధో సంపత్తి",
+  "terms.section.intellectualProperty.p1":
+    "మా వెబ్‌సైట్‌లోని టెక్స్ట్, చిత్రాలు, లోగోలు మరియు ఇతర మెటీరియల్‌లతో సహా మొత్తం కంటెంట్ {companyName} లేదా దాని లైసెన్సర్‌ల ఆస్తి మరియు మేధో సంపత్తి చట్టాల ద్వారా రక్షించబడింది. మా ముందస్తు వ్రాతపూర్వక అనుమతి లేకుండా మీరు ఏ కంటెంట్ నుండి పునరుత్పత్తి, పంపిణీ, సవరించడం లేదా ఉత్పన్న రచనలను సృష్టించకూడదు.",
+  "terms.section.userContributions.title": "4. వినియోగదారు రచనలు",
+  "terms.section.userContributions.p1":
+    "మీరు వ్యాఖ్యలు లేదా అభిప్రాయం వంటి ఏవైనా కంటెంట్ లేదా మెటీరియల్‌లను మా వెబ్‌సైట్‌కు సమర్పించినట్లయితే, అటువంటి కంటెంట్‌ను ఉపయోగించడానికి, పునరుత్పత్తి చేయడానికి, సవరించడానికి మరియు పంపిణీ చేయడానికి మీరు మాకు ప్రత్యేకమైన, రాయల్టీ-రహిత, శాశ్వతమైన మరియు ప్రపంచవ్యాప్త లైసెన్స్‌ను మంజూరు చేస్తారు. ఈ లైసెన్స్‌ను మంజూరు చేసే హక్కులు మీకు ఉన్నాయని మరియు మీ కంటెంట్ ఏ మూడవ పక్షం హక్కులను ఉల్లంఘించదని మీరు ప్రాతినిధ్యం వహిస్తున్నారు మరియు హామీ ఇస్తున్నారు.",
+  "terms.section.thirdParty.title": "5. మూడవ-పక్ష వెబ్‌సైట్‌లకు లింకులు",
+  "terms.section.thirdParty.p1":
+    "మా వెబ్‌సైట్ మీ సౌలభ్యం కోసం మూడవ పక్ష వెబ్‌సైట్‌లకు లింక్‌లను కలిగి ఉండవచ్చు. మేము ఈ సైట్‌ల కంటెంట్ లేదా పద్ధతులకు ఆమోదం తెలపము లేదా బాధ్యత వహించము. మూడవ పక్ష వెబ్‌సైట్‌లను యాక్సెస్ చేయడం మరియు ఉపయోగించడం మీ స్వంత పూచీపై ఉంటుంది.",
+  "terms.section.liability.title": "6. బాధ్యత యొక్క పరిమితి",
+  "terms.section.liability.p1":
+    "చట్టం ద్వారా అనుమతించబడిన పూర్తి స్థాయిలో, మా వెబ్‌సైట్ లేదా మా సైట్‌లోని ఏదైనా కంటెంట్‌ను మీరు ఉపయోగించడం వల్ల ఉత్పన్నమయ్యే ఏవైనా ప్రత్యక్ష, పరోక్ష, యాదృచ్ఛిక, పర్యవసానమైన లేదా శిక్షార్హమైన నష్టాలకు {companyName} బాధ్యత వహించదు. మా సైట్‌లోని కంటెంట్ యొక్క ఖచ్చితత్వం, విశ్వసనీయత లేదా సంపూర్ణత గురించి మేము ఎటువంటి వారెంటీలు లేదా ప్రాతినిధ్యాలు ఇవ్వము.",
+  "terms.section.indemnification.title": "7. నష్టపరిహారం",
+  "terms.section.indemnification.p1":
+    "మీరు మా వెబ్‌సైట్‌ను ఉపయోగించడం లేదా ఈ నిబంధనలను ఉల్లంఘించడం వల్ల ఉత్పన్నమయ్యే ఏవైనా క్లెయిమ్‌లు, నష్టాలు, నష్టాలు, బాధ్యతలు లేదా ఖర్చుల నుండి {companyName}, దాని అనుబంధ సంస్థలు, అధికారులు, డైరెక్టర్లు, ఉద్యోగులు మరియు ఏజెంట్లను నష్టపరిహారం చెల్లించడానికి మరియు నిరపాయంగా ఉంచడానికి మీరు అంగీకరిస్తున్నారు.",
+  "terms.section.governingLaw.title": "8. పాలక చట్టం",
+  "terms.section.governingLaw.p1":
+    "ఈ నిబంధనలు మరియు షరతులు చట్ట సూత్రాల సంఘర్షణతో సంబంధం లేకుండా చట్టాలకు అనుగుణంగా నిర్వహించబడతాయి మరియు వివరించబడతాయి. ఈ నిబంధనల కింద లేదా వాటికి సంబంధించి ఉత్పన్నమయ్యే ఏవైనా వివాదాలు న్యాయస్థానాల ప్రత్యేక అధికార పరిధికి లోబడి ఉంటాయి.",
+  "terms.section.contact.title": "9. సంప్రదింపు సమాచారం",
+  "terms.section.contact.p1":
+    "ఈ నిబంధనలు మరియు షరతుల గురించి మీకు ఏవైనా ప్రశ్నలు లేదా ఆందోళనలు ఉంటే, దయచేసి మమ్మల్ని ఇక్కడ సంప్రదించండి:",
+  "terms.section.contact.p2": "{companyName}",
+  // Refund Policy Page
+  "refund.hero.title": "వాపసు మరియు రిటర్న్ విధానం",
+  "refund.hero.breadcrumb": "వాపసు మరియు రిటర్న్ విధానం",
+  "refund.content.effectiveDate": "అమలు తేదీ: మార్చి 23, 2025",
+  "refund.content.intro":
+    "జీవన్ సురక్ష సోషల్ సెక్యూరిటీ కలెక్టివ్, హెల్త్ గార్డ్ ఫౌండేషన్ యొక్క ఒక చొరవ, వద్ద మేము మా ఆర్థిక లావాదేవీలలో పారదర్శకతను నిర్ధారించడానికి ప్రయత్నిస్తాము. ఈ వాపసు విధానం వాపసులు ఏ పరిస్థితులలో మంజూరు చేయబడతాయో వివరిస్తుంది.",
+  "refund.content.conclusion":
+    "మా సేవలను ఉపయోగించడం ద్వారా, మీరు ఈ విధానాలలో పేర్కొన్న నిబంధనలకు అంగీకరిస్తున్నారు.",
+  "refund.section.eligibility.title": "1. వాపసులకు అర్హత",
+  "refund.section.eligibility.p1":
+    "తప్పు లావాదేవీలు లేదా నకిలీ చెల్లింపుల సందర్భాలలో వాపసులు జారీ చేయబడవచ్చు.",
+  "refund.section.eligibility.p2":
+    "సభ్యత్వ ఛార్జీలు చేసిన 72 గంటలలోపు మీ రశీదును క్లెయిమ్ చేయడానికి ముందు అభ్యర్థన చేసినట్లయితే మాత్రమే వాపసులు పరిగణించబడతాయి, ఏది ముందుగా జరిగితే అది.",
+  "refund.section.nonRefundable.title": "2. తిరిగి చెల్లించబడని లావాదేవీలు",
+  "refund.section.nonRefundable.p1":
+    "ఏవైనా లావాదేవీల ఛార్జీలు తిరిగి చెల్లించబడవు.",
+  "refund.section.nonRefundable.p2":
+    "ఒకసారి ప్రాసెస్ చేయబడిన క్లెయిమ్‌లు మరియు ప్రయోజనాలు తిరిగి మార్చబడవు.",
+  "refund.section.process.title": "3. వాపసు ప్రక్రియ",
+  "refund.section.process.p1":
+    "వినియోగదారులు లావాదేవీ వివరాలు మరియు సహాయక పత్రాలతో ఒక అధికారిక అభ్యర్థనను సమర్పించాలి.",
+  "refund.section.process.p2":
+    "వాపసులు, ఆమోదించబడితే, 72 గంటలలోపు అసలు చెల్లింపు పద్ధతి ద్వారా ప్రాసెస్ చేయబడతాయి.",
+  "refund.section.contact.title": "4. సంప్రదింపు సమాచారం",
+  "refund.section.contact.p1":
+    "మా గోప్యతా విధానం, వినియోగ నిబంధనలు లేదా వాపసు విధానం గురించి ప్రశ్నల కోసం, దయచేసి మమ్మల్ని ఇక్కడ సంప్రదించండి:",
+  "refund.section.contact.visitUs": "మమ్మల్ని సందర్శించండి:",
+  "refund.section.contact.address.l1": "1-63, అమడబకుల (గ్రామం),",
+  "refund.section.contact.address.l2": "కొత్తకోట (మండలం),",
+  "refund.section.contact.address.l3": "వనపర్తి (జిల్లా),",
+  "refund.section.contact.address.l4": "తెలంగాణ, భారతదేశం",
+  "refund.section.contact.mailUs": "మాకు మెయిల్ చేయండి:",
+  "refund.section.contact.email": "info@healthguard.org.in",
+  "refund.section.contact.phoneUs": "మాకు ఫోన్ చేయండి:",
+  "refund.section.contact.phone": "+91 7816068717",
+  // Privacy Policy Page
+  "privacy.hero.title": "గోప్యతా విధానం",
+  "privacy.hero.breadcrumb": "గోప్యతా విధానం",
+  "privacy.content.effectiveDate": "అమలు తేదీ: మార్చి 23, 2025",
+  "privacy.content.intro":
+    'జీవన్ సురక్ష సోషల్ సెక్యూరిటీ కలెక్టివ్, హెల్త్ గార్డ్ ఫౌండేషన్ యొక్క ఒక భాగం, ("మేము," "మా," "మాకు") మా వినియోగదారుల సమాచారం యొక్క గోప్యత మరియు భద్రతను రక్షించడానికి కట్టుబడి ఉంది. మీరు మా సేవలతో సంభాషించినప్పుడు మేము మీ సమాచారాన్ని ఎలా సేకరిస్తాము, ఉపయోగిస్తాము, వెల్లడిస్తాము మరియు రక్షిస్తామో ఈ గోప్యతా విధానం వివరిస్తుంది.',
+  "privacy.section.collect.title": "1. మేము సేకరించే సమాచారం",
+  "privacy.section.collect.personal":
+    "<strong>వ్యక్తిగత సమాచారం:</strong> పేరు, సంప్రదింపు వివరాలు, పుట్టిన తేదీ, ప్రభుత్వం జారీ చేసిన గుర్తింపు, ఆర్థిక వివరాలు మరియు ఇతర సంబంధిత సమాచారం.",
+  "privacy.section.collect.nonPersonal":
+    "<strong>వ్యక్తిగత-కాని సమాచారం:</strong> బ్రౌజర్ రకం, IP చిరునామా, మరియు కుక్కీలు మరియు విశ్లేషణ సాధనాల ద్వారా సేకరించిన వినియోగ డేటా.",
+  "privacy.section.use.title": "2. మేము మీ సమాచారాన్ని ఎలా ఉపయోగిస్తాము",
+  "privacy.section.use.l1":
+    "మా సేవలను అందించడానికి, నిర్వహించడానికి మరియు మెరుగుపరచడానికి.",
+  "privacy.section.use.l2":
+    "దరఖాస్తులు, చెల్లింపులు మరియు క్లెయిమ్‌లను ప్రాసెస్ చేయడానికి.",
+  "privacy.section.use.l3":
+    "నవీకరణలు, నోటిఫికేషన్‌లు మరియు మార్కెటింగ్ మెటీరియల్‌లను కమ్యూనికేట్ చేయడానికి.",
+  "privacy.section.use.l4": "చట్టపరమైన బాధ్యతలకు అనుగుణంగా ఉండటానికి.",
+  "privacy.section.sharing.title": "3. సమాచారాన్ని పంచుకోవడం",
+  "privacy.section.sharing.p1":
+    "మేము వ్యక్తిగత సమాచారాన్ని మూడవ పక్షాలకు అమ్మము లేదా అద్దెకు ఇవ్వము.",
+  "privacy.section.sharing.p2":
+    "చట్టం ద్వారా అవసరమైనప్పుడు ప్రభుత్వ ఏజెన్సీలు, న్యాయ అధికారులు లేదా సేవా ప్రదాతలతో సమాచారం పంచుకోవచ్చు.",
+  "privacy.section.security.title": "4. భద్రతా చర్యలు",
+  "privacy.section.security.p1":
+    "మీ సమాచారాన్ని రక్షించడానికి మేము పరిశ్రమ-ప్రామాణిక భద్రతా చర్యలను అమలు చేస్తాము.",
+  "privacy.section.security.p2":
+    "అయితే, ఏ ఆన్‌లైన్ సేవ 100% సురక్షితం కాదు; వినియోగదారులు వ్యక్తిగత భద్రతా జాగ్రత్తలు తీసుకోవాలని సూచించబడింది.",
+  "privacy.section.rights.title": "5. మీ హక్కులు",
+  "privacy.section.rights.p1":
+    "మీరు మీ వ్యక్తిగత డేటా యొక్క యాక్సెస్, సవరణ లేదా తొలగింపును అభ్యర్థించవచ్చు.",
+  "privacy.section.rights.p2":
+    "మీరు ప్రచార కమ్యూనికేషన్‌లను స్వీకరించకుండా వైదొలగవచ్చు.",
+  // Homepage Contact Form
+  "contactForm.title": "ప్రశ్న ఉందా? మమ్మల్ని సంప్రదించండి!",
+  "contactForm.subtitle":
+    "మేము సహాయం చేయడానికి మరియు మీకు ఉన్న ఏవైనా ప్రశ్నలకు సమాధానం ఇవ్వడానికి ఇక్కడ ఉన్నాము. మీ నుండి వినడానికి మేము ఎదురుచూస్తున్నాము.",
+  "contactForm.label.name": "పూర్తి పేరు *",
+  "contactForm.label.email": "ఇమెయిల్ చిరునామా *",
+  "contactForm.label.phone": "ఫోన్ నంబర్ *",
+  "contactForm.label.message": "సందేశం *",
+  "contactForm.error.nameRequired": "పేరు అవసరం.",
+  "contactForm.error.emailRequired": "చెల్లుబాటు అయ్యే ఇమెయిల్ అవసరం.",
+  "contactForm.error.phoneRequired": "ఫోన్ నంబర్ అవసరం.",
+  "contactForm.error.messageRequired": "సందేశం ఖాళీగా ఉండకూడదు.",
+  "contactForm.button.submitting": "సమర్పిస్తోంది...",
+  "contactForm.button.send": "సందేశం పంపండి",
+  "contactForm.status.success":
+    "మీ సందేశానికి ధన్యవాదాలు! మేము త్వరలో మిమ్మల్ని సంప్రదిస్తాము.",
+  "contactForm.status.errorPrefix": "లోపం:",
+  "contactForm.status.networkError":
+    "ఒక లోపం సంభవించింది. దయచేసి తర్వాత మళ్లీ ప్రయత్నించండి.",
 };
 
 // Language Provider Component

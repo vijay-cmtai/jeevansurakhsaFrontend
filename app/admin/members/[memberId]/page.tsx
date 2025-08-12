@@ -8,7 +8,7 @@ import { fetchMemberById } from "@/lib/redux/features/members/membersSlice";
 import { format } from "date-fns";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { Shield, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react"; // Shield icon yahan se hata diya gaya hai
 
 // Helper component to display a row of data
 const DetailRow = ({
@@ -67,7 +67,14 @@ export default function MemberProfilePage() {
       <div className="w-full max-w-2xl bg-white shadow-lg rounded-lg overflow-hidden">
         {/* Header */}
         <div className="bg-gray-100 p-4 text-center border-b">
-          <Shield className="h-16 w-16 mx-auto mb-2 text-blue-600" />
+          {/* Shield icon ko Image component se replace kar diya gaya hai */}
+          <Image
+            src="/logo.jpg" // Path to your logo in the public folder
+            alt="Logo"
+            width={64} // Corresponds to h-16
+            height={64} // Corresponds to w-16
+            className="mx-auto mb-2"
+          />
           <h1 className="text-2xl font-bold text-gray-800">Profile Details</h1>
         </div>
 

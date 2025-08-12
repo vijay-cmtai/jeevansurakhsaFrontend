@@ -382,7 +382,7 @@ export default function RegisterMultiStepPage() {
                 }
               >
                 <SelectTrigger className="h-12">
-                  <SelectValue placeholder="Select Volunteer (Optional)" />
+                  <SelectValue placeholder="Select Volunteer" />
                 </SelectTrigger>
                 <SelectContent>
                   {volunteers.map((v) => (
