@@ -186,6 +186,281 @@ export default function AppointmentLetterPage() {
       <div className="text-center mt-8 print:hidden">
         <Button onClick={handlePrint}>Download as PDF / Print</Button>
       </div>
+
+      {/* Terms & Conditions Section */}
+      <div className="max-w-4xl mx-auto bg-white p-8 sm:p-12 shadow-xl rounded-lg border mt-10 print:shadow-none print:border-none print:mt-12">
+        <h2 className="text-2xl font-bold text-center mb-6 text-gray-800">
+          Terms & Conditions
+        </h2>
+        <p className="mb-6 text-sm text-gray-600 text-center">
+          By accepting this certificate, the Member agrees to adhere to the
+          Terms & Conditions of the Jeevan Suraksha Social Security Collective,
+          effective March 23, 2025:
+        </p>
+
+        <div className="space-y-6 text-gray-700 text-sm">
+          <ol className="space-y-4 list-decimal list-outside ml-5">
+            <li>
+              <strong className="font-semibold text-gray-800">
+                Eligibility
+              </strong>
+              <ul className="list-disc list-outside ml-5 mt-2 space-y-1">
+                <li>
+                  Open to Indian citizens residing in Telangana, Andhra Pradesh
+                  & Karnataka or permanent residents of Telangana, Andhra
+                  Pradesh & Karnataka working anywhere in the world.
+                </li>
+                <li>
+                  Applicants must be 18 to 60 years old and not terminally ill
+                  at the time of enrolment.
+                </li>
+                <li>
+                  Membership is subject to verification. If ineligible, the
+                  application will be rejected and the amount refunded.
+                </li>
+                <li>Verification process: up to 7 days.</li>
+                <li>Refund timeline: within 21 days of rejection.</li>
+              </ul>
+            </li>
+            <li>
+              <strong className="font-semibold text-gray-800">
+                Non-Transferable Membership
+              </strong>
+              <ul className="list-disc list-outside ml-5 mt-2 space-y-1">
+                <li>
+                  Switching membership categories requires prior written
+                  notification.
+                </li>
+                <li>Only one active membership per person is allowed.</li>
+                <li>
+                  Duplicate applications will be rejected during verification.
+                </li>
+                <li>
+                  Applicants must submit valid: Identity proof, Age proof,
+                  Nominee details. Additional documents may be requested.
+                </li>
+              </ul>
+            </li>
+            <li>
+              <strong className="font-semibold text-gray-800">
+                Contribution Responsibility
+              </strong>
+              <p className="mt-1">
+                Members must make timely contributions to remain eligible for
+                benefits.
+              </p>
+            </li>
+            <li>
+              <strong className="font-semibold text-gray-800">
+                Membership Review & Rejection
+              </strong>
+              <ul className="list-disc list-outside ml-5 mt-2 space-y-1">
+                <li>Applications are reviewed post-registration.</li>
+                <li>
+                  Applications may be rejected in cases of foul play, e.g.,
+                  enrolling terminally ill individuals.
+                </li>
+                <li>Rejected applicants will receive a refund.</li>
+              </ul>
+            </li>
+            <li>
+              <strong className="font-semibold text-gray-800">
+                Fund Utilization
+              </strong>
+              <ul className="list-disc list-outside ml-5 mt-2 space-y-1">
+                <li>
+                  Contributions are used solely for pay-outs to nominees of
+                  deceased members.
+                </li>
+                <li>
+                  Payouts depend on the total contributions from active members
+                  at the time of the claim.
+                </li>
+                <li>
+                  No guaranteed amount (e.g., ₹25 lakhs to ₹1 crore). Nominees
+                  receive the actual collected amount.
+                </li>
+              </ul>
+            </li>
+            <li>
+              <strong className="font-semibold text-gray-800">
+                Exclusions for Payouts
+              </strong>
+              <p className="mt-1">
+                Suicide, Nominee involvement in the member's death, or
+                Fraudulent circumstances.
+              </p>
+            </li>
+            <li>
+              <strong className="font-semibold text-gray-800">
+                Failure to Contribute
+              </strong>
+              <ul className="list-disc list-outside ml-5 mt-2 space-y-1">
+                <li>
+                  Missed contributions may lead to suspension or termination of
+                  membership.
+                </li>
+                <li>Repeated non-payment results in termination.</li>
+                <li>To re-join, all dues must be cleared.</li>
+              </ul>
+            </li>
+            <li>
+              <strong className="font-semibold text-gray-800">
+                Voluntary Withdrawal
+              </strong>
+              <ul className="list-disc list-outside ml-5 mt-2 space-y-1">
+                <li>Members may withdraw at any time.</li>
+                <li>No refunds for contributions already paid.</li>
+                <li>Re-joining requires clearing all arrears.</li>
+              </ul>
+            </li>
+            <li>
+              <strong className="font-semibold text-gray-800">
+                Membership Cap
+              </strong>
+              <p className="mt-1">
+                Once the group reaches 25,000 members, new groups may be formed.
+              </p>
+            </li>
+            <li>
+              <strong className="font-semibold text-gray-800">
+                Claim Process
+              </strong>
+              <ul className="list-disc list-outside ml-5 mt-2 space-y-1">
+                <li>
+                  In case of death, the nominee must report via the website or
+                  helpline.
+                </li>
+                <li>
+                  If the cause of death is under legal investigation, payouts
+                  will be withheld until clearance.
+                </li>
+              </ul>
+            </li>
+            <li>
+              <strong className="font-semibold text-gray-800">
+                How is the payout amount determined if contributors are from
+                different states?
+              </strong>
+              <p className="mt-1">
+                Payouts are calculated separately for each state and depend only
+                on the number of active contributing members from the nominee's
+                state at the time of the claim. Contributions from members of
+                other states are not included in the payout.
+              </p>
+            </li>
+            <li>
+              <strong className="font-semibold text-gray-800">
+                Dispute Resolution
+              </strong>
+              <ul className="list-disc list-outside ml-5 mt-2 space-y-1">
+                <li>
+                  Disputes will be reviewed by the governing committee. The
+                  committee’s decision is final.
+                </li>
+              </ul>
+            </li>
+          </ol>
+        </div>
+
+        <div className="mt-8 pt-6 border-t border-gray-200">
+          <h3 className="text-xl font-bold text-center mb-4 text-gray-800">
+            Member Pledge
+          </h3>
+          <p className="mb-4 text-gray-600">
+            As a member of the Jeevan Suraksha Social Security Collective, I
+            solemnly pledge to uphold the principles of mutual aid and
+            solidarity within our community. I commit to:
+          </p>
+          <ul className="space-y-2 text-gray-700">
+            <li className="flex items-start">
+              <span className="font-semibold w-48 shrink-0">
+                Support Fellow Members:
+              </span>
+              <span>
+                Contributing promptly and consistently to the collective fund to
+                ensure timely assistance to the nominees of deceased fellow
+                members.
+              </span>
+            </li>
+            <li className="flex items-start">
+              <span className="font-semibold w-48 shrink-0">
+                Maintain Integrity:
+              </span>
+              <span>
+                Providing accurate personal information, adhering to the
+                collective's guidelines, and refraining from any actions that
+                may compromise the trust and welfare of the community.
+              </span>
+            </li>
+            <li className="flex items-start">
+              <span className="font-semibold w-48 shrink-0">
+                Promote Transparency:
+              </span>
+              <span>
+                Engaging in open communication, participating in decision-making
+                processes when possible, and supporting the collective's efforts
+                to maintain clear and accessible records.
+              </span>
+            </li>
+            <li className="flex items-start">
+              <span className="font-semibold w-48 shrink-0">
+                Foster Community Growth:
+              </span>
+              <span>
+                Encouraging others to join and strengthen our collective,
+                thereby enhancing our capacity to support one another in times
+                of need.
+              </span>
+            </li>
+            <li className="flex items-start">
+              <span className="font-semibold w-48 shrink-0">
+                Respect Confidentiality:
+              </span>
+              <span>
+                Honouring the privacy of fellow members and handling all
+                personal information with the utmost care and discretion.
+              </span>
+            </li>
+            <li className="flex items-start">
+              <span className="font-semibold w-48 shrink-0">
+                Embrace Solidarity:
+              </span>
+              <span>
+                Recognizing that our strength lies in unity, I will stand with
+                my fellow members, offering support and compassion beyond
+                financial contributions.
+              </span>
+            </li>
+          </ul>
+          <p className="mt-4 text-gray-600">
+            By making this pledge, I affirm my dedication to the values and
+            mission of the Jeevan Suraksha Social Security Collective,
+            understanding that our shared commitment ensures the well-being and
+            security of all members.
+          </p>
+        </div>
+
+        <div className="mt-8 p-4 bg-red-50 border-l-4 border-red-500 text-red-800">
+          <h3 className="font-bold text-lg">Important Disclaimer</h3>
+          <p className="mt-2 font-semibold">Important Note:</p>
+          <ul className="list-disc list-outside ml-5 mt-2 space-y-1">
+            <li>
+              The total payout per claim depends on the number of active
+              contributors at the time of the request. The trust does not
+              guarantee the ₹1 crore, ₹50 lakhs, or ₹25 lakhs amounts.
+            </li>
+            <li>
+              If the required amount is not collected, the nominee will receive
+              only the total contributions made by active members.
+            </li>
+            <li>
+              Payouts are state-specific, based on the number of contributing
+              members belonging to the nominee's state at the time of the claim.
+            </li>
+          </ul>
+        </div>
+      </div>
     </div>
   );
 }
