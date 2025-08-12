@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
 import Image from "next/image";
+import Link from "next/link"; // Zaroori Import
 
 // Redux Imports
 import { AppDispatch, RootState } from "@/lib/redux/store";
@@ -41,6 +42,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { CalendarIcon, Edit, UserPlus, Trash2, Loader2 } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox"; // Zaroori Import
 
 // Declare Cashfree type
 declare global {
@@ -111,6 +113,9 @@ export default function RegisterMultiStepPage() {
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSDKLoaded, setIsSDKLoaded] = useState(false);
+
+  // Terms acceptance ke liye naya state
+  const [termsAccepted, setTermsAccepted] = useState(false);
 
   useEffect(() => {
     if (!formData.nominees || formData.nominees.length === 0) {
@@ -882,7 +887,7 @@ export default function RegisterMultiStepPage() {
         return (
           <FormWrapper>
             <StepSectionHeader title="Nominee Details" />
-            <div className="max-h-[55vh] overflow-y-auto pr-2">
+            <div className="max-h-[50vh] overflow-y-auto pr-2">
               {formData.nominees.map((nominee, index) => (
                 <div
                   key={index}
@@ -1011,11 +1016,33 @@ export default function RegisterMultiStepPage() {
                 {formErrors.nominee_total}
               </p>
             )}
-            {formErrors.nominee_main && (
-              <p className="text-red-500 text-sm text-center">
-                {formErrors.nominee_main}
-              </p>
-            )}
+
+            <div className="mt-6 flex items-center space-x-3">
+              <Checkbox
+                id="terms"
+                checked={termsAccepted}
+                onCheckedChange={(checked) =>
+                  setTermsAccepted(checked as boolean)
+                }
+              />
+              <div className="flex items-baseline gap-2">
+                <label
+                  htmlFor="terms"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  I accept Terms & Conditions
+                </label>
+                <Link
+                  href="/termcondition"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-blue-600 hover:underline"
+                >
+                  See Terms
+                </Link>
+              </div>
+            </div>
+
             <div className="flex justify-between mt-8">
               <Button
                 variant="outline"
@@ -1027,6 +1054,7 @@ export default function RegisterMultiStepPage() {
               <Button
                 onClick={handleNext}
                 className="bg-green-500 hover:bg-green-600 h-11 px-8"
+                disabled={!termsAccepted}
               >
                 Next
               </Button>
