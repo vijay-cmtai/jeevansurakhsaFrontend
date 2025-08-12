@@ -21,19 +21,15 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-// Cashfree SDK type definition
 declare const Cashfree: any;
 
-// --- A single container for the card frame to ensure consistent size ---
 const IDCardFrame = ({ children }: { children: React.ReactNode }) => (
   <div className="w-[320px] h-[512px] bg-white rounded-2xl shadow-lg overflow-hidden flex flex-col">
     {children}
   </div>
 );
 
-// --- Redesigned ID Card Front Component ---
 const IDCardFront = ({ member }: { member: Member }) => {
-  // Array for details to ensure perfect alignment using grid
   const details = [
     { label: "ID No", value: member.registrationNo || "N/A" },
     { label: "Mob No", value: member.phone },
@@ -44,7 +40,6 @@ const IDCardFront = ({ member }: { member: Member }) => {
   return (
     <IDCardFrame>
       <div className="flex-grow p-4 bg-white relative">
-        {/* Subtle background shape */}
         <div className="absolute inset-0 overflow-hidden rounded-b-2xl">
           <div className="absolute w-[500px] h-[500px] bg-gray-50 rounded-full -top-40 -left-40"></div>
         </div>
@@ -55,8 +50,8 @@ const IDCardFront = ({ member }: { member: Member }) => {
               <Image
                 src="https://jeevansuraksha.org/wp-content/uploads/2025/04/logo.webp"
                 alt="Logo"
-                width={100} // Changed from 50 to 64
-                height={64} // Changed from 50 to 64
+                width={100}
+                height={64}
                 className="rounded-full"
               />
             </div>
@@ -88,17 +83,17 @@ const IDCardFront = ({ member }: { member: Member }) => {
                 </div>
               )}
             </div>
-            <div className="flex items-center">
+            {/* 🔻🔻🔻 यह हिस्सा बदला गया है 🔻🔻🔻 */}
+            <div className="w-[88px] h-[88px] flex items-center justify-center">
               <Image
-                src={`https://api.qrserver.com/v1/create-qr-code/?size=88x88&data=${member._id}`}
-                alt="QR Code"
-                width={100}
-                height={64}
+                src="/logo.jpg"
+                alt="Company Logo"
+                width={88}
+                height={88}
+                className="object-contain"
               />
-              <span className="text-[10px] font-semibold text-gray-500 transform -rotate-90 whitespace-nowrap -ml-2">
-                Scan To Verify
-              </span>
             </div>
+            {/* 🔺🔺🔺 बदलाव यहाँ समाप्त होता है 🔺🔺🔺 */}
           </div>
 
           <div className="bg-red-600 text-white text-center py-1 rounded">
@@ -109,7 +104,6 @@ const IDCardFront = ({ member }: { member: Member }) => {
             </p>
           </div>
 
-          {/* NEW: Grid layout for perfect alignment */}
           <div className="grid grid-cols-[auto_1fr] gap-x-2 gap-y-1 text-xs mt-2 flex-grow">
             {details.map((item) => (
               <>
@@ -144,7 +138,6 @@ const IDCardFront = ({ member }: { member: Member }) => {
   );
 };
 
-// --- Redesigned ID Card Back Component ---
 const IDCardBack = ({ member }: { member: Member }) => (
   <IDCardFrame>
     <div className="flex-grow p-4 bg-white relative">
@@ -156,8 +149,8 @@ const IDCardBack = ({ member }: { member: Member }) => (
           <Image
             src="https://jeevansuraksha.org/wp-content/uploads/2025/04/logo.webp"
             alt="Logo"
-            width={100} // Changed from 50 to 64
-            height={64} // Changed from 50 to 64
+            width={100}
+            height={64}
             className="rounded-full"
           />
         </div>
@@ -223,7 +216,6 @@ const IDCardBack = ({ member }: { member: Member }) => (
   </IDCardFrame>
 );
 
-// --- Payment Prompt Component (No changes) ---
 const PaymentPrompt = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { status, error } = useSelector(
@@ -273,7 +265,6 @@ const PaymentPrompt = () => {
   );
 };
 
-// --- Main Page Component ---
 export default function GenerateIDCardPage() {
   const dispatch = useDispatch<AppDispatch>();
   const { userInfo, status: authStatus } = useSelector(
