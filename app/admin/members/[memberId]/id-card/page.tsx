@@ -12,7 +12,7 @@ import Image from "next/image";
 import { Member } from "@/lib/redux/features/members/membersSlice";
 
 const IDCardFrame = ({ children }: { children: React.ReactNode }) => (
-  <div className="w-[320px] h-[512px] bg-white rounded-2xl shadow-lg overflow-hidden flex flex-col">
+  <div className="w-[320px] h-[512px] bg-white rounded-2xl shadow-lg overflow-hidden flex flex-col print:shadow-none print:border print:border-gray-300">
     {children}
   </div>
 );
@@ -29,7 +29,7 @@ const IDCardFront = ({ member }: { member: Member }) => {
     <IDCardFrame>
       <div className="flex-grow p-4 bg-white relative">
         <div className="absolute inset-0 overflow-hidden rounded-b-2xl">
-          <div className="absolute w-[500px] h-[500px] bg-gray-50 rounded-full -top-40 -left-40"></div>
+          <div className="absolute w-[500px] h-[500px] bg-gray-50 rounded-full -top-40 -left-40 print:hidden"></div>
         </div>
 
         <div className="relative z-10 flex flex-col h-full">
@@ -43,7 +43,7 @@ const IDCardFront = ({ member }: { member: Member }) => {
                 className="rounded-full"
               />
             </div>
-            <h2 className="text-lg font-bold text-gray-800 mt-1">
+            <h2 className="text-lg font-bold text-blue-600 mt-1">
               Jeevan Suraksha
             </h2>
             <p className="text-[10px] font-semibold text-gray-600 leading-tight">
@@ -129,7 +129,7 @@ const IDCardBack = ({ member }: { member: Member }) => (
   <IDCardFrame>
     <div className="flex-grow p-4 bg-white relative">
       <div className="absolute inset-0 overflow-hidden rounded-2xl">
-        <div className="absolute w-[500px] h-[500px] bg-gray-50 rounded-full -top-40 -left-40"></div>
+        <div className="absolute w-[500px] h-[500px] bg-gray-50 rounded-full -top-40 -left-40 print:hidden"></div>
       </div>
       <div className="relative z-10 flex flex-col h-full text-center">
         <div className="inline-block p-1 border-2 border-gray-300 rounded-full mx-auto">
@@ -141,7 +141,7 @@ const IDCardBack = ({ member }: { member: Member }) => (
             className="rounded-full"
           />
         </div>
-        <h2 className="text-lg font-bold text-gray-800 mt-1">
+        <h2 className="text-lg font-bold text-blue-600 mt-1">
           Jeevan Suraksha
         </h2>
         <p className="text-[10px] font-semibold text-gray-600 leading-tight">
@@ -196,7 +196,7 @@ const IDCardBack = ({ member }: { member: Member }) => (
         <Mail size={10} /> info@jeevansuraksha.org
       </div>
       <div className="flex items-center gap-1">
-        <MapPin size={10} /> 1-63, Amadabakula, Kothakota, Wanaparty, Telangana
+        <MapPin size={10} /> 1-63, Amadabakula, Kothakota, Wanaparthy, Telangana
         - 509381
       </div>
     </div>
@@ -226,21 +226,77 @@ export default function IDCardPage() {
   }
 
   return (
-    <div className="bg-gray-100 min-h-screen p-8 flex flex-col items-center gap-6">
-      <div className="bg-green-500 text-white font-bold py-2 px-6 rounded-full shadow-md">
-        This ID Card Is Verified
+    <>
+      {/* Add print-specific styles */}
+      <style jsx global>{`
+        @media print {
+          /* Hide everything by default */
+          * {
+            visibility: hidden;
+          }
+
+          /* Show only the ID cards */
+          .print-cards,
+          .print-cards * {
+            visibility: visible;
+          }
+
+          /* Position the cards properly for printing */
+          .print-cards {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            display: flex !important;
+            flex-direction: row !important;
+            justify-content: center !important;
+            align-items: flex-start !important;
+            gap: 1rem !important;
+            padding: 1rem !important;
+          }
+
+          /* Remove margins and padding from body and html */
+          html,
+          body {
+            margin: 0 !important;
+            padding: 0 !important;
+            background: white !important;
+          }
+
+          /* Landscape orientation for better side-by-side layout */
+          @page {
+            size: A4 landscape;
+            margin: 0.5in;
+          }
+
+          /* Ensure cards maintain their size */
+          .print-cards > div {
+            flex-shrink: 0 !important;
+          }
+        }
+      `}</style>
+
+      <div className="bg-gray-100 min-h-screen p-8 flex flex-col items-center">
+        {/* This banner will be hidden during print */}
+        <div className="bg-green-500 text-white font-bold py-2 px-6 rounded-full shadow-md mb-6 print:hidden">
+          This ID Card Is Verified
+        </div>
+
+        {/* Only this div will be visible when printing */}
+        <div className="print-cards flex flex-col md:flex-row gap-8">
+          <IDCardFront member={member} />
+          <IDCardBack member={member} />
+        </div>
+
+        {/* This button will be hidden during print */}
+        <Button
+          onClick={() => window.print()}
+          className="mt-8 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-8 rounded-full shadow-lg print:hidden"
+        >
+          <Download className="mr-2 h-4 w-4" />
+          Download PDF
+        </Button>
       </div>
-      <div className="flex flex-col md:flex-row gap-8">
-        <IDCardFront member={member} />
-        <IDCardBack member={member} />
-      </div>
-      <Button
-        onClick={() => window.print()}
-        className="mt-4 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-8 rounded-full shadow-lg"
-      >
-        <Download className="mr-2 h-4 w-4" />
-        Download PDF
-      </Button>
-    </div>
+    </>
   );
 }
