@@ -14,11 +14,9 @@ import {
   deleteVisitorDonation,
 } from "@/lib/redux/features/visitordonations/visitorDonationSlice";
 import { format } from "date-fns";
-// ✅ Step 1: PDF libraries import karein
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
-// Status Badge component (No changes needed)
 const StatusBadge = ({ status }: { status: VisitorDonation["status"] }) => {
   const styles = {
     SUCCESS: "bg-green-100 text-green-800",
@@ -28,20 +26,37 @@ const StatusBadge = ({ status }: { status: VisitorDonation["status"] }) => {
   return <Badge className={styles[status] || "bg-gray-100"}>{status}</Badge>;
 };
 
-// ✅ Step 2: PDF generate karne ke liye helper function banayein
-const generatePdfReceipt = (donation: VisitorDonation) => {
+// 🔻🔻🔻 यह फंक्शन बदला गया है 🔻🔻🔻
+const generatePdfReceipt = async (donation: VisitorDonation) => {
   const doc = new jsPDF();
 
-  // Header
-  doc.setFontSize(22);
-  doc.setFont("helvetica", "bold");
-  doc.text("Visitor Donation Receipt", 105, 20, { align: "center" });
-  doc.setFontSize(12);
-  doc.text("Jeevan Suraksha Foundation", 105, 30, { align: "center" });
+  const imageResponse = await fetch("/logo.jpg");
+  const imageBlob = await imageResponse.blob();
+  const imageBase64 = await new Promise<string>((resolve) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(imageBlob);
+    reader.onloadend = () => {
+      resolve(reader.result as string);
+    };
+  });
 
-  // Donation Details Table
+  doc.addImage(imageBase64, "JPEG", 85, 15, 40, 40);
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(22);
+  doc.text("Jeevan Suraksha", 105, 65, { align: "center" });
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(10);
+  doc.text(
+    "A Social Security Collective, An Initiative of Health Guard Foundation.",
+    105,
+    72,
+    { align: "center" }
+  );
+
   autoTable(doc, {
-    startY: 40,
+    startY: 85,
     theme: "grid",
     head: [["Field", "Details"]],
     body: [
@@ -50,6 +65,7 @@ const generatePdfReceipt = (donation: VisitorDonation) => {
         "Date of Donation:",
         format(new Date(donation.createdAt), "dd MMM, yyyy"),
       ],
+      ["Type:", "Visitor Donation"],
       ["Donor Name:", donation.name],
       ["Donor Email:", donation.email || "N/A"],
       ["Donor Mobile:", donation.mobile],
@@ -58,21 +74,26 @@ const generatePdfReceipt = (donation: VisitorDonation) => {
       ["Payment Status:", donation.status],
       ["PAN Number:", donation.panNumber || "N/A"],
     ],
-    styles: { fontSize: 11 },
-    headStyles: { fillColor: [41, 128, 185], textColor: 255 },
+    headStyles: { fillColor: [45, 55, 72] },
+    styles: { cellPadding: 2.5, fontSize: 10 },
   });
 
-  // Footer
   const finalY = (doc as any).lastAutoTable.finalY || 100;
   doc.setFontSize(10);
-  doc.text("Thank you for your generous contribution.", 105, finalY + 15, {
-    align: "center",
-  });
+  doc.text(
+    "This is a computer-generated receipt and does not require a signature.",
+    105,
+    finalY + 15,
+    {
+      align: "center",
+    }
+  );
 
   doc.save(
     `Visitor-Donation-Receipt-${donation.receiptNo || donation._id}.pdf`
   );
 };
+// 🔺🔺🔺 बदलाव यहाँ समाप्त होता है 🔺🔺🔺
 
 export default function AllVisitorDonationPage() {
   const dispatch = useDispatch<AppDispatch>();
@@ -95,11 +116,6 @@ export default function AllVisitorDonationPage() {
   };
 
   const columns = [
-    // {
-    //   key: "select",
-    //   label: <>{userIsAdmin && <Checkbox />}</>,
-    //   render: () => <>{userIsAdmin && <Checkbox />}</>,
-    // },
     {
       key: "sr",
       label: "Sr.No.",
@@ -134,7 +150,6 @@ export default function AllVisitorDonationPage() {
       render: (row: VisitorDonation) => `₹${row.amount.toFixed(2)}`,
     },
     { key: "paymentMode", label: "Payment Mode", render: () => "Online" },
-    // ✅ Step 3: "View" column hata diya gaya hai
     {
       key: "download",
       label: "Download",
@@ -142,9 +157,7 @@ export default function AllVisitorDonationPage() {
         <Button
           size="sm"
           className="bg-blue-500 hover:bg-blue-600"
-          // ✅ Step 4: onClick handler ko update karein
           onClick={() => generatePdfReceipt(row)}
-          // Button sirf tab enable hoga jab status SUCCESS ho
           disabled={row.status !== "SUCCESS"}
         >
           <Download className="mr-2 h-4 w-4" />
@@ -172,7 +185,6 @@ export default function AllVisitorDonationPage() {
     },
   ];
 
-  // Calculate total amount only from successful donations
   const totalAmount = donations.reduce(
     (sum, donation) =>
       donation.status === "SUCCESS" ? sum + donation.amount : sum,
@@ -186,7 +198,6 @@ export default function AllVisitorDonationPage() {
       data={donations || []}
       totalEntries={donations?.length || 0}
       isLoading={listStatus === "loading"}
-      // ✅ Optional: Total amount ko bhi display kar sakte hain
       totalLabel="Total Successful Donation"
       totalValue={totalAmount}
     />
