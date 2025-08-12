@@ -220,7 +220,6 @@ export function AdminSidebar({ onLinkClick }: { onLinkClick?: () => void }) {
         subLinks: [
           { label: "Send To Single User", href: "/admin/send-notice/single" },
           { label: "Send To All User", href: "/admin/send-notice/all" },
-          { label: "Previous Notice", href: "/admin/send-notice/previous" },
         ],
       },
       {
