@@ -5,6 +5,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/lib/redux/store";
 import { getMemberProfile } from "@/lib/redux/features/auth/authSlice";
 import { updateMemberProfile } from "@/lib/redux/features/members/membersSlice";
+import {
+  fetchRegistrationConfig,
+  fetchContributionGroupsForRegistration,
+} from "@/lib/redux/features/registration/registrationSlice";
 import { motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -37,24 +41,38 @@ const FormSection = ({
 export default function UpdateProfilePage() {
   const dispatch = useDispatch<AppDispatch>();
   const { toast } = useToast();
+
   const {
     userInfo,
     status: authStatus,
     error: authError,
   } = useSelector((state: RootState) => state.auth);
+
   const { actionStatus, actionError } = useSelector(
     (state: RootState) => state.members
   );
 
+  // Registration config data for dropdowns
+  const { states, contributionGroups, configStatus, contributionGroupsStatus } =
+    useSelector((state: RootState) => state.registration);
+
   const [formData, setFormData] = useState<any>({});
   const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
+  const [panImageFile, setPanImageFile] = useState<File | null>(null);
   const [profileImagePreview, setProfileImagePreview] = useState<string | null>(
     null
   );
+  const [panImagePreview, setPanImagePreview] = useState<string | null>(null);
 
-  // === BADLAAV YAHAN KIYA GAYA HAI: Nominee validation ke liye naye state variables ===
+  // Nominee validation state
   const [nomineePercentageTotal, setNomineePercentageTotal] = useState(0);
   const [nomineeError, setNomineeError] = useState<string | null>(null);
+
+  // Load config data
+  useEffect(() => {
+    dispatch(fetchRegistrationConfig());
+    dispatch(fetchContributionGroupsForRegistration());
+  }, [dispatch]);
 
   useEffect(() => {
     if (!userInfo) {
@@ -62,43 +80,89 @@ export default function UpdateProfilePage() {
     } else if (Object.keys(formData).length === 0) {
       setFormData({
         ...userInfo,
+        address: userInfo.address || {
+          houseNumber: "",
+          street: "",
+          cityVillage: "",
+          pincode: "",
+        },
+        employment: userInfo.employment || {
+          type: "",
+          department: "",
+          companyName: "",
+          contributionPlan: "",
+        },
         nominees:
           userInfo.nominees && userInfo.nominees.length > 0
             ? userInfo.nominees
-            : [{ name: "", relation: "", age: "", gender: "", percentage: "" }],
+            : [
+                {
+                  name: "",
+                  relation: "",
+                  age: "",
+                  gender: "",
+                  percentage: 100,
+                },
+              ],
       });
     }
   }, [userInfo, dispatch, formData]);
 
-  // === BADLAAV YAHAN KIYA GAYA HAI: Nominee percentage ko calculate aur validate karne ke liye useEffect ===
+  // Nominee percentage validation
   useEffect(() => {
-    // Sirf tab calculate karein jab nominees maujood ho
     if (formData.nominees && formData.nominees.length > 0) {
       const total = formData.nominees.reduce((acc: number, nominee: any) => {
-        // percentage ko number mein convert karein, agar khali hai to 0 maanein
         return acc + (parseFloat(nominee.percentage) || 0);
       }, 0);
 
       setNomineePercentageTotal(total);
 
-      // Agar total 100 nahi hai to error set karein
       if (total !== 100) {
         setNomineeError(
           `Total percentage must be 100%. Current total is ${total}%.`
         );
       } else {
-        // Agar total 100 hai to error hata dein
         setNomineeError(null);
       }
     } else {
-      // Agar koi nominee nahi hai to total 0 hai aur koi error nahi hai
       setNomineePercentageTotal(0);
-      setNomineeError(null);
+      setNomineeError("At least one nominee is required with 100% allocation.");
     }
-  }, [formData.nominees]); // Yeh useEffect tabhi chalega jab nominees array mein koi badlaav hoga
+  }, [formData.nominees]);
+
+  // Get available companies based on employment type
+  const availableCompanies =
+    contributionGroups.find(
+      (g) => g.employmentType === formData.employment?.type
+    )?.companies || [];
+
+  // Get available departments based on company
+  const availableDepartments =
+    availableCompanies.find(
+      (c) => c.companyName === formData.employment?.companyName
+    )?.departments || [];
+
+  // Get available plans based on department (READ ONLY - for display only)
+  const availablePlans =
+    availableDepartments.find(
+      (d) => d.departmentName === formData.employment?.department
+    )?.plans || [];
+
+  // Get districts for selected state
+  const availableDistricts =
+    states.find((s) => s.name === formData.state)?.districts || [];
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSelectChange = (field: string, value: string) => {
+    setFormData({ ...formData, [field]: value });
+
+    // Reset district when state changes
+    if (field === "state") {
+      setFormData({ ...formData, [field]: value, district: "" });
+    }
   };
 
   const handleNestedChange = (parent: string, field: string, value: string) => {
@@ -106,13 +170,32 @@ export default function UpdateProfilePage() {
       ...formData,
       [parent]: { ...formData[parent], [field]: value },
     });
-  };
 
-  const handleNestedSelect = (parent: string, field: string, value: string) => {
-    setFormData({
-      ...formData,
-      [parent]: { ...formData[parent], [field]: value },
-    });
+    // Handle cascading changes for employment
+    if (parent === "employment") {
+      if (field === "type") {
+        // Reset company, department when type changes
+        setFormData({
+          ...formData,
+          [parent]: {
+            ...formData[parent],
+            [field]: value,
+            companyName: "",
+            department: "",
+          },
+        });
+      } else if (field === "companyName") {
+        // Reset department when company changes
+        setFormData({
+          ...formData,
+          [parent]: {
+            ...formData[parent],
+            [field]: value,
+            department: "",
+          },
+        });
+      }
+    }
   };
 
   const handleNomineeChange = (index: number, field: string, value: string) => {
@@ -138,49 +221,82 @@ export default function UpdateProfilePage() {
     setFormData({ ...formData, nominees: newNominees });
   };
 
-  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (
+    e: ChangeEvent<HTMLInputElement>,
+    type: "profile" | "pan"
+  ) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      setProfileImageFile(file);
-      setProfileImagePreview(URL.createObjectURL(file));
+
+      if (type === "profile") {
+        setProfileImageFile(file);
+        setProfileImagePreview(URL.createObjectURL(file));
+      } else {
+        setPanImageFile(file);
+        setPanImagePreview(URL.createObjectURL(file));
+      }
     }
   };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
-    // === BADLAAV YAHAN KIYA GAYA HAI: Submit karne se pehle final check ===
+    // Final validation check
     if (nomineeError) {
       toast({
         title: "Invalid Nominee Details",
         description: nomineeError,
         variant: "destructive",
       });
-      return; // Form submission ko rokein
+      return;
     }
 
+    // Create FormData for submission
     const data = new FormData();
-    data.append("fullName", formData.fullName);
-    data.append("phone", formData.phone);
+
+    // Basic fields
+    data.append("fullName", formData.fullName || "");
+    data.append("phone", formData.phone || "");
+    data.append("dateOfBirth", formData.dateOfBirth || "");
+    data.append("state", formData.state || "");
+    data.append("district", formData.district || "");
+    data.append("volunteerCode", formData.volunteerCode || "");
     data.append("panNumber", formData.panNumber || "");
+
+    // Nested objects as JSON
     data.append("address", JSON.stringify(formData.address));
     data.append("employment", JSON.stringify(formData.employment));
     data.append("nominees", JSON.stringify(formData.nominees));
+
+    // Files
     if (profileImageFile) {
       data.append("profileImage", profileImageFile);
+    }
+    if (panImageFile) {
+      data.append("panImage", panImageFile);
     }
 
     const resultAction = await dispatch(updateMemberProfile(data));
     if (updateMemberProfile.fulfilled.match(resultAction)) {
       toast({
         title: "Success",
-        description: "Your profile has been updated.",
+        description: "Your profile has been updated successfully!",
+      });
+      // Refresh profile data
+      dispatch(getMemberProfile());
+    } else {
+      toast({
+        title: "Update Failed",
+        description:
+          (resultAction.payload as string) || "Failed to update profile",
+        variant: "destructive",
       });
     }
   };
 
   if (
     authStatus === "loading" ||
+    configStatus === "loading" ||
     !userInfo ||
     Object.keys(formData).length === 0
   ) {
@@ -190,6 +306,7 @@ export default function UpdateProfilePage() {
       </div>
     );
   }
+
   if (authStatus === "failed") {
     return (
       <div className="text-red-500 p-4 bg-red-50 rounded-lg">{authError}</div>
@@ -209,137 +326,323 @@ export default function UpdateProfilePage() {
         className="mt-8 max-w-4xl mx-auto bg-white p-8 rounded-xl shadow-lg border"
       >
         <form onSubmit={handleSubmit} className="space-y-6">
-          <FormSection title="Personal Details">
-            {/* ... other fields remain same ... */}
-            <Input
-              name="fullName"
-              value={formData.fullName || ""}
-              onChange={handleChange}
-              placeholder="Full Name"
-            />
-            <Input
-              name="phone"
-              value={formData.phone || ""}
-              onChange={handleChange}
-              placeholder="Phone Number"
-              type="tel"
-            />
-            <Input
-              name="email"
-              value={formData.email || ""}
-              readOnly
-              disabled
-              className="bg-gray-100"
-            />
-            <Input
-              name="panNumber"
-              value={formData.panNumber || ""}
-              onChange={handleChange}
-              placeholder="PAN Number"
-            />
+          {/* State & Location Details */}
+          <FormSection title="Location Details">
+            <div>
+              <Label>State</Label>
+              <Select
+                value={formData.state || ""}
+                onValueChange={(value) => handleSelectChange("state", value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select State" />
+                </SelectTrigger>
+                <SelectContent>
+                  {states.map((state) => (
+                    <SelectItem key={state._id} value={state.name}>
+                      {state.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label>District</Label>
+              <Select
+                value={formData.district || ""}
+                onValueChange={(value) => handleSelectChange("district", value)}
+                disabled={!formData.state}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select District" />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableDistricts.map((district) => (
+                    <SelectItem key={district._id} value={district.name}>
+                      {district.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label>Volunteer/Referral Code</Label>
+              <Input
+                name="volunteerCode"
+                value={formData.volunteerCode || ""}
+                onChange={handleChange}
+                placeholder="Volunteer Code (Optional)"
+              />
+            </div>
+
+            <div>
+              <Label>Date of Birth</Label>
+              <Input
+                name="dateOfBirth"
+                type="date"
+                value={
+                  formData.dateOfBirth ? formData.dateOfBirth.split("T")[0] : ""
+                }
+                onChange={handleChange}
+              />
+            </div>
           </FormSection>
 
+          {/* Personal Details */}
+          <FormSection title="Personal Details">
+            <div>
+              <Label>Full Name</Label>
+              <Input
+                name="fullName"
+                value={formData.fullName || ""}
+                onChange={handleChange}
+                placeholder="Full Name"
+                required
+              />
+            </div>
+
+            <div>
+              <Label>Phone Number</Label>
+              <Input
+                name="phone"
+                value={formData.phone || ""}
+                onChange={handleChange}
+                placeholder="Phone Number"
+                type="tel"
+                required
+              />
+            </div>
+
+            <div>
+              <Label>Email (Read Only)</Label>
+              <Input
+                name="email"
+                value={formData.email || ""}
+                readOnly
+                disabled
+                className="bg-gray-100"
+              />
+            </div>
+
+            <div>
+              <Label>PAN Number</Label>
+              <Input
+                name="panNumber"
+                value={formData.panNumber || ""}
+                onChange={handleChange}
+                placeholder="PAN Number (Optional)"
+              />
+            </div>
+          </FormSection>
+
+          {/* Profile & PAN Images */}
           <div className="border-t pt-6 mt-6">
             <h3 className="text-lg font-semibold text-gray-700 mb-4">
-              Profile Picture
+              Document Images
             </h3>
-            <div className="flex items-center gap-4">
-              <Image
-                src={
-                  profileImagePreview ||
-                  formData.profileImageUrl ||
-                  "https://placehold.co/80x80/EFEFEF/AAAAAA&text=Photo"
-                }
-                alt="Profile"
-                width={80}
-                height={80}
-                className="rounded-md object-cover"
-              />
-              <Input
-                type="file"
-                onChange={handleFileChange}
-                className="text-sm"
-              />
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Profile Image */}
+              <div>
+                <Label>Profile Picture</Label>
+                <div className="flex flex-col gap-3">
+                  <Image
+                    src={
+                      profileImagePreview ||
+                      formData.profileImageUrl ||
+                      "https://placehold.co/120x120/EFEFEF/AAAAAA&text=Photo"
+                    }
+                    alt="Profile"
+                    width={120}
+                    height={120}
+                    className="rounded-md object-cover border"
+                  />
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleFileChange(e, "profile")}
+                    className="text-sm"
+                  />
+                </div>
+              </div>
+
+              {/* PAN Image */}
+              <div>
+                <Label>PAN Card Image</Label>
+                <div className="flex flex-col gap-3">
+                  {panImagePreview || formData.panImageUrl ? (
+                    <Image
+                      src={panImagePreview || formData.panImageUrl || ""}
+                      alt="PAN Card"
+                      width={120}
+                      height={120}
+                      className="rounded-md object-cover border"
+                    />
+                  ) : (
+                    <div className="w-[120px] h-[120px] bg-gray-100 rounded-md border flex items-center justify-center text-gray-500 text-sm">
+                      No PAN Image
+                    </div>
+                  )}
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleFileChange(e, "pan")}
+                    className="text-sm"
+                  />
+                </div>
+              </div>
             </div>
           </div>
 
+          {/* Address Details */}
           <FormSection title="Address Details">
-            {/* ... other fields remain same ... */}
-            <Input
-              value={formData.address?.houseNumber || ""}
-              onChange={(e) =>
-                handleNestedChange("address", "houseNumber", e.target.value)
-              }
-              placeholder="House Number"
-            />
-            <Input
-              value={formData.address?.street || ""}
-              onChange={(e) =>
-                handleNestedChange("address", "street", e.target.value)
-              }
-              placeholder="Street"
-            />
-            <Input
-              value={formData.address?.cityVillage || ""}
-              onChange={(e) =>
-                handleNestedChange("address", "cityVillage", e.target.value)
-              }
-              placeholder="City / Village"
-            />
-            <Input
-              value={formData.address?.pincode || ""}
-              onChange={(e) =>
-                handleNestedChange("address", "pincode", e.target.value)
-              }
-              placeholder="Pincode"
-            />
+            <div>
+              <Label>House Number</Label>
+              <Input
+                value={formData.address?.houseNumber || ""}
+                onChange={(e) =>
+                  handleNestedChange("address", "houseNumber", e.target.value)
+                }
+                placeholder="House Number"
+                required
+              />
+            </div>
+
+            <div>
+              <Label>Street</Label>
+              <Input
+                value={formData.address?.street || ""}
+                onChange={(e) =>
+                  handleNestedChange("address", "street", e.target.value)
+                }
+                placeholder="Street"
+                required
+              />
+            </div>
+
+            <div>
+              <Label>City / Village</Label>
+              <Input
+                value={formData.address?.cityVillage || ""}
+                onChange={(e) =>
+                  handleNestedChange("address", "cityVillage", e.target.value)
+                }
+                placeholder="City / Village"
+                required
+              />
+            </div>
+
+            <div>
+              <Label>Pincode</Label>
+              <Input
+                value={formData.address?.pincode || ""}
+                onChange={(e) =>
+                  handleNestedChange("address", "pincode", e.target.value)
+                }
+                placeholder="Pincode"
+                required
+              />
+            </div>
           </FormSection>
 
+          {/* Employment Details */}
           <FormSection title="Employment Details">
-            {/* ... other fields remain same ... */}
-            <Input
-              value={formData.employment?.type || ""}
-              readOnly
-              disabled
-              className="bg-gray-100"
-            />
-            <Input
-              value={formData.employment?.department || ""}
-              onChange={(e) =>
-                handleNestedChange("employment", "department", e.target.value)
-              }
-              placeholder="Department"
-            />
-            <Input
-              value={formData.employment?.companyName || ""}
-              onChange={(e) =>
-                handleNestedChange("employment", "companyName", e.target.value)
-              }
-              placeholder="Company Name"
-            />
-            <Select
-              value={formData.employment?.contributionPlan || ""}
-              onValueChange={(value) =>
-                handleNestedSelect("employment", "contributionPlan", value)
-              }
-              disabled
-            >
-              <SelectTrigger className="bg-gray-100">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="1 Crore Plan">1 Crore Plan</SelectItem>
-                <SelectItem value="50 Lakhs Plan">50 Lakhs Plan</SelectItem>
-              </SelectContent>
-            </Select>
+            <div>
+              <Label>Employment Type</Label>
+              <Select
+                value={formData.employment?.type || ""}
+                onValueChange={(value) =>
+                  handleNestedChange("employment", "type", value)
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select Employment Type" />
+                </SelectTrigger>
+                <SelectContent>
+                  {contributionGroups.map((group) => (
+                    <SelectItem key={group._id} value={group.employmentType}>
+                      {group.employmentType}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label>Company Name</Label>
+              <Select
+                value={formData.employment?.companyName || ""}
+                onValueChange={(value) =>
+                  handleNestedChange("employment", "companyName", value)
+                }
+                disabled={!formData.employment?.type}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select Company" />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableCompanies.map((company) => (
+                    <SelectItem key={company._id} value={company.companyName}>
+                      {company.companyName}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label>Department</Label>
+              <Select
+                value={formData.employment?.department || ""}
+                onValueChange={(value) =>
+                  handleNestedChange("employment", "department", value)
+                }
+                disabled={!formData.employment?.companyName}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select Department" />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableDepartments.map((dept) => (
+                    <SelectItem key={dept._id} value={dept.departmentName}>
+                      {dept.departmentName}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label>Contribution Plan (Read Only)</Label>
+              <Select
+                value={formData.employment?.contributionPlan || ""}
+                disabled
+              >
+                <SelectTrigger className="bg-gray-100">
+                  <SelectValue placeholder="Plan will be assigned" />
+                </SelectTrigger>
+                <SelectContent>
+                  {availablePlans.map((plan) => (
+                    <SelectItem key={plan._id} value={plan.planDetails}>
+                      {plan.planDetails}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-gray-500 mt-1">
+                Contribution plan cannot be changed by members
+              </p>
+            </div>
           </FormSection>
 
+          {/* Nominee Details */}
           <div className="border-t pt-6 mt-6">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-semibold text-gray-700">
                 Nominee Details
               </h3>
-              {/* === BADLAAV YAHAN KIYA GAYA HAI: Total percentage ko display karna === */}
               <span
                 className={`text-sm font-bold ${nomineeError ? "text-red-600" : "text-green-600"}`}
               >
@@ -347,7 +650,6 @@ export default function UpdateProfilePage() {
               </span>
             </div>
 
-            {/* === BADLAAV YAHAN KIYA GAYA HAI: Error message ko display karna === */}
             {nomineeError && (
               <div
                 className="flex items-center p-3 mb-4 text-sm text-red-800 rounded-lg bg-red-50"
@@ -366,46 +668,85 @@ export default function UpdateProfilePage() {
                 >
                   <h4 className="font-semibold text-sm">Nominee {index + 1}</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <Input
-                      placeholder="Nominee Name"
-                      value={nominee.name || ""}
-                      onChange={(e) =>
-                        handleNomineeChange(index, "name", e.target.value)
-                      }
-                    />
-                    <Input
-                      placeholder="Relation"
-                      value={nominee.relation || ""}
-                      onChange={(e) =>
-                        handleNomineeChange(index, "relation", e.target.value)
-                      }
-                    />
-                    <Input
-                      placeholder="Age"
-                      type="number"
-                      value={nominee.age || ""}
-                      onChange={(e) =>
-                        handleNomineeChange(index, "age", e.target.value)
-                      }
-                    />
-                    <Input
-                      placeholder="Gender"
-                      value={nominee.gender || ""}
-                      onChange={(e) =>
-                        handleNomineeChange(index, "gender", e.target.value)
-                      }
-                    />
-                    <Input
-                      placeholder="Percentage (%)"
-                      type="number"
-                      min="0"
-                      max="100"
-                      value={nominee.percentage || ""}
-                      onChange={(e) =>
-                        handleNomineeChange(index, "percentage", e.target.value)
-                      }
-                    />
+                    <div>
+                      <Label>Name</Label>
+                      <Input
+                        placeholder="Nominee Name"
+                        value={nominee.name || ""}
+                        onChange={(e) =>
+                          handleNomineeChange(index, "name", e.target.value)
+                        }
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <Label>Relation</Label>
+                      <Input
+                        placeholder="Relation"
+                        value={nominee.relation || ""}
+                        onChange={(e) =>
+                          handleNomineeChange(index, "relation", e.target.value)
+                        }
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <Label>Age</Label>
+                      <Input
+                        placeholder="Age"
+                        type="number"
+                        min="1"
+                        max="100"
+                        value={nominee.age || ""}
+                        onChange={(e) =>
+                          handleNomineeChange(index, "age", e.target.value)
+                        }
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <Label>Gender</Label>
+                      <Select
+                        value={nominee.gender || ""}
+                        onValueChange={(value) =>
+                          handleNomineeChange(index, "gender", value)
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select Gender" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Male">Male</SelectItem>
+                          <SelectItem value="Female">Female</SelectItem>
+                          <SelectItem value="Other">Other</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div>
+                      <Label>Percentage (%)</Label>
+                      <Input
+                        placeholder="Percentage"
+                        type="number"
+                        min="0"
+                        max="100"
+                        step="0.01"
+                        value={nominee.percentage || ""}
+                        onChange={(e) =>
+                          handleNomineeChange(
+                            index,
+                            "percentage",
+                            e.target.value
+                          )
+                        }
+                        required
+                      />
+                    </div>
                   </div>
+
                   {formData.nominees.length > 1 && (
                     <Button
                       variant="ghost"
@@ -419,6 +760,7 @@ export default function UpdateProfilePage() {
                   )}
                 </div>
               ))}
+
               <div className="flex justify-end">
                 <Button type="button" onClick={addNominee} size="sm">
                   <UserPlus size={16} className="mr-2" /> Add Nominee
@@ -427,14 +769,15 @@ export default function UpdateProfilePage() {
             </div>
           </div>
 
+          {/* Submit Button */}
           <div className="flex justify-end gap-4 pt-6 border-t">
             {actionError && (
               <p className="text-sm text-red-500 self-center">{actionError}</p>
             )}
-            {/* === BADLAAV YAHAN KIYA GAYA HAI: Button ko disable karna agar error hai === */}
             <Button
               type="submit"
               disabled={actionStatus === "loading" || !!nomineeError}
+              className="px-8"
             >
               {actionStatus === "loading" && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
