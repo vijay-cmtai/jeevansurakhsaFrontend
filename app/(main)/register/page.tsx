@@ -581,7 +581,7 @@ export default function RegisterMultiStepPage() {
               </div>
               <div>
                 <Input
-                  placeholder="PAN Number (Optional)"
+                  placeholder="PAN Number"
                   value={formData.panNumber}
                   onChange={(e) =>
                     dispatch(
