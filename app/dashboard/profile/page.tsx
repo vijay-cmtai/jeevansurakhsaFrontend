@@ -52,11 +52,14 @@ export default function UpdateProfilePage() {
     null
   );
 
+  // === BADLAAV YAHAN KIYA GAYA HAI: Nominee validation ke liye naye state variables ===
+  const [nomineePercentageTotal, setNomineePercentageTotal] = useState(0);
+  const [nomineeError, setNomineeError] = useState<string | null>(null);
+
   useEffect(() => {
     if (!userInfo) {
       dispatch(getMemberProfile());
     } else if (Object.keys(formData).length === 0) {
-      // Only set initial data once
       setFormData({
         ...userInfo,
         nominees:
@@ -66,6 +69,33 @@ export default function UpdateProfilePage() {
       });
     }
   }, [userInfo, dispatch, formData]);
+
+  // === BADLAAV YAHAN KIYA GAYA HAI: Nominee percentage ko calculate aur validate karne ke liye useEffect ===
+  useEffect(() => {
+    // Sirf tab calculate karein jab nominees maujood ho
+    if (formData.nominees && formData.nominees.length > 0) {
+      const total = formData.nominees.reduce((acc: number, nominee: any) => {
+        // percentage ko number mein convert karein, agar khali hai to 0 maanein
+        return acc + (parseFloat(nominee.percentage) || 0);
+      }, 0);
+
+      setNomineePercentageTotal(total);
+
+      // Agar total 100 nahi hai to error set karein
+      if (total !== 100) {
+        setNomineeError(
+          `Total percentage must be 100%. Current total is ${total}%.`
+        );
+      } else {
+        // Agar total 100 hai to error hata dein
+        setNomineeError(null);
+      }
+    } else {
+      // Agar koi nominee nahi hai to total 0 hai aur koi error nahi hai
+      setNomineePercentageTotal(0);
+      setNomineeError(null);
+    }
+  }, [formData.nominees]); // Yeh useEffect tabhi chalega jab nominees array mein koi badlaav hoga
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -118,6 +148,17 @@ export default function UpdateProfilePage() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+
+    // === BADLAAV YAHAN KIYA GAYA HAI: Submit karne se pehle final check ===
+    if (nomineeError) {
+      toast({
+        title: "Invalid Nominee Details",
+        description: nomineeError,
+        variant: "destructive",
+      });
+      return; // Form submission ko rokein
+    }
+
     const data = new FormData();
     data.append("fullName", formData.fullName);
     data.append("phone", formData.phone);
@@ -169,6 +210,7 @@ export default function UpdateProfilePage() {
       >
         <form onSubmit={handleSubmit} className="space-y-6">
           <FormSection title="Personal Details">
+            {/* ... other fields remain same ... */}
             <Input
               name="fullName"
               value={formData.fullName || ""}
@@ -222,6 +264,7 @@ export default function UpdateProfilePage() {
           </div>
 
           <FormSection title="Address Details">
+            {/* ... other fields remain same ... */}
             <Input
               value={formData.address?.houseNumber || ""}
               onChange={(e) =>
@@ -253,6 +296,7 @@ export default function UpdateProfilePage() {
           </FormSection>
 
           <FormSection title="Employment Details">
+            {/* ... other fields remain same ... */}
             <Input
               value={formData.employment?.type || ""}
               readOnly
@@ -273,17 +317,14 @@ export default function UpdateProfilePage() {
               }
               placeholder="Company Name"
             />
-            {/* === BADLAAV YAHAN KIYA GAYA HAI === */}
             <Select
               value={formData.employment?.contributionPlan || ""}
               onValueChange={(value) =>
                 handleNestedSelect("employment", "contributionPlan", value)
               }
-              disabled // Dropdown ko disable kar diya gaya hai
+              disabled
             >
               <SelectTrigger className="bg-gray-100">
-                {" "}
-                {/* Visual feedback ke liye background color */}
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -294,9 +335,29 @@ export default function UpdateProfilePage() {
           </FormSection>
 
           <div className="border-t pt-6 mt-6">
-            <h3 className="text-lg font-semibold text-gray-700 mb-4">
-              Nominee Details
-            </h3>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold text-gray-700">
+                Nominee Details
+              </h3>
+              {/* === BADLAAV YAHAN KIYA GAYA HAI: Total percentage ko display karna === */}
+              <span
+                className={`text-sm font-bold ${nomineeError ? "text-red-600" : "text-green-600"}`}
+              >
+                Total Share: {nomineePercentageTotal}%
+              </span>
+            </div>
+
+            {/* === BADLAAV YAHAN KIYA GAYA HAI: Error message ko display karna === */}
+            {nomineeError && (
+              <div
+                className="flex items-center p-3 mb-4 text-sm text-red-800 rounded-lg bg-red-50"
+                role="alert"
+              >
+                <AlertTriangle className="flex-shrink-0 inline w-4 h-4 mr-3" />
+                <span className="font-medium">{nomineeError}</span>
+              </div>
+            )}
+
             <div className="space-y-4">
               {formData.nominees?.map((nominee: any, index: number) => (
                 <div
@@ -304,7 +365,7 @@ export default function UpdateProfilePage() {
                   className="border p-4 rounded-lg space-y-3 relative bg-gray-50"
                 >
                   <h4 className="font-semibold text-sm">Nominee {index + 1}</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     <Input
                       placeholder="Nominee Name"
                       value={nominee.name || ""}
@@ -337,6 +398,8 @@ export default function UpdateProfilePage() {
                     <Input
                       placeholder="Percentage (%)"
                       type="number"
+                      min="0"
+                      max="100"
                       value={nominee.percentage || ""}
                       onChange={(e) =>
                         handleNomineeChange(index, "percentage", e.target.value)
@@ -368,7 +431,11 @@ export default function UpdateProfilePage() {
             {actionError && (
               <p className="text-sm text-red-500 self-center">{actionError}</p>
             )}
-            <Button type="submit" disabled={actionStatus === "loading"}>
+            {/* === BADLAAV YAHAN KIYA GAYA HAI: Button ko disable karna agar error hai === */}
+            <Button
+              type="submit"
+              disabled={actionStatus === "loading" || !!nomineeError}
+            >
               {actionStatus === "loading" && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               )}
