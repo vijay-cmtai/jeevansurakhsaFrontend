@@ -5,16 +5,12 @@ import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import Link from "next/link";
 import Image from "next/image";
-
-// Redux Imports
 import { AppDispatch, RootState } from "@/lib/redux/store";
 import {
   loginUser,
   loginAdmin,
   loginDashboardUser,
 } from "@/lib/redux/features/auth/authSlice";
-
-// UI & Icon Imports
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -26,10 +22,12 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
-import { Shield, Eye, EyeOff, LogIn, User as UserIcon } from "lucide-react";
+// Shield को import से हटा दिया गया है
+import { Eye, EyeOff, LogIn, User as UserIcon } from "lucide-react";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
+  const [adminIdentifier, setAdminIdentifier] = useState("");
+  const [memberIdentifier, setMemberIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isDashboardLogin, setIsDashboardLogin] = useState(false);
@@ -54,29 +52,26 @@ export default function LoginPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password) {
-      return;
-    }
 
     if (isDashboardLogin) {
+      if (!adminIdentifier || !password) return;
       if (
-        email.toLowerCase() ===
+        adminIdentifier.toLowerCase() ===
         (process.env.NEXT_PUBLIC_ADMIN_EMAIL || "healthguard0102@gmail.com")
       ) {
-        dispatch(loginAdmin({ email, password }));
+        dispatch(loginAdmin({ email: adminIdentifier, password }));
       } else {
-        dispatch(loginDashboardUser({ email, password }));
+        dispatch(loginDashboardUser({ email: adminIdentifier, password }));
       }
     } else {
-      dispatch(loginUser({ email, password }));
+      if (!memberIdentifier || !password) return;
+      dispatch(loginUser({ identifier: memberIdentifier, password }));
     }
   };
 
   return (
     <div className="min-h-screen w-full bg-gray-50 flex items-center justify-center">
-      {/* Mobile-first responsive container */}
       <div className="w-full min-h-screen lg:min-h-0 lg:max-w-4xl lg:mx-auto lg:grid lg:grid-cols-2 bg-white lg:rounded-2xl lg:shadow-2xl overflow-hidden">
-        {/* Left Side - Image (Hidden on mobile) */}
         <div className="hidden lg:block relative">
           <Image
             src="https://tse1.mm.bing.net/th/id/OIP.yzBw0jD8ft6sOHYOlwAJ2QHaHl?pid=Api&P=0&h=180"
@@ -87,7 +82,14 @@ export default function LoginPage() {
           />
           <div className="absolute inset-0 bg-blue-900/70 flex flex-col items-center justify-center p-8 text-white text-center">
             <div>
-              <Shield className="h-16 w-16 mx-auto mb-6" />
+              {/* Shield को Image से बदल दिया गया है */}
+              <Image
+                src="/logo.jpg"
+                alt="Jeevan Suraksha Logo"
+                width={64}
+                height={64}
+                className="mx-auto mb-6"
+              />
               <h1 className="text-4xl font-bold mb-4">Jeevan Suraksha</h1>
               <p className="text-lg text-blue-100">
                 Your community-driven financial safety net.
@@ -96,11 +98,16 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* Right Side - Form */}
         <div className="flex flex-col justify-center min-h-screen lg:min-h-0 px-4 py-8 sm:px-6 lg:px-8 xl:px-12">
-          {/* Mobile header with logo */}
           <div className="lg:hidden text-center mb-8">
-            <Shield className="h-12 w-12 mx-auto mb-4 text-blue-600" />
+            {/* Shield को Image से बदल दिया गया है */}
+            <Image
+              src="/logo.jpg"
+              alt="Jeevan Suraksha Logo"
+              width={48}
+              height={48}
+              className="mx-auto mb-4"
+            />
             <h1 className="text-2xl font-bold text-gray-900">
               Jeevan Suraksha
             </h1>
@@ -121,15 +128,20 @@ export default function LoginPage() {
 
             <CardContent className="px-0">
               <form onSubmit={handleSubmit} className="space-y-4">
-                {/* LOGIN TYPE TOGGLE */}
                 <div className="flex items-center justify-between bg-gray-100 rounded-lg p-3">
                   <div className="flex items-center space-x-2">
                     <UserIcon
-                      className={`h-4 w-4 transition-colors ${!isDashboardLogin ? "text-blue-600" : "text-gray-400"}`}
+                      className={`h-4 w-4 transition-colors ${
+                        !isDashboardLogin ? "text-blue-600" : "text-gray-400"
+                      }`}
                     />
                     <Label
                       htmlFor="login-as"
-                      className={`text-sm transition-colors cursor-pointer ${!isDashboardLogin ? "font-semibold text-gray-800" : "text-gray-500"}`}
+                      className={`text-sm transition-colors cursor-pointer ${
+                        !isDashboardLogin
+                          ? "font-semibold text-gray-800"
+                          : "text-gray-500"
+                      }`}
                     >
                       Member
                     </Label>
@@ -145,33 +157,56 @@ export default function LoginPage() {
                   <div className="flex items-center space-x-2">
                     <Label
                       htmlFor="login-as"
-                      className={`text-sm transition-colors cursor-pointer ${isDashboardLogin ? "font-semibold text-gray-800" : "text-gray-500"}`}
+                      className={`text-sm transition-colors cursor-pointer ${
+                        isDashboardLogin
+                          ? "font-semibold text-gray-800"
+                          : "text-gray-500"
+                      }`}
                     >
                       Admin/Manager
                     </Label>
-                    <Shield
-                      className={`h-4 w-4 transition-colors ${isDashboardLogin ? "text-blue-600" : "text-gray-400"}`}
+                    {/* Shield को Image से बदल दिया गया है */}
+                    <Image
+                      src="/logo.jpg"
+                      alt="Admin Logo"
+                      width={16}
+                      height={16}
+                      className={`transition-opacity ${
+                        isDashboardLogin ? "opacity-100" : "opacity-40"
+                      }`}
                     />
                   </div>
                 </div>
 
-                {/* EMAIL INPUT */}
                 <div className="space-y-2">
-                  <Label htmlFor="email" className="text-sm font-medium">
-                    Email Address
+                  <Label htmlFor="identifier" className="text-sm font-medium">
+                    {isDashboardLogin
+                      ? "Email Address"
+                      : "Email or Phone Number"}
                   </Label>
                   <Input
-                    id="email"
-                    type="email"
-                    placeholder="you@example.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    id="identifier"
+                    type="text"
+                    placeholder={
+                      isDashboardLogin
+                        ? "you@example.com"
+                        : "Email / Phone Number"
+                    }
+                    value={
+                      isDashboardLogin ? adminIdentifier : memberIdentifier
+                    }
+                    onChange={(e) => {
+                      if (isDashboardLogin) {
+                        setAdminIdentifier(e.target.value);
+                      } else {
+                        setMemberIdentifier(e.target.value);
+                      }
+                    }}
                     disabled={loading}
                     className="h-11 text-base"
                   />
                 </div>
 
-                {/* PASSWORD INPUT */}
                 <div className="space-y-2">
                   <Label htmlFor="password" className="text-sm font-medium">
                     Password
@@ -200,14 +235,12 @@ export default function LoginPage() {
                   </div>
                 </div>
 
-                {/* ERROR MESSAGE */}
                 {error && (
                   <div className="text-sm font-medium text-red-600 bg-red-50 p-3 rounded-lg text-center border border-red-200">
                     {error}
                   </div>
                 )}
 
-                {/* SUBMIT BUTTON */}
                 <Button
                   type="submit"
                   className="w-full bg-blue-600 hover:bg-blue-700 text-white h-11 text-base font-semibold flex items-center justify-center gap-x-2 mt-6"
@@ -222,7 +255,6 @@ export default function LoginPage() {
                   )}
                 </Button>
 
-                {/* REGISTER LINK */}
                 {!isDashboardLogin && (
                   <div className="text-center text-sm text-gray-600 pt-4">
                     Don't have an account?{" "}

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
+import Image from "next/image"; // Image component ko import kiya gaya hai
 import { AppDispatch, RootState } from "@/lib/redux/store";
 import {
   addOrUpdatePlan,
@@ -13,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Loader2, Trash2, Shield } from "lucide-react";
+import { Plus, Loader2, Trash2 } from "lucide-react"; // Shield icon yahan se hata diya gaya hai
 
 // Helper Component for dynamic lists to avoid repeating code
 const DynamicListInput = ({
@@ -147,7 +148,14 @@ export default function AddContributionPlanPage() {
       >
         <Card>
           <CardHeader className="text-center">
-            <Shield className="h-12 w-12 mx-auto text-blue-600" />
+            {/* === BADLAAV: Shield icon ko Image component se badal diya gaya hai === */}
+            <Image
+              src="/logo.jpg" // Path to your logo in the public folder
+              alt="Logo"
+              width={48} // Corresponds to h-12
+              height={48} // Corresponds to w-12
+              className="mx-auto rounded-full"
+            />
             <CardTitle className="text-2xl">
               Create Contribution Group
             </CardTitle>

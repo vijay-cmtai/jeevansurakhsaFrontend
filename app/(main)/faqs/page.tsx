@@ -109,7 +109,6 @@ const getFaqData = (t: (key: string) => string) => [
       { question: t("faq.section6.q1.q"), answer: t("faq.section6.q1.a") },
       { question: t("faq.section6.q2.q"), answer: t("faq.section6.q2.a") },
       { question: t("faq.section6.q3.q"), answer: t("faq.section6.q3.a") },
-      { question: t("faq.section6.q4.q"), answer: t("faq.section6.q4.a") },
       { question: t("faq.section6.q5.q"), answer: t("faq.section6.q5.a") },
       { question: t("faq.section6.q6.q"), answer: t("faq.section6.q6.a") },
       { question: t("faq.section6.q7.q"), answer: t("faq.section6.q7.a") },
@@ -325,8 +324,14 @@ export default function FAQsPage() {
                 </h3>
                 <p className="text-blue-200">{t("faq.support.email")}</p>
               </motion.a>
-              <motion.div
+
+              {/* === BADLAAV YAHAN KIYA GAYA HAI === */}
+              <motion.a
+                href="https://wa.me/917816058717" // WhatsApp link
+                target="_blank" // Naye tab mein open hoga
+                rel="noopener noreferrer"
                 whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-6 hover:bg-white/20 transition-all duration-300 group"
               >
                 <MessageCircle className="h-8 w-8 text-blue-300 mx-auto mb-4 group-hover:scale-110 transition-transform" />
@@ -334,7 +339,7 @@ export default function FAQsPage() {
                   {t("faq.support.liveChat")}
                 </h3>
                 <p className="text-blue-200">{t("faq.support.chatHours")}</p>
-              </motion.div>
+              </motion.a>
             </div>
             <div className="mt-12 p-6 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20 max-w-2xl mx-auto">
               <p className="text-blue-100 text-sm">

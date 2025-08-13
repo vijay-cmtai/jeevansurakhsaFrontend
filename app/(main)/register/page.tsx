@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
 import Image from "next/image";
+import Link from "next/link";
 
 // Redux Imports
 import { AppDispatch, RootState } from "@/lib/redux/store";
@@ -41,6 +42,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { CalendarIcon, Edit, UserPlus, Trash2, Loader2 } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 
 // Declare Cashfree type
 declare global {
@@ -109,8 +111,13 @@ export default function RegisterMultiStepPage() {
     panImage?: File | null;
   }>({});
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
-  const [isProcessing, setIsProcessing] = useState(false);
+
+  const [submissionType, setSubmissionType] = useState<
+    "payNow" | "payLater" | null
+  >(null);
+
   const [isSDKLoaded, setIsSDKLoaded] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
 
   useEffect(() => {
     if (!formData.nominees || formData.nominees.length === 0) {
@@ -147,7 +154,7 @@ export default function RegisterMultiStepPage() {
   const launchCheckout = async (paymentSessionId: string, orderId: string) => {
     if (!isSDKLoaded || typeof window.Cashfree !== "function") {
       alert("Payment gateway is not ready. Please wait a moment.");
-      setIsProcessing(false);
+      setSubmissionType(null);
       return;
     }
     try {
@@ -164,13 +171,14 @@ export default function RegisterMultiStepPage() {
     } catch (error: any) {
       alert(`Payment Gateway Error: ${error.message}`);
     } finally {
-      setIsProcessing(false);
+      setSubmissionType(null);
     }
   };
 
   const handleSubmit = async (isPayingNow: boolean) => {
     if (!validateStep(step)) return;
-    setIsProcessing(true);
+
+    setSubmissionType(isPayingNow ? "payNow" : "payLater");
 
     try {
       const resultAction = await dispatch(
@@ -186,7 +194,7 @@ export default function RegisterMultiStepPage() {
         } else {
           alert("Registration successful! Please login to complete payment.");
           router.push("/login");
-          setIsProcessing(false);
+          setSubmissionType(null);
         }
       } else {
         throw new Error(
@@ -195,7 +203,7 @@ export default function RegisterMultiStepPage() {
       }
     } catch (e: any) {
       alert(`Error: ${e.message}`);
-      setIsProcessing(false);
+      setSubmissionType(null);
     }
   };
 
@@ -204,9 +212,28 @@ export default function RegisterMultiStepPage() {
     if (currentStep === 1) {
       if (!formData.state) newErrors.state = "State is required.";
       if (!formData.district) newErrors.district = "District is required.";
+      // --- VOLUNTEER VALIDATION ADDED HERE ---
+      if (!formData.volunteerCode)
+        newErrors.volunteerCode = "Volunteer is required.";
     } else if (currentStep === 2) {
-      if (!formData.dateOfBirth)
+      if (!formData.dateOfBirth) {
         newErrors.dateOfBirth = "Date of Birth is required.";
+      } else {
+        const today = new Date();
+        const dob = new Date(formData.dateOfBirth);
+        let calculatedAge = today.getFullYear() - dob.getFullYear();
+        const monthDiff = today.getMonth() - dob.getMonth();
+        if (
+          monthDiff < 0 ||
+          (monthDiff === 0 && today.getDate() < dob.getDate())
+        ) {
+          calculatedAge--;
+        }
+
+        if (calculatedAge < 18 || calculatedAge > 60) {
+          newErrors.dateOfBirth = "Age must be between 18 and 60 years.";
+        }
+      }
     } else if (currentStep === 3) {
       if (!formData.fullName) newErrors.fullName = "Full name is required.";
       if (!/^\d{10}$/.test(formData.phone))
@@ -322,6 +349,10 @@ export default function RegisterMultiStepPage() {
     [selectedDepartment, availableDepartments]
   );
 
+  const today = new Date();
+  const maxDate = new Date(new Date().setFullYear(today.getFullYear() - 18));
+  const minDate = new Date(new Date().setFullYear(today.getFullYear() - 60));
+
   const renderStep = () => {
     switch (step) {
       case 1:
@@ -392,6 +423,12 @@ export default function RegisterMultiStepPage() {
                   ))}
                 </SelectContent>
               </Select>
+              {/* --- ERROR MESSAGE FOR VOLUNTEER ADDED HERE --- */}
+              {formErrors.volunteerCode && (
+                <p className="text-red-500 text-sm mt-1">
+                  {formErrors.volunteerCode}
+                </p>
+              )}
             </div>
             <div className="flex justify-end mt-8">
               <Button
@@ -440,8 +477,9 @@ export default function RegisterMultiStepPage() {
                       })
                     )
                   }
-                  fromYear={1960}
-                  toYear={2006}
+                  fromDate={minDate}
+                  toDate={maxDate}
+                  defaultMonth={maxDate}
                   captionLayout="dropdown-buttons"
                 />
               </PopoverContent>
@@ -877,12 +915,11 @@ export default function RegisterMultiStepPage() {
             </div>
           </FormWrapper>
         );
-
       case 5:
         return (
           <FormWrapper>
             <StepSectionHeader title="Nominee Details" />
-            <div className="max-h-[55vh] overflow-y-auto pr-2">
+            <div className="max-h-[50vh] overflow-y-auto pr-2">
               {formData.nominees.map((nominee, index) => (
                 <div
                   key={index}
@@ -1011,11 +1048,33 @@ export default function RegisterMultiStepPage() {
                 {formErrors.nominee_total}
               </p>
             )}
-            {formErrors.nominee_main && (
-              <p className="text-red-500 text-sm text-center">
-                {formErrors.nominee_main}
-              </p>
-            )}
+
+            <div className="mt-6 flex items-center space-x-3">
+              <Checkbox
+                id="terms"
+                checked={termsAccepted}
+                onCheckedChange={(checked) =>
+                  setTermsAccepted(checked as boolean)
+                }
+              />
+              <div className="flex items-baseline gap-2">
+                <label
+                  htmlFor="terms"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  I accept Terms & Conditions
+                </label>
+                <Link
+                  href="/jeevanterm.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-blue-600 hover:underline"
+                >
+                  See Terms
+                </Link>
+              </div>
+            </div>
+
             <div className="flex justify-between mt-8">
               <Button
                 variant="outline"
@@ -1027,13 +1086,13 @@ export default function RegisterMultiStepPage() {
               <Button
                 onClick={handleNext}
                 className="bg-green-500 hover:bg-green-600 h-11 px-8"
+                disabled={!termsAccepted}
               >
                 Next
               </Button>
             </div>
           </FormWrapper>
         );
-
       case 6:
         return (
           <FormWrapper>
@@ -1183,7 +1242,7 @@ export default function RegisterMultiStepPage() {
               <Button
                 variant="outline"
                 onClick={handlePrev}
-                disabled={isProcessing}
+                disabled={submissionType !== null}
                 className="h-11 px-6 bg-white"
               >
                 Previous
@@ -1192,10 +1251,10 @@ export default function RegisterMultiStepPage() {
                 <Button
                   variant="secondary"
                   onClick={() => handleSubmit(false)}
-                  disabled={isProcessing}
+                  disabled={submissionType !== null}
                   className="h-11 px-8"
                 >
-                  {isProcessing ? (
+                  {submissionType === "payLater" ? (
                     <Loader2 className="animate-spin" />
                   ) : (
                     "Pay Later"
@@ -1203,10 +1262,10 @@ export default function RegisterMultiStepPage() {
                 </Button>
                 <Button
                   onClick={() => handleSubmit(true)}
-                  disabled={isProcessing || !isSDKLoaded}
+                  disabled={submissionType !== null || !isSDKLoaded}
                   className="bg-green-500 hover:bg-green-600 h-11 px-8"
                 >
-                  {isProcessing ? (
+                  {submissionType === "payNow" ? (
                     <Loader2 className="animate-spin" />
                   ) : (
                     "Proceed to Pay"

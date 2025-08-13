@@ -157,17 +157,18 @@ const enTranslations: Record<string, string> = {
   "whoWeAre.mission.tab2": "Our Mission",
   "whoWeAre.mission.tab3": "Our Vision",
   "whoWeAre.mission.foundationTitle": "What is Health Guard Foundation?",
+
   "whoWeAre.mission.foundationP1":
-    "Health Guard Foundation (HGF), an NGO registered in Telangana, India, founded with the vision of creating a community-driven safety net. HGF aim to provide instant financial assistance to individuals during health crises, regardless of their background or income level.",
+    "Health Guard Foundation (HGF), an NGO registered in Telangana, India, founded by IT Employees with the vision of creating a community-driven safety net. HGF aim to provide instant financial assistance to individuals during health crises, regardless of their background or income level.",
   "whoWeAre.mission.foundationP2":
-    "Our initiative is simple yet powerful—members contribute ₹10 per month, pooling resources into a common fund. When a medical emergency strikes, this fund becomes a lifeline, ensuring that urgent care is accessible without financial stress.",
+    "Our initiative is simple yet powerful—members contribute ₹20 per month, pooling resources into a common fund. When a medical emergency strikes, this fund becomes a lifeline, ensuring that urgent care is accessible without financial stress.",
+
   "whoWeAre.mission.missionTitle": "Our Mission",
   "whoWeAre.mission.missionP":
     "To build a caring and supportive community where members stand together to provide financial security to beneficiaries through small contributions, ensuring no family faces hardship alone during their most challenging times.",
   "whoWeAre.mission.visionTitle": "Our Vision",
   "whoWeAre.mission.visionP":
     "To create a nationwide network of social security collectives that provides comprehensive financial protection to every family, fostering a society where mutual support and community care are the foundation of security.",
-
   // Our Team Page
   "ourTeam.hero.title": "Our Team",
   "ourTeam.hero.breadcrumbHome": "HOME",
@@ -214,7 +215,7 @@ const enTranslations: Record<string, string> = {
   "faq.support.hoursValue": "Monday to Friday, 9:00 AM - 6:00 PM IST",
   "faq.support.languagesLabel": "Languages:",
   "faq.support.languagesValue": "English, Hindi, Telugu, Tamil",
-  "faq.support.phone": "+91 98765 43210",
+  "faq.support.phone": "+91 78160 58717",
   "faq.support.email": "support@jeevansuraksha.org",
 
   // FAQ Section Titles
@@ -228,10 +229,10 @@ const enTranslations: Record<string, string> = {
   // Section 1: Membership & Eligibility
   "faq.section1.q1.q": "Who can join Jeevan Suraksha?",
   "faq.section1.q1.a":
-    "Any Indian citizen residing in Telangana & Andhra Pradesh or a permanent resident of Telangana or Andhra Pradesh working anywhere in the world can enroll, provided they are between 18 and 60 years of age and are not terminally ill at the time of enrollment. Membership approval is subject to verification. In exceptional cases that may not be eligible initially, the membership will be declined and the amount refunded. The verification process may take up to one week, with refunds processed within 21 days.",
+    "Indian citizens who currently reside in Telangana, Andhra Pradesh, Karnataka, and Tamil Nadu, or are permanent residents of any of these states working anywhere in the world, are eligible to apply, provided they meet the following conditions:\n\nAge between 18 and 60 years\nNot terminally ill at the time of enrolment\n\nImportant Notes:\nAll applications are subject to a verification process, which may take up to one week.\nIn exceptional cases where eligibility cannot be confirmed, the application will be declined, and the full amount refunded.\nRefunds will be processed within 21 days of rejection.\nPayouts will be processed separately for each state, in accordance with the respective state’s members.",
   "faq.section1.q2.q": "Can NRIs join Jeevan Suraksha?",
   "faq.section1.q2.a":
-    "Yes, Non-Resident Indians (NRIs) who are permanent residents of Telangana or Andhra Pradesh can join Jeevan Suraksha, provided they meet all other eligibility criteria including age requirements and health conditions.",
+    "Yes, Non-Resident Indians (NRIs) who are permanent residents of Telangana, Andhra Pradesh, Karnataka & Tamil Nadu can join Jeevan Suraksha, provided they meet all other eligibility criteria including age requirements and health conditions.",
   "faq.section1.q3.q": "Can I enroll multiple times under different names?",
   "faq.section1.q3.a":
     "No, each individual can only have one active membership under their legal name. Multiple enrollments under different names or identities are strictly prohibited and may result in membership termination.",
@@ -251,19 +252,19 @@ const enTranslations: Record<string, string> = {
   "faq.section1.q8.a":
     "Memberships are non-transferable. Each individual must apply separately for their own membership. However, family members can join as separate members.",
   "faq.section1.q9.q":
-    "What happens if I relocate outside Telangana & Andhra Pradesh?",
+    "What happens if I relocate outside Telangana, Andhra Pradesh, Karnataka & Tamil Nadu?",
   "faq.section1.q9.a":
-    "If you relocate permanently outside Telangana & Andhra Pradesh, you can continue your membership but must update your address details in the member portal within 30 days of relocation.",
+    "If you relocate permanently outside Telangana, Andhra Pradesh, Karnataka & Tamil Nadu, you can continue your membership but must update your address details in the member portal within 30 days of relocation.",
   "faq.section1.q10.q":
     "Can a member move from one collective to another collective?",
   "faq.section1.q10.a":
-    "Yes, members can request to move between collectives based on their changed circumstances. The transfer is subject to approval and may involve additional documentation and fees.",
+    "Members may request to transfer between collectives due to changed circumstances; however, any transfer is subject to prior written approval and may require additional documentation and applicable fees.",
 
   // Section 2: Contributions & Payouts
   "faq.section2.q1.q":
     "How is the corpus amount of ₹25 lakhs, ₹50 lakhs, or ₹1 crore generated?",
   "faq.section2.q1.a":
-    "Jeevan Suraksha is not a term insurance plan but a collective contribution scheme where members contribute to support a fellow member's family in times of need. The fund payout depends on the total contributions from active members at the time. While the goal is to provide ₹25 lakhs, the payout does not guarantee a fixed amount, as it is based on collective participation.",
+    "Jeevan Suraksha is not a term insurance plan. It is a collective contribution scheme where members voluntarily contribute to a common fund to support the families of fellow members in times of need. The payout amount is determined by the total contributions from active members at the time of the claim. While the objective is to provide a payout ranging from ₹25 lakhs to ₹1 crore, the actual amount received may vary based on collective participation and available funds.The scheme operates in various states, including Telangana, Andhra Pradesh, Karnataka, and Tamil Nadu. Each state's collective operates independently, and the availability and payout amounts may differ based on regional participation and contributions. For example, the Telangana collective's payout depends on the number of Telangana members in each collective.",
   "faq.section2.q2.q": "How much do I need to contribute per death claim?",
   "faq.section2.q2.a":
     "The contribution amount per death claim varies based on the collective you join and the total number of active members. Generally, contributions range from ₹25 to ₹500 per claim, with the amount decreasing as membership grows.",
@@ -311,7 +312,7 @@ const enTranslations: Record<string, string> = {
     "Contributions made towards previous claims are non-refundable as they have already been disbursed to beneficiaries. Only unused membership fees may be considered for partial refund in exceptional cases.",
   "faq.section3.q5.q": "Is there a cooling-off period?",
   "faq.section3.q5.a":
-    "Yes, there is a 15-day cooling-off period from the date of enrollment during which you can cancel your membership and receive a full refund of membership fees, provided no claims have been made.",
+    "Upon joining the Jeevan Suraksha scheme, there is a 90-day cooling-off period during which no claims can be made. This period allows for the identification of any members who may have joined with pre-existing terminal illnesses, ensuring the integrity of the collective fund. After this 90-day period, members become eligible to file claims, provided all other conditions are met.",
   "faq.section3.q6.q": "How are payment reminders sent?",
   "faq.section3.q6.a":
     "Payment reminders are sent via SMS, email, and push notifications through the mobile app. Reminders are sent 7 days before the due date and continue until payment is made.",
@@ -351,7 +352,7 @@ const enTranslations: Record<string, string> = {
   // Section 5: Legal & Compliance
   "faq.section5.q1.q": "Is Jeevan Suraksha legally compliant?",
   "faq.section5.q1.a":
-    "Yes, Jeevan Suraksha operates under the legal framework governing collective social security schemes in India. It is registered as a trust and complies with all applicable laws and regulations.",
+    "Jeevan Suraksha is a collective contribution scheme initiated by the Health Guard Foundation, a registered trust in Telangana. The foundation holds 12A and 80G certifications, ensuring compliance with Indian tax laws and enabling donors to claim tax exemptions. It operates under the legal framework governing Trusts in India.",
   "faq.section5.q2.q": "What are the terms and conditions?",
   "faq.section5.q2.a":
     "Detailed terms and conditions are available on our website and member portal. These cover membership rules, contribution obligations, claim procedures, and dispute resolution mechanisms. All members must agree to these terms during enrollment.",
@@ -377,16 +378,13 @@ const enTranslations: Record<string, string> = {
   // Section 6: Communication & Support
   "faq.section6.q1.q": "How can I contact customer support?",
   "faq.section6.q1.a":
-    "Customer support is available through multiple channels: phone (+91 98765 43210), email (support@jeevansuraksha.org), live chat on the website, and through the mobile app. Support is available Monday to Friday, 9 AM to 6 PM.",
+    "Customer support is available through multiple channels: phone / WhatsApp (+91 78160 58717), email (support@jeevansuraksha.org), live chat on the website, and through the mobile app. Support is available Monday to Friday, 9 AM to 6 PM.",
   "faq.section6.q2.q": "What languages is support available in?",
   "faq.section6.q2.a":
     "Customer support is available in English, Hindi, Telugu, and Tamil. Our support team is trained to assist members in their preferred language for better communication.",
   "faq.section6.q3.q": "How do I receive updates about the collective?",
   "faq.section6.q3.a":
     "Updates are sent through SMS, email newsletters, app notifications, and posted on the member portal. You can customize your communication preferences in the member portal settings.",
-  "faq.section6.q4.q": "Is there a mobile app available?",
-  "faq.section6.q4.a":
-    "Yes, the Jeevan Suraksha mobile app is available for both Android and iOS devices. The app provides full access to member services, contribution payments, claim tracking, and support features.",
   "faq.section6.q5.q": "How often will I receive communications?",
   "faq.section6.q5.a":
     "Regular communications include monthly newsletters, contribution requests when claims arise, annual reports, and important updates. Emergency communications are sent as needed for urgent matters.",
@@ -812,7 +810,7 @@ const teTranslations: Record<string, string> = {
   "footer.copyright":
     "© {year} జీవన్ సురక్ష సోషల్ సెక్యూరిటీ కలెక్టివ్. అన్ని హక్కులు ప్రత్యేకించబడ్డాయి.",
 
-  // Who We Are Page
+  /// Who We Are Page
   "whoWeAre.hero.title": "మా గురించి",
   "whoWeAre.hero.breadcrumbHome": "హోమ్",
   "whoWeAre.hero.breadcrumbAbout": "మా గురించి",
@@ -826,10 +824,12 @@ const teTranslations: Record<string, string> = {
   "whoWeAre.mission.tab2": "మా లక్ష్యం",
   "whoWeAre.mission.tab3": "మా దృష్టి",
   "whoWeAre.mission.foundationTitle": "హెల్త్ గార్డ్ ఫౌండేషన్ అంటే ఏమిటి?",
+
   "whoWeAre.mission.foundationP1":
-    "హెల్త్ గార్డ్ ఫౌండేషన్ (HGF), తెలంగాణ, భారతదేశంలో నమోదు చేయబడిన ఒక NGO, ఒక సమాజ-ఆధారిత భద్రతా వలయాన్ని సృష్టించే దృష్టితో స్థాపించబడింది. HGF వారి నేపథ్యం లేదా ఆదాయ స్థాయితో సంబంధం లేకుండా, ఆరోగ్య సంక్షోభాల సమయంలో వ్యక్తులకు తక్షణ ఆర్థిక సహాయం అందించాలని లక్ష్యంగా పెట్టుకుంది.",
+    "హెల్త్ గార్డ్ ఫౌండేషన్ (HGF), తెలంగాణ, భారతదేశంలో నమోదు చేయబడిన ఒక NGO, ఒక సమాజ-ఆధారిత భద్రతా వలయాన్ని సృష్టించే దృష్టితో ఐటీ ఉద్యోగులచే స్థాపించబడింది. HGF వారి నేపథ్యం లేదా ఆదాయ స్థాయితో సంబంధం లేకుండా, ఆరోగ్య సంక్షోభాల సమయంలో వ్యక్తులకు తక్షణ ఆర్థిక సహాయం అందించాలని లక్ష్యంగా పెట్టుకుంది.",
   "whoWeAre.mission.foundationP2":
-    "మా చొరవ సరళమైనది ఇంకా శక్తివంతమైనది—సభ్యులు నెలకు ₹10 అందిస్తారు, వనరులను ఒక ఉమ్మడి నిధిలోకి సమీకరిస్తారు. ఒక వైద్య అత్యవసర పరిస్థితి సంభవించినప్పుడు, ఈ నిధి ఒక జీవనాధారంగా మారుతుంది, ఆర్థిక ఒత్తిడి లేకుండా అత్యవసర సంరక్షణ అందుబాటులో ఉండేలా నిర్ధారిస్తుంది.",
+    "మా చొరవ సరళమైనది ఇంకా శక్తివంతమైనది—సభ్యులు నెలకు ₹2010 అందిస్తారు, వనరులను ఒక ఉమ్మడి నిధిలోకి సమీకరిస్తారు. ఒక వైద్య అత్యవసర పరిస్థితి సంభవించినప్పుడు, ఈ నిధి ఒక జీవనాధారంగా మారుతుంది, ఆర్థిక ఒత్తిడి లేకుండా అత్యవసర సంరక్షణ అందుబాటులో ఉండేలా నిర్ధారిస్తుంది.",
+
   "whoWeAre.mission.missionTitle": "మా లక్ష్యం",
   "whoWeAre.mission.missionP":
     "చిన్న విరాళాల ద్వారా లబ్ధిదారులకు ఆర్థిక భద్రతను అందించడానికి సభ్యులు కలిసి నిలబడే ఒక శ్రద్ధగల మరియు సహాయక సమాజాన్ని నిర్మించడం, వారి అత్యంత సవాలు సమయాల్లో ఏ కుటుంబం ఒంటరిగా కష్టాలను ఎదుర్కోకుండా నిర్ధారించడం.",
@@ -884,7 +884,7 @@ const teTranslations: Record<string, string> = {
     "సోమవారం నుండి శుక్రవారం వరకు, ఉదయం 9:00 - సాయంత్రం 6:00 IST",
   "faq.support.languagesLabel": "భాషలు:",
   "faq.support.languagesValue": "ఇంగ్లీష్, హిందీ, తెలుగు, తమిళం",
-  "faq.support.phone": "+91 98765 43210",
+  "faq.support.phone": "+91 78160 58717",
   "faq.support.email": "support@jeevansuraksha.org",
 
   // FAQ Section Titles
@@ -895,13 +895,13 @@ const teTranslations: Record<string, string> = {
   "faq.section5.title": "చట్టపరమైన & వర్తింపు",
   "faq.section6.title": "కమ్యూనికేషన్ & మద్దతు",
 
-  // Section 1: Membership
+  // Section 1: Membership & Eligibility
   "faq.section1.q1.q": "జీవన్ సురక్షలో ఎవరు చేరవచ్చు?",
   "faq.section1.q1.a":
-    "తెలంగాణ & ఆంధ్రప్రదేశ్‌లో నివసిస్తున్న ఏ భారతీయ పౌరుడైనా లేదా ప్రపంచంలో ఎక్కడైనా పనిచేస్తున్న తెలంగాణ లేదా ఆంధ్రప్రదేశ్ శాశ్వత నివాసి అయినా, 18 నుండి 60 సంవత్సరాల మధ్య వయస్సు ఉండి, నమోదు సమయంలో ప్రాణాంతక వ్యాధులతో బాధపడకపోతే చేరవచ్చు. సభ్యత్వ ఆమోదం ధృవీకరణకు లోబడి ఉంటుంది. అనూహ్యమైన సందర్భాలలో, సభ్యత్వం తిరస్కరించబడి, మొత్తం వాపసు చేయబడుతుంది. ధృవీకరణ ప్రక్రియకు ఒక వారం వరకు పట్టవచ్చు, వాపసులు 21 రోజులలోపు ప్రాసెస్ చేయబడతాయి.",
+    "ప్రస్తుతం తెలంగాణ, ఆంధ్రప్రదేశ్, కర్ణాటక లేదా తమిళనాడులో నివసిస్తున్న భారతీయ పౌరులు, లేదా ఈ రాష్ట్రాలలో ఏదైనా ఒకదానిలో శాశ్వత నివాసితులై ప్రపంచంలో ఎక్కడైనా పనిచేస్తున్నవారు, ఈ క్రింది షరతులను నెరవేర్చినట్లయితే దరఖాస్తు చేసుకోవడానికి అర్హులు: 18 నుండి 60 సంవత్సరాల మధ్య వయస్సు ఉండాలి, నమోదు సమయంలో ప్రాణాంతక వ్యాధులతో బాధపడుతూ ఉండరాదు. ముఖ్య గమనికలు: అన్ని దరఖాస్తులు ధృవీకరణ ప్రక్రియకు లోబడి ఉంటాయి, దీనికి ఒక వారం వరకు పట్టవచ్చు. అర్హతను నిర్ధారించలేని అసాధారణమైన సందర్భాలలో, దరఖాస్తు తిరస్కరించబడుతుంది మరియు పూర్తి మొత్తం వాపసు చేయబడుతుంది. తిరస్కరించిన 21 రోజులలోపు వాపసులు ప్రాసెస్ చేయబడతాయి. చెల్లింపులు ప్రతి రాష్ట్రానికి విడివిడిగా, సంబంధిత రాష్ట్ర సభ్యులకు అనుగుణంగా ప్రాసెస్ చేయబడతాయి.",
   "faq.section1.q2.q": "ఎన్నారైలు జీవన్ సురక్షలో చేరవచ్చా?",
   "faq.section1.q2.a":
-    "అవును, తెలంగాణ లేదా ఆంధ్రప్రదేశ్ శాశ్వత నివాసితులైన ప్రవాస భారతీయులు (ఎన్నారైలు) వయస్సు అవసరాలు మరియు ఆరోగ్య పరిస్థితులతో సహా అన్ని ఇతర అర్హత ప్రమాణాలను నెరవేర్చినట్లయితే జీవన్ సురక్షలో చేరవచ్చు.",
+    "అవును, తెలంగాణ, ఆంధ్రప్రదేశ్, కర్ణాటక & తమిళనాడులో శాశ్వత నివాసితులైన ప్రవాస భారతీయులు (ఎన్నారైలు) వయస్సు అవసరాలు మరియు ఆరోగ్య పరిస్థితులతో సహా అన్ని ఇతర అర్హత ప్రమాణాలను నెరవేర్చినట్లయితే జీవన్ సురక్షలో చేరవచ్చు.",
   "faq.section1.q3.q": "నేను వేర్వేరు పేర్లతో బహుళసార్లు నమోదు చేసుకోగలనా?",
   "faq.section1.q3.a":
     "లేదు, ప్రతి వ్యక్తి వారి చట్టపరమైన పేరుతో ఒకే ఒక క్రియాశీల సభ్యత్వాన్ని కలిగి ఉండగలరు. వేర్వేరు పేర్లు లేదా గుర్తింపులతో బహుళ నమోదులు ఖచ్చితంగా నిషేధించబడ్డాయి మరియు సభ్యత్వ రద్దుకు దారితీయవచ్చు.",
@@ -922,19 +922,19 @@ const teTranslations: Record<string, string> = {
   "faq.section1.q8.a":
     "సభ్యత్వాలు బదిలీ చేయబడవు. ప్రతి వ్యక్తి వారి స్వంత సభ్యత్వం కోసం విడిగా దరఖాస్తు చేసుకోవాలి. అయితే, కుటుంబ సభ్యులు వేర్వేరు సభ్యులుగా చేరవచ్చు.",
   "faq.section1.q9.q":
-    "నేను తెలంగాణ & ఆంధ్రప్రదేశ్ వెలుపల పునరావాసం పొందితే ఏమి జరుగుతుంది?",
+    "నేను తెలంగాణ, ఆంధ్రప్రదేశ్, కర్ణాటక & తమిళనాడు వెలుపల పునరావాసం పొందితే ఏమి జరుగుతుంది?",
   "faq.section1.q9.a":
-    "మీరు తెలంగాణ & ఆంధ్రప్రదేశ్ వెలుపల శాశ్వతంగా పునరావాసం పొందితే, మీరు మీ సభ్యత్వాన్ని కొనసాగించవచ్చు కానీ పునరావాసం పొందిన 30 రోజులలోపు సభ్యుల పోర్టల్‌లో మీ చిరునామా వివరాలను నవీకరించాలి.",
+    "మీరు తెలంగాణ, ఆంధ్రప్రదేశ్, కర్ణాటక & తమిళనాడు వెలుపల శాశ్వతంగా పునరావాసం పొందితే, మీరు మీ సభ్యత్వాన్ని కొనసాగించవచ్చు, కానీ పునరావాసం పొందిన 30 రోజులలోపు సభ్యుల పోర్టల్‌లో మీ చిరునామా వివరాలను నవీకరించాలి.",
   "faq.section1.q10.q":
     "ఒక సభ్యుడు ఒక కలెక్టివ్ నుండి మరొక కలెక్టివ్‌కు మారవచ్చా?",
   "faq.section1.q10.a":
-    "అవును, సభ్యులు వారి మారిన పరిస్థితుల ఆధారంగా కలెక్టివ్‌ల మధ్య మారడానికి అభ్యర్థించవచ్చు. బదిలీ ఆమోదానికి లోబడి ఉంటుంది మరియు అదనపు పత్రాలు మరియు రుసుములు ఉండవచ్చు.",
+    "సభ్యులు మారిన పరిస్థితుల కారణంగా కలెక్టివ్‌ల మధ్య బదిలీ కోసం అభ్యర్థించవచ్చు; అయితే, ఏదైనా బదిలీ ముందస్తు వ్రాతపూర్వక ఆమోదానికి లోబడి ఉంటుంది మరియు అదనపు పత్రాలు మరియు వర్తించే రుసుములు అవసరం కావచ్చు.",
 
-  // Section 2: Contributions
+  // Section 2: Contributions & Payouts
   "faq.section2.q1.q":
     "₹25 లక్షలు, ₹50 లక్షలు, లేదా ₹1 కోటి కార్పస్ మొత్తం ఎలా ఉత్పత్తి చేయబడుతుంది?",
   "faq.section2.q1.a":
-    "జీవన్ సురక్ష అనేది ఒక టర్మ్ ఇన్సూరెన్స్ ప్లాన్ కాదు, ఇది ఒక సామూహిక విరాళ పథకం, ఇక్కడ సభ్యులు ఒక తోటి సభ్యుని కుటుంబానికి అవసరమైన సమయాల్లో మద్దతు ఇవ్వడానికి విరాళం ఇస్తారు. నిధి చెల్లింపు ఆ సమయంలో చురుకైన సభ్యుల నుండి వచ్చిన మొత్తం విరాళాలపై ఆధారపడి ఉంటుంది. లక్ష్యం ₹25 లక్షలు అందించడం అయినప్పటికీ, చెల్లింపు ఒక స్థిరమైన మొత్తానికి హామీ ఇవ్వదు, ఎందుకంటే ఇది సామూహిక భాగస్వామ్యంపై ఆధారపడి ఉంటుంది.",
+    "జీవన్ సురక్ష అనేది ఒక టర్మ్ ఇన్సూరెన్స్ ప్లాన్ కాదు. ఇది ఒక సామూహిక విరాళ పథకం, ఇక్కడ సభ్యులు తోటి సభ్యుల కుటుంబాలకు అవసరమైన సమయాల్లో మద్దతు ఇవ్వడానికి స్వచ్ఛందంగా ఒక ఉమ్మడి నిధికి విరాళం ఇస్తారు. క్లెయిమ్ సమయంలో చురుకైన సభ్యుల నుండి వచ్చిన మొత్తం విరాళాల ద్వారా చెల్లింపు మొత్తం నిర్ణయించబడుతుంది. ₹25 లక్షల నుండి ₹1 కోటి వరకు చెల్లింపు అందించడం లక్ష్యం అయినప్పటికీ, వాస్తవంగా అందుకున్న మొత్తం సామూహిక భాగస్వామ్యం మరియు అందుబాటులో ఉన్న నిధులపై ఆధారపడి మారవచ్చు. ఈ పథకం తెలంగాణ, ఆంధ్రప్రదేశ్, కర్ణాటక మరియు తమిళనాడుతో సహా వివిధ రాష్ట్రాల్లో పనిచేస్తుంది. ప్రతి రాష్ట్రం యొక్క కలెక్టివ్ స్వతంత్రంగా పనిచేస్తుంది, మరియు ప్రాంతీయ భాగస్వామ్యం మరియు విరాళాల ఆధారంగా లభ్యత మరియు చెల్లింపు మొత్తాలు మారవచ్చు. ఉదాహరణకు, తెలంగాణ కలెక్టివ్ యొక్క చెల్లింపు ప్రతి కలెక్టివ్‌లోని తెలంగాణ సభ్యుల సంఖ్యపై ఆధారపడి ఉంటుంది.",
   "faq.section2.q2.q": "ప్రతి మరణ క్లెయిమ్‌కు నేను ఎంత విరాళం ఇవ్వాలి?",
   "faq.section2.q2.a":
     "ప్రతి మరణ క్లెయిమ్‌కు విరాళం మొత్తం మీరు చేరిన కలెక్టివ్ మరియు మొత్తం క్రియాశీల సభ్యుల సంఖ్యపై ఆధారపడి ఉంటుంది. సాధారణంగా, విరాళాలు ప్రతి క్లెయిమ్‌కు ₹25 నుండి ₹500 వరకు ఉంటాయి, సభ్యత్వం పెరిగేకొద్దీ మొత్తం తగ్గుతుంది.",
@@ -944,10 +944,10 @@ const teTranslations: Record<string, string> = {
   "faq.section2.q4.q": "ఒకే సమయంలో బహుళ సభ్యులు మరణిస్తే ఏమి జరుగుతుంది?",
   "faq.section2.q4.a":
     "ఒకే సమయంలో బహుళ క్లెయిమ్‌లు వచ్చినప్పుడు, ప్రతి క్లెయిమ్ విడిగా ప్రాసెస్ చేయబడుతుంది. సభ్యులు ప్రతి క్లెయిమ్‌కు కలెక్టివ్ యొక్క విరాళ నిర్మాణానికి అనుగుణంగా విరాళం ఇవ్వవలసి ఉంటుంది.",
-  "faq.section2.q5.q": "నా సభ్యులు చెల్లింపును ఎలా అందుకుంటారు?",
+  "faq.section2.q5.q": "నా నామినీలు చెల్లింపును ఎలా అందుకుంటారు?",
   "faq.section2.q5.a":
     "అవసరమైన అన్ని పత్రాల ధృవీకరణ మరియు క్లెయిమ్ ప్రక్రియ పూర్తి అయిన తర్వాత, చెల్లింపులు నేరుగా నామినీ యొక్క బ్యాంకు ఖాతాకు NEFT/RTGS బదిలీ ద్వారా చేయబడతాయి.",
-  "faq..section2.q6.q": "అవసరమైన విరాళాలు అందకపోతే ఏమి జరుగుతుంది?",
+  "faq.section2.q6.q": "అవసరమైన విరాళాలు అందకపోతే ఏమి జరుగుతుంది?",
   "faq.section2.q6.a":
     "పేర్కొన్న సమయ వ్యవధిలో అవసరమైన విరాళాలు అందకపోతే, తగినంత నిధులు సేకరించబడే వరకు చెల్లింపు ఆలస్యం కావచ్చు. సకాలంలో చెల్లింపులు నిర్ధారించడానికి సభ్యులు తక్షణమే విరాళం ఇవ్వమని ప్రోత్సహించబడతారు.",
   "faq.section2.q7.q": "చెల్లింపుకు ఏవైనా మినహాయింపులు ఉన్నాయా?",
@@ -962,9 +962,9 @@ const teTranslations: Record<string, string> = {
   "faq.section2.q10.q":
     "విరాళాలు ఇచ్చేవారు వేర్వేరు రాష్ట్రాల నుండి ఉంటే చెల్లింపు మొత్తం ఎలా నిర్ణయించబడుతుంది?",
   "faq.section2.q10.a":
-    "చెల్లింపులు ప్రతి రాష్ట్రానికి విడిగా లెక్కించబడతాయి మరియు క్లెయిమ్ సమయంలో నామినీ రాష్ట్రం నుండి క్రియాశీలకంగా విరాళం ఇచ్చే సభ్యుల సంఖ్యపై మాత్రమే ఆధారపడి ఉంటాయి. ఇతర రాష్ట్రాల సభ్యుల నుండి వచ్చే విరాళాలు చెల్లింపులో చేర్చబడవు.",
+    "చెల్లింపులు ప్రతి రాష్ట్రానికి విడివిడిగా లెక్కించబడతాయి మరియు క్లెయిమ్ సమయంలో నామినీ యొక్క రాష్ట్రం నుండి చురుకుగా విరాళం ఇచ్చే సభ్యుల సంఖ్యపై మాత్రమే ఆధారపడి ఉంటాయి. ఇతర రాష్ట్రాల సభ్యుల నుండి వచ్చే విరాళాలు చెల్లింపులో చేర్చబడవు.",
 
-  // Section 3: Payments
+  // Section 3: Membership Payments & Withdrawal
   "faq.section3.q1.q": "సభ్యత్వ రుసుములు ఏమిటి?",
   "faq.section3.q1.a":
     "సభ్యత్వ రుసుములో ఒక-సారి నమోదు రుసుము ₹100 మరియు వార్షిక పునరుద్ధరణ రుసుము ₹100 ఉంటాయి. ఈ రుసుములు పరిపాలనా ఖర్చులు మరియు ప్లాట్‌ఫారమ్ నిర్వహణను కవర్ చేస్తాయి.",
@@ -979,7 +979,7 @@ const teTranslations: Record<string, string> = {
     "మునుపటి క్లెయిమ్‌ల కోసం చేసిన విరాళాలు తిరిగి చెల్లించబడవు, ఎందుకంటే అవి ఇప్పటికే లబ్ధిదారులకు పంపిణీ చేయబడ్డాయి. అసాధారణమైన సందర్భాలలో మాత్రమే ఉపయోగించని సభ్యత్వ రుసుములు పాక్షిక వాపసు కోసం పరిగణించబడతాయి.",
   "faq.section3.q5.q": "కూలింగ్-ఆఫ్ వ్యవధి ఉందా?",
   "faq.section3.q5.a":
-    "అవును, నమోదు తేదీ నుండి 15 రోజుల కూలింగ్-ఆఫ్ వ్యవధి ఉంది, ఈ సమయంలో మీరు మీ సభ్యత్వాన్ని రద్దు చేసుకోవచ్చు మరియు ఎటువంటి క్లెయిమ్‌లు చేయకపోతే సభ్యత్వ రుసుముల పూర్తి వాపసు పొందవచ్చు.",
+    "జీవన్ సురక్ష పథకంలో చేరిన తర్వాత, 90-రోజుల కూలింగ్-ఆఫ్ వ్యవధి ఉంటుంది, ఈ సమయంలో ఎటువంటి క్లెయిమ్‌లు చేయలేరు. ఈ వ్యవధి, ముందుగా ఉన్న ప్రాణాంతక వ్యాధులతో చేరిన ఏవైనా సభ్యులను గుర్తించడానికి అనుమతిస్తుంది, తద్వారా సామూహిక నిధి యొక్క సమగ్రతను నిర్ధారిస్తుంది. ఈ 90-రోజుల వ్యవధి తర్వాత, అన్ని ఇతర షరతులు నెరవేర్చినట్లయితే, సభ్యులు క్లెయిమ్‌లను దాఖలు చేయడానికి అర్హులు అవుతారు.",
   "faq.section3.q6.q": "చెల్లింపు రిమైండర్లు ఎలా పంపబడతాయి?",
   "faq.section3.q6.a":
     "చెల్లింపు రిమైండర్లు SMS, ఇమెయిల్ మరియు మొబైల్ యాప్ ద్వారా పుష్ నోటిఫికేషన్ల ద్వారా పంపబడతాయి. రిమైండర్లు గడువు తేదీకి 7 రోజుల ముందు పంపబడతాయి మరియు చెల్లింపు జరిగే వరకు కొనసాగుతాయి.",
@@ -1019,7 +1019,7 @@ const teTranslations: Record<string, string> = {
   // Section 5: Legal & Compliance
   "faq.section5.q1.q": "జీవన్ సురక్ష చట్టబద్ధంగా ఉందా?",
   "faq.section5.q1.a":
-    "అవును, జీవన్ సురక్ష భారతదేశంలో సామూహిక సామాజిక భద్రతా పథకాలను నియంత్రించే చట్టపరమైన ఫ్రేమ్‌వర్క్ కింద పనిచేస్తుంది. ఇది ఒక ట్రస్ట్‌గా నమోదు చేయబడింది మరియు వర్తించే అన్ని చట్టాలు మరియు నిబంధనలకు అనుగుణంగా ఉంటుంది.",
+    "జీవన్ సురక్ష అనేది తెలంగాణలో నమోదైన ఒక ట్రస్ట్ అయిన హెల్త్ గార్డ్ ఫౌండేషన్ ద్వారా ప్రారంభించబడిన ఒక సామూహిక విరాళ పథకం. ఈ ఫౌండేషన్ 12A మరియు 80G సర్టిఫికేషన్‌లను కలిగి ఉంది, ఇది భారతీయ పన్ను చట్టాలకు అనుగుణంగా ఉందని నిర్ధారిస్తుంది మరియు దాతలు పన్ను మినహాయింపులను క్లెయిమ్ చేయడానికి వీలు కల్పిస్తుంది. ఇది భారతదేశంలో ట్రస్ట్‌లను నియంత్రించే చట్టపరమైన ఫ్రేమ్‌వర్క్ కింద పనిచేస్తుంది.",
   "faq.section5.q2.q": "నిబంధనలు మరియు షరతులు ఏమిటి?",
   "faq.section5.q2.a":
     "వివరణాత్మక నిబంధనలు మరియు షరతులు మా వెబ్‌సైట్ మరియు సభ్యుల పోర్టల్‌లో అందుబాటులో ఉన్నాయి. ఇవి సభ్యత్వ నియమాలు, విరాళాల బాధ్యతలు, క్లెయిమ్ విధానాలు మరియు వివాద పరిష్కార యంత్రాంగాలను కవర్ చేస్తాయి. సభ్యులందరూ నమోదు సమయంలో ఈ నిబంధనలకు అంగీకరించాలి.",
@@ -1042,19 +1042,16 @@ const teTranslations: Record<string, string> = {
   "faq.section5.q8.a":
     "ట్రస్ట్ రద్దు యొక్క అసంభవమైన సందర్భంలో, ఏవైనా పెండింగ్‌లో ఉన్న క్లెయిమ్‌లు మరియు పరిపాలనా ఖర్చులను పరిష్కరించిన తర్వాత, సేకరించిన అన్ని నిధులు క్రియాశీల సభ్యుల మధ్య దామాషా ప్రకారం పంపిణీ చేయబడతాయి.",
 
-  // Section 6: Communication
+  // Section 6: Communication & Support
   "faq.section6.q1.q": "కస్టమర్ మద్దతును ఎలా సంప్రదించాలి?",
   "faq.section6.q1.a":
-    "కస్టమర్ మద్దతు బహుళ మార్గాల ద్వారా అందుబాటులో ఉంది: ఫోన్ (+91 98765 43210), ఇమెయిల్ (support@jeevansuraksha.org), వెబ్‌సైట్‌లో లైవ్ చాట్, మరియు మొబైల్ యాప్ ద్వారా. మద్దతు సోమవారం నుండి శుక్రవారం వరకు, ఉదయం 9 నుండి సాయంత్రం 6 వరకు అందుబాటులో ఉంటుంది.",
+    "కస్టమర్ మద్దతు బహుళ మార్గాల ద్వారా అందుబాటులో ఉంది: ఫోన్ / వాట్సాప్ (+91 78160 58717), ఇమెయిల్ (support@jeevansuraksha.org), వెబ్‌సైట్‌లో లైవ్ చాట్, మరియు మొబైల్ యాప్ ద్వారా. మద్దతు సోమవారం నుండి శుక్రవారం వరకు, ఉదయం 9 నుండి సాయంత్రం 6 వరకు అందుబాటులో ఉంటుంది.",
   "faq.section6.q2.q": "మద్దతు ఏ భాషలలో అందుబాటులో ఉంది?",
   "faq.section6.q2.a":
     "కస్టమర్ మద్దతు ఇంగ్లీష్, హిందీ, తెలుగు మరియు తమిళంలో అందుబాటులో ఉంది. మా మద్దతు బృందం సభ్యులకు వారి ఇష్టపడే భాషలో సహాయం చేయడానికి శిక్షణ పొందింది.",
   "faq.section6.q3.q": "నేను కలెక్టివ్ గురించి నవీకరణలను ఎలా అందుకుంటాను?",
   "faq.section6.q3.a":
     "నవీకరణలు SMS, ఇమెయిల్ వార్తాలేఖలు, యాప్ నోటిఫికేషన్ల ద్వారా పంపబడతాయి మరియు సభ్యుల పోర్టల్‌లో పోస్ట్ చేయబడతాయి. మీరు సభ్యుల పోర్టల్ సెట్టింగులలో మీ కమ్యూనికేషన్ ప్రాధాన్యతలను అనుకూలీకరించవచ్చు.",
-  "faq.section6.q4.q": "మొబైల్ యాప్ అందుబాటులో ఉందా?",
-  "faq.section6.q4.a":
-    "అవును, జీవన్ సురక్ష మొబైల్ యాప్ ఆండ్రాయిడ్ మరియు ఐఓఎస్ పరికరాల కోసం అందుబాటులో ఉంది. యాప్ సభ్యుల సేవలు, విరాళాల చెల్లింపులు, క్లెయిమ్ ట్రాకింగ్ మరియు మద్దతు ఫీచర్లకు పూర్తి యాక్సెస్‌ను అందిస్తుంది.",
   "faq.section6.q5.q": "నేను ఎంత తరచుగా కమ్యూనికేషన్లను అందుకుంటాను?",
   "faq.section6.q5.a":
     "సాధారణ కమ్యూనికేషన్లలో నెలవారీ వార్తాలేఖలు, క్లెయిమ్‌లు వచ్చినప్పుడు విరాళాల అభ్యర్థనలు, వార్షిక నివేదికలు మరియు ముఖ్యమైన నవీకరణలు ఉంటాయి. అత్యవసర విషయాల కోసం అవసరమైనప్పుడు అత్యవసర కమ్యూనికేషన్లు పంపబడతాయి.",
@@ -1067,6 +1064,7 @@ const teTranslations: Record<string, string> = {
   "faq.section6.q8.q": "సభ్యుల సమావేశాలు లేదా ఈవెంట్‌లు ఉన్నాయా?",
   "faq.section6.q8.a":
     "అవును, మేము ప్రధాన నగరాలలో త్రైమాసిక సభ్యుల సమావేశాలను మరియు వార్షిక సాధారణ సమావేశాలను నిర్వహిస్తాము. ఈ ఈవెంట్‌లు సభ్యులకు పరస్పరం సంభాషించడానికి, కలెక్టివ్ పనితీరు గురించి తెలుసుకోవడానికి మరియు అభిప్రాయాన్ని అందించడానికి అవకాశాలను అందిస్తాయి.",
+  //report
   "reportClaim.hero.title": "క్లెయిమ్‌ను నివేదించండి",
   "reportClaim.hero.breadcrumbHome": "హోమ్",
   "reportClaim.hero.breadcrumbReportClaim": "క్లెయిమ్ నివేదించండి",

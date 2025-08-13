@@ -3,18 +3,15 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/lib/redux/store";
-import { DataTable } from "@/components/admin/DataTable"; // Assuming you have this component
+import { DataTable } from "@/components/admin/DataTable";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  fetchAllMemberDonations, // ✅ Use the new admin action
-} from "@/lib/redux/features/payment/memberDonationSlice";
+import { fetchAllMemberDonations } from "@/lib/redux/features/payment/memberDonationSlice";
 import { Download, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
-// Type definition to match the slice
 interface Donation {
   _id: string;
   amount: number;
@@ -25,13 +22,36 @@ interface Donation {
   member: { fullName: string; email: string; mobile: string; memberId: string };
 }
 
-// PDF Generation Helper
-const generatePdfReceipt = (donation: Donation) => {
+const generatePdfReceipt = async (donation: Donation) => {
   const doc = new jsPDF();
+
+  const imageResponse = await fetch("/logo.jpg");
+  const imageBlob = await imageResponse.blob();
+  const imageBase64 = await new Promise<string>((resolve) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(imageBlob);
+    reader.onloadend = () => {
+      resolve(reader.result as string);
+    };
+  });
+
+  doc.addImage(imageBase64, "JPEG", 85, 15, 40, 40);
+
+  doc.setFont("helvetica", "bold");
   doc.setFontSize(22);
-  doc.text("Member Donation Receipt", 105, 20, { align: "center" });
+  doc.text("Jeevan Suraksha", 105, 65, { align: "center" });
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(10);
+  doc.text(
+    "A Social Security Collective, An Initiative of Health Guard Foundation.",
+    105,
+    72,
+    { align: "center" }
+  );
+
   autoTable(doc, {
-    startY: 30,
+    startY: 85,
     theme: "grid",
     head: [["Field", "Details"]],
     body: [
@@ -43,15 +63,29 @@ const generatePdfReceipt = (donation: Donation) => {
         "Email / Mobile:",
         `${donation.member.email} / ${donation.member.mobile}`,
       ],
+      ["Type:", "Member Donation"],
       ["Transaction ID:", donation.transactionId],
-      ["Amount:", `₹ ${donation.amount.toFixed(2)}`],
+      ["Amount Paid:", `₹ ${donation.amount.toFixed(2)}`],
       ["Status:", donation.status],
     ],
+    headStyles: { fillColor: [45, 55, 72] },
+    styles: { cellPadding: 2.5, fontSize: 10 },
   });
+
+  const finalY = (doc as any).lastAutoTable.finalY || 100;
+  doc.setFontSize(10);
+  doc.text(
+    "This is a computer-generated receipt and does not require a signature.",
+    105,
+    finalY + 15,
+    {
+      align: "center",
+    }
+  );
+
   doc.save(`Member-Donation-Receipt-${donation.receiptNo || donation._id}.pdf`);
 };
 
-// Status Badge Component
 const StatusBadge = ({ status }: { status: Donation["status"] }) => {
   const styles = {
     SUCCESS: "bg-green-100 text-green-800",
@@ -68,13 +102,11 @@ export default function AllMemberDonationsPage() {
   );
 
   useEffect(() => {
-    // ✅ Dispatch the new admin-specific action
     dispatch(fetchAllMemberDonations());
   }, [dispatch]);
 
   const handleDelete = (id: string) => {
     if (confirm("Are you sure? This action cannot be undone.")) {
-      // You would need to create a deleteMemberDonation action if required
       console.log("Delete functionality to be implemented for ID:", id);
     }
   };
@@ -133,7 +165,6 @@ export default function AllMemberDonationsPage() {
           size="sm"
           variant="destructive"
           onClick={() => handleDelete(row._id)}
-          // disabled={actionStatus === "loading"} // You'd need a delete status in your slice
         >
           <Trash2 size={16} />
         </Button>
@@ -141,7 +172,6 @@ export default function AllMemberDonationsPage() {
     },
   ];
 
-  // Calculate total amount from the fetched data
   const totalAmount = allDonations.reduce(
     (sum, donation) =>
       donation.status === "SUCCESS" ? sum + donation.amount : sum,
