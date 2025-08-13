@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { useForm, useFieldArray, Controller } from "react-hook-form";
@@ -12,8 +12,8 @@ import {
   updateMemberByAdmin,
   Member,
 } from "@/lib/redux/features/members/membersSlice";
-import { format } from "date-fns";
-import Image from "next/image"; // Image component imported
+import { fetchContributionGroupsForRegistration } from "@/lib/redux/features/registration/registrationSlice";
+import Image from "next/image";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,13 +25,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, Trash2 } from "lucide-react"; // Shield is removed as it's no longer used
+import { Loader2, Trash2 } from "lucide-react";
 
-// --- Form Validation Schema (using Zod) ---
+// --- Form Validation Schema ---
 const formSchema = z.object({
   fullName: z.string().min(1, "Name is required"),
   panNumber: z.string().optional(),
-  // Add other fields as needed
+  // Aap yahan aur bhi validation rules add kar sakte hain
 });
 
 export default function EditMemberPage() {
@@ -40,42 +40,82 @@ export default function EditMemberPage() {
   const dispatch = useDispatch<AppDispatch>();
   const memberId = params.memberId as string;
 
+  // --- Redux State ---
   const {
     selectedMember: member,
-    listStatus,
-    actionStatus,
+    listStatus: memberListStatus,
+    actionStatus: memberActionStatus,
   } = useSelector((state: RootState) => state.members);
 
+  const { contributionGroups, contributionGroupsStatus } = useSelector(
+    (state: RootState) => state.registration
+  );
+
+  // --- React Hook Form ---
   const {
     register,
     handleSubmit,
     control,
     reset,
+    watch,
+    setValue,
     formState: { errors },
   } = useForm<Member>({
     resolver: zodResolver(formSchema),
   });
+
+  // Watch fields to create dependent/cascading dropdowns
+  const watchedEmploymentType = watch("employment.type");
+  const watchedCompanyName = watch("employment.companyName");
+  const watchedDepartment = watch("employment.department");
 
   const { fields, append, remove } = useFieldArray({
     control,
     name: "nominees",
   });
 
+  // --- Data Fetching ---
   useEffect(() => {
     if (memberId) {
       dispatch(fetchMemberById(memberId));
     }
+    dispatch(fetchContributionGroupsForRegistration());
   }, [dispatch, memberId]);
 
+  // Set form values once member data is loaded
   useEffect(() => {
     if (member) {
+      // This populates the entire form with the member's saved data,
+      // including the pre-selected employment details.
       reset(member);
     }
   }, [member, reset]);
 
+  // --- Cascading Dropdown Logic (using useMemo for efficiency) ---
+  const availableCompanies = useMemo(() => {
+    const selectedGroup = contributionGroups.find(
+      (g) => g.employmentType === watchedEmploymentType
+    );
+    return selectedGroup ? selectedGroup.companies : [];
+  }, [watchedEmploymentType, contributionGroups]);
+
+  const availableDepartments = useMemo(() => {
+    const selectedCompany = availableCompanies.find(
+      (c) => c.companyName === watchedCompanyName
+    );
+    return selectedCompany ? selectedCompany.departments : [];
+  }, [watchedCompanyName, availableCompanies]);
+
+  const availablePlans = useMemo(() => {
+    const selectedDepartment = availableDepartments.find(
+      (d) => d.departmentName === watchedDepartment
+    );
+    return selectedDepartment ? selectedDepartment.plans : [];
+  }, [watchedDepartment, availableDepartments]);
+
+  // --- Form Submission ---
   const onSubmit = (data: Member) => {
     const formData = new FormData();
-
     Object.keys(data).forEach((key) => {
       const value = (data as any)[key];
       if (key === "nominees" || key === "address" || key === "employment") {
@@ -87,7 +127,7 @@ export default function EditMemberPage() {
       ) {
         formData.append(key, value[0]);
       } else if (value !== null && value !== undefined) {
-        formData.append(key, value);
+        formData.append(key, String(value));
       }
     });
 
@@ -101,7 +141,7 @@ export default function EditMemberPage() {
     });
   };
 
-  if (listStatus === "loading" || !member) {
+  if (memberListStatus === "loading" || !member) {
     return (
       <div className="flex justify-center items-center h-screen">
         <Loader2 className="h-8 w-8 animate-spin" />
@@ -113,7 +153,6 @@ export default function EditMemberPage() {
     <div className="min-h-screen bg-gray-800 p-4 sm:p-8 flex justify-center">
       <div className="w-full max-w-2xl bg-white shadow-lg rounded-lg">
         <div className="bg-gray-100 p-4 text-center border-b">
-          {/* 🔻🔻🔻 BADLAV 1: Shield icon ko Image se badla gaya 🔻🔻🔻 */}
           <Image
             src="/logo.jpg"
             alt="Logo"
@@ -121,9 +160,8 @@ export default function EditMemberPage() {
             height={64}
             className="mx-auto mb-2"
           />
-          {/* 🔺🔺🔺 Badlav yahan samapt hota hai 🔺🔺🔺 */}
           <h1 className="text-2xl font-bold text-gray-800">
-            Edit Your Profile
+            Edit Member Profile
           </h1>
         </div>
 
@@ -163,7 +201,6 @@ export default function EditMemberPage() {
               register={register}
               name="profileImage"
             />
-
             <FormRow label="Address">
               <Input
                 placeholder="House No."
@@ -191,30 +228,132 @@ export default function EditMemberPage() {
             </FormRow>
           </Section>
 
-          {/* 🔻🔻🔻 BADLAV 2: Employment Details section mein naya field joda gaya 🔻🔻🔻 */}
           <Section title="Employment Details">
-            <Input
-              placeholder="Type"
-              defaultValue={member.employment?.type}
-              {...register("employment.type")}
-            />
-            <Input
-              placeholder="Department"
-              defaultValue={member.employment?.department}
-              {...register("employment.department")}
-            />
-            <Input
-              placeholder="Company"
-              defaultValue={member.employment?.companyName}
-              {...register("employment.companyName")}
-            />
-            <Input
-              placeholder="Contribution Plan"
-              defaultValue={member.employment?.contributionPlan}
-              {...register("employment.contributionPlan")}
-            />
+            {contributionGroupsStatus === "loading" && (
+              <Loader2 className="animate-spin mx-auto" />
+            )}
+
+            <FormRow label="Employment Type">
+              <Controller
+                control={control}
+                name="employment.type"
+                render={({ field }) => (
+                  <Select
+                    value={field.value ?? ""}
+                    onValueChange={(value) => {
+                      field.onChange(value);
+                      setValue("employment.companyName", "");
+                      setValue("employment.department", "");
+                      setValue("employment.contributionPlan", "");
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select employment type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {contributionGroups.map((group) => (
+                        <SelectItem
+                          key={group._id}
+                          value={group.employmentType}
+                        >
+                          {group.employmentType}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+            </FormRow>
+
+            <FormRow label="Company Name">
+              <Controller
+                control={control}
+                name="employment.companyName"
+                render={({ field }) => (
+                  <Select
+                    value={field.value ?? ""}
+                    onValueChange={(value) => {
+                      field.onChange(value);
+                      setValue("employment.department", "");
+                      setValue("employment.contributionPlan", "");
+                    }}
+                    disabled={
+                      !watchedEmploymentType || availableCompanies.length === 0
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select company" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {availableCompanies.map((company) => (
+                        <SelectItem
+                          key={company._id}
+                          value={company.companyName}
+                        >
+                          {company.companyName}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+            </FormRow>
+
+            <FormRow label="Department">
+              <Controller
+                control={control}
+                name="employment.department"
+                render={({ field }) => (
+                  <Select
+                    value={field.value ?? ""}
+                    onValueChange={(value) => {
+                      field.onChange(value);
+                      setValue("employment.contributionPlan", "");
+                    }}
+                    disabled={
+                      !watchedCompanyName || availableDepartments.length === 0
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select department" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {availableDepartments.map((dept) => (
+                        <SelectItem key={dept._id} value={dept.departmentName}>
+                          {dept.departmentName}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+            </FormRow>
+
+            <FormRow label="Contribution Plan">
+              <Controller
+                control={control}
+                name="employment.contributionPlan"
+                render={({ field }) => (
+                  <Select
+                    value={field.value ?? ""}
+                    onValueChange={field.onChange}
+                    disabled={!watchedDepartment || availablePlans.length === 0}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a plan" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {availablePlans.map((plan) => (
+                        <SelectItem key={plan._id} value={plan.planDetails}>
+                          {plan.planDetails}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+            </FormRow>
           </Section>
-          {/* 🔺🔺🔺 Badlav yahan samapt hota hai 🔺🔺🔺 */}
 
           <Section title="Nominee Details">
             {fields.map((field, index) => (
@@ -269,9 +408,9 @@ export default function EditMemberPage() {
             <Button
               type="submit"
               className="w-full"
-              disabled={actionStatus === "loading"}
+              disabled={memberActionStatus === "loading"}
             >
-              {actionStatus === "loading" ? (
+              {memberActionStatus === "loading" ? (
                 <Loader2 className="animate-spin" />
               ) : (
                 "Update Member"
@@ -291,6 +430,8 @@ export default function EditMemberPage() {
     </div>
   );
 }
+
+// --- Helper Components ---
 
 const Section = ({
   title,
