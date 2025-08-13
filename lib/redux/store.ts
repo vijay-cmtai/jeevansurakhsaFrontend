@@ -20,6 +20,7 @@ import memberPaymentReducer from "./features/payments/memberPaymentSlice";
 import dashboardReducer from "./features/dashboard/dashboardSlice";
 import memberDonationReducer from "./features/payment/memberDonationSlice";
 import configReducer from "./features/config/configSlice";
+import adminEditMemberReducer from "./features/admin/adminEditMemberSlice";
 
 import claimsReducer from "./features/claims/claimsSlice";
 
@@ -46,6 +47,7 @@ export const store = configureStore({
 
     // --- 🚨 STEP 2: ADD THE NEW REDUCER 🚨 ---
     claims: claimsReducer,
+    adminEditMember: adminEditMemberReducer,
   },
 });
 
