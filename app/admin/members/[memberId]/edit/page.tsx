@@ -1,19 +1,22 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { useForm, useFieldArray, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { AppDispatch, RootState } from "@/lib/redux/store";
-import {
-  fetchMemberById,
-  updateMemberByAdmin,
-  Member,
-} from "@/lib/redux/features/members/membersSlice";
+import { Member } from "@/lib/redux/features/members/membersSlice";
 import { fetchContributionGroupsForRegistration } from "@/lib/redux/features/registration/registrationSlice";
 import Image from "next/image";
+
+// Naye slice se actions import karein
+import {
+  fetchMemberByIdForEdit,
+  updateMemberByAdmin,
+  clearEditMemberState,
+} from "@/lib/redux/features/admin/adminEditMemberSlice";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,32 +29,71 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Loader2, Trash2 } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 
-// --- Form Validation Schema ---
+// --- COMPLETE Form Validation Schema ---
 const formSchema = z.object({
   fullName: z.string().min(1, "Name is required"),
+  email: z.string().email("Invalid email"),
+  phone: z.string().min(10, "Phone number must be at least 10 digits"),
+  dateOfBirth: z.string().min(1, "Date of birth is required"),
+  state: z.string().min(1, "State is required"),
+  district: z.string().min(1, "District is required"),
+  volunteerCode: z.string().optional(),
   panNumber: z.string().optional(),
-  // Aap yahan aur bhi validation rules add kar sakte hain
+  address: z.object({
+    houseNumber: z.string().min(1, "House number is required"),
+    street: z.string().min(1, "Street is required"),
+    cityVillage: z.string().min(1, "City/Village is required"),
+    pincode: z.string().min(6, "Pincode must be 6 digits"),
+  }),
+  employment: z.object({
+    type: z.string().min(1, "Employment type is required"),
+    companyName: z.string().min(1, "Company name is required"),
+    department: z.string().min(1, "Department is required"),
+    contributionPlan: z.string().min(1, "Contribution plan is required"),
+  }),
+  nominees: z.array(
+    z.object({
+      name: z.string().min(1, "Nominee name is required"),
+      relation: z.string().min(1, "Relation is required"),
+      age: z.union([z.string(), z.number()]).refine((val) => {
+        const num = typeof val === "string" ? parseInt(val) : val;
+        return !isNaN(num) && num > 0;
+      }, "Valid age is required"),
+      gender: z.string().min(1, "Gender is required"),
+      percentage: z.union([z.string(), z.number()]).refine((val) => {
+        const num = typeof val === "string" ? parseFloat(val) : val;
+        return !isNaN(num) && num > 0;
+      }, "Valid percentage is required"),
+    })
+  ),
 });
+
+type FormData = z.infer<typeof formSchema>;
 
 export default function EditMemberPage() {
   const params = useParams();
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
   const memberId = params.memberId as string;
+  const { toast } = useToast();
 
-  // --- Redux State ---
-  const {
-    selectedMember: member,
-    listStatus: memberListStatus,
-    actionStatus: memberActionStatus,
-  } = useSelector((state: RootState) => state.members);
+  // File state
+  const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
+  const [panImageFile, setPanImageFile] = useState<File | null>(null);
 
+  // Naye slice se state select karein
+  const { member, fetchStatus, updateStatus } = useSelector(
+    (state: RootState) => state.adminEditMember
+  );
+
+  // Contribution groups ka data registration slice se lein
   const { contributionGroups, contributionGroupsStatus } = useSelector(
     (state: RootState) => state.registration
   );
 
-  // --- React Hook Form ---
+  // React Hook Form with proper typing
   const {
     register,
     handleSubmit,
@@ -60,11 +102,15 @@ export default function EditMemberPage() {
     watch,
     setValue,
     formState: { errors },
-  } = useForm<Member>({
+  } = useForm<FormData>({
     resolver: zodResolver(formSchema),
+    defaultValues: {
+      nominees: [
+        { name: "", relation: "", age: "", gender: "", percentage: "" },
+      ],
+    },
   });
 
-  // Watch fields to create dependent/cascading dropdowns
   const watchedEmploymentType = watch("employment.type");
   const watchedCompanyName = watch("employment.companyName");
   const watchedDepartment = watch("employment.department");
@@ -74,24 +120,58 @@ export default function EditMemberPage() {
     name: "nominees",
   });
 
-  // --- Data Fetching ---
+  // Data Fetching
   useEffect(() => {
     if (memberId) {
-      dispatch(fetchMemberById(memberId));
+      dispatch(fetchMemberByIdForEdit(memberId));
     }
     dispatch(fetchContributionGroupsForRegistration());
+
+    // Cleanup function
+    return () => {
+      dispatch(clearEditMemberState());
+    };
   }, [dispatch, memberId]);
 
-  // Set form values once member data is loaded
+  // Form ko data se bharne ke liye
   useEffect(() => {
     if (member) {
-      // This populates the entire form with the member's saved data,
-      // including the pre-selected employment details.
-      reset(member);
+      const formData: FormData = {
+        fullName: member.fullName || "",
+        email: member.email || "",
+        phone: member.phone || "",
+        dateOfBirth: member.dateOfBirth || "",
+        state: member.state || "",
+        district: member.district || "",
+        volunteerCode: member.volunteerCode || "",
+        panNumber: member.panNumber || "",
+        address: {
+          houseNumber: member.address?.houseNumber || "",
+          street: member.address?.street || "",
+          cityVillage: member.address?.cityVillage || "",
+          pincode: member.address?.pincode || "",
+        },
+        employment: {
+          type: member.employment?.type || "",
+          companyName: member.employment?.companyName || "",
+          department: member.employment?.department || "",
+          contributionPlan: member.employment?.contributionPlan || "",
+        },
+        nominees: member.nominees?.length
+          ? member.nominees.map((nominee) => ({
+              name: nominee.name || "",
+              relation: nominee.relation || "",
+              age: nominee.age || "",
+              gender: nominee.gender || "",
+              percentage: nominee.percentage || "",
+            }))
+          : [{ name: "", relation: "", age: "", gender: "", percentage: "" }],
+      };
+      reset(formData);
     }
   }, [member, reset]);
 
-  // --- Cascading Dropdown Logic (using useMemo for efficiency) ---
+  // Cascading Dropdown Logic
   const availableCompanies = useMemo(() => {
     const selectedGroup = contributionGroups.find(
       (g) => g.employmentType === watchedEmploymentType
@@ -113,35 +193,67 @@ export default function EditMemberPage() {
     return selectedDepartment ? selectedDepartment.plans : [];
   }, [watchedDepartment, availableDepartments]);
 
-  // --- Form Submission ---
-  const onSubmit = (data: Member) => {
-    const formData = new FormData();
-    Object.keys(data).forEach((key) => {
-      const value = (data as any)[key];
-      if (key === "nominees" || key === "address" || key === "employment") {
-        formData.append(key, JSON.stringify(value));
-      } else if (
-        key.endsWith("Image") &&
-        value instanceof FileList &&
-        value.length > 0
-      ) {
-        formData.append(key, value[0]);
-      } else if (value !== null && value !== undefined) {
-        formData.append(key, String(value));
-      }
+  // Form Submission - FIXED
+  const onSubmit = (data: FormData) => {
+    const formDataToSubmit = new FormData();
+
+    // Basic fields
+    formDataToSubmit.append("fullName", data.fullName);
+    formDataToSubmit.append("email", data.email);
+    formDataToSubmit.append("phone", data.phone);
+    formDataToSubmit.append("dateOfBirth", data.dateOfBirth);
+    formDataToSubmit.append("state", data.state);
+    formDataToSubmit.append("district", data.district);
+
+    if (data.volunteerCode) {
+      formDataToSubmit.append("volunteerCode", data.volunteerCode);
+    }
+    if (data.panNumber) {
+      formDataToSubmit.append("panNumber", data.panNumber);
+    }
+
+    // Address as JSON string
+    formDataToSubmit.append("address", JSON.stringify(data.address));
+
+    // Employment as JSON string
+    formDataToSubmit.append("employment", JSON.stringify(data.employment));
+
+    // Nominees as JSON string
+    formDataToSubmit.append("nominees", JSON.stringify(data.nominees));
+
+    // Files
+    if (profileImageFile) {
+      formDataToSubmit.append("profileImage", profileImageFile);
+    }
+    if (panImageFile) {
+      formDataToSubmit.append("panImage", panImageFile);
+    }
+
+    console.log("Form data being sent:", {
+      formData: Object.fromEntries(formDataToSubmit.entries()),
     });
 
-    dispatch(updateMemberByAdmin({ memberId, formData })).then((result) => {
+    dispatch(
+      updateMemberByAdmin({ memberId, formData: formDataToSubmit })
+    ).then((result) => {
       if (updateMemberByAdmin.fulfilled.match(result)) {
-        alert("Member updated successfully!");
+        toast({
+          title: "Success",
+          description: "Member updated successfully!",
+        });
         router.push("/admin/active-members");
       } else {
-        alert(`Update failed: ${result.payload}`);
+        toast({
+          title: "Update Failed",
+          description:
+            (result.payload as string) || "An unknown error occurred.",
+          variant: "destructive",
+        });
       }
     });
   };
 
-  if (memberListStatus === "loading" || !member) {
+  if (fetchStatus === "loading" || !member) {
     return (
       <div className="flex justify-center items-center h-screen">
         <Loader2 className="h-8 w-8 animate-spin" />
@@ -150,9 +262,9 @@ export default function EditMemberPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-800 p-4 sm:p-8 flex justify-center">
+    <div className="min-h-screen bg-gray-100 p-4 sm:p-8 flex justify-center">
       <div className="w-full max-w-2xl bg-white shadow-lg rounded-lg">
-        <div className="bg-gray-100 p-4 text-center border-b">
+        <div className="bg-gray-50 p-4 text-center border-b">
           <Image
             src="/logo.jpg"
             alt="Logo"
@@ -167,65 +279,149 @@ export default function EditMemberPage() {
 
         <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-6">
           <Section title="State Selection">
-            <Input defaultValue={member.state} {...register("state")} />
-            <Input defaultValue={member.district} {...register("district")} />
-            <Input
-              placeholder="Referral ID"
-              defaultValue={member.volunteerCode}
-              {...register("volunteerCode")}
-            />
+            <FormRow label="State">
+              <Input
+                placeholder="State"
+                {...register("state")}
+                className={errors.state ? "border-red-500" : ""}
+              />
+              {errors.state && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.state.message}
+                </p>
+              )}
+            </FormRow>
+
+            <FormRow label="District">
+              <Input
+                placeholder="District"
+                {...register("district")}
+                className={errors.district ? "border-red-500" : ""}
+              />
+              {errors.district && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.district.message}
+                </p>
+              )}
+            </FormRow>
+
+            <FormRow label="Referral ID">
+              <Input placeholder="Referral ID" {...register("volunteerCode")} />
+            </FormRow>
           </Section>
 
           <Section title="Personal & Address Details">
             <FormRow label="Name">
-              <Input defaultValue={member.fullName} {...register("fullName")} />
-            </FormRow>
-            <FormRow label="Email (read-only)">
-              <Input defaultValue={member.email} readOnly />
-            </FormRow>
-            <FormRow label="PAN Number">
               <Input
-                defaultValue={member.panNumber}
-                {...register("panNumber")}
+                {...register("fullName")}
+                className={errors.fullName ? "border-red-500" : ""}
               />
+              {errors.fullName && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.fullName.message}
+                </p>
+              )}
             </FormRow>
+
+            <FormRow label="Email">
+              <Input
+                {...register("email")}
+                className={errors.email ? "border-red-500" : ""}
+              />
+              {errors.email && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.email.message}
+                </p>
+              )}
+            </FormRow>
+
+            <FormRow label="Phone">
+              <Input
+                {...register("phone")}
+                className={errors.phone ? "border-red-500" : ""}
+              />
+              {errors.phone && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.phone.message}
+                </p>
+              )}
+            </FormRow>
+
+            <FormRow label="Date of Birth">
+              <Input
+                type="date"
+                {...register("dateOfBirth")}
+                className={errors.dateOfBirth ? "border-red-500" : ""}
+              />
+              {errors.dateOfBirth && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.dateOfBirth.message}
+                </p>
+              )}
+            </FormRow>
+
+            <FormRow label="PAN Number">
+              <Input {...register("panNumber")} />
+            </FormRow>
+
             <ImageUploadRow
               label="PAN Card Photo"
               oldImageUrl={member.panImageUrl}
-              register={register}
-              name="panImage"
+              onFileChange={setPanImageFile}
             />
+
             <ImageUploadRow
               label="Profile Photo"
               oldImageUrl={member.profileImageUrl}
-              register={register}
-              name="profileImage"
+              onFileChange={setProfileImageFile}
             />
-            <FormRow label="Address">
+
+            <div className="space-y-2">
+              <Label>Address</Label>
               <Input
                 placeholder="House No."
-                defaultValue={member.address?.houseNumber}
                 {...register("address.houseNumber")}
+                className={errors.address?.houseNumber ? "border-red-500" : ""}
               />
+              {errors.address?.houseNumber && (
+                <p className="text-red-500 text-sm">
+                  {errors.address.houseNumber.message}
+                </p>
+              )}
+
               <Input
                 placeholder="Street"
-                defaultValue={member.address?.street}
                 {...register("address.street")}
-                className="mt-2"
+                className={errors.address?.street ? "border-red-500" : ""}
               />
+              {errors.address?.street && (
+                <p className="text-red-500 text-sm">
+                  {errors.address.street.message}
+                </p>
+              )}
+
               <Input
                 placeholder="City/Village"
-                defaultValue={member.address?.cityVillage}
                 {...register("address.cityVillage")}
-                className="mt-2"
+                className={errors.address?.cityVillage ? "border-red-500" : ""}
               />
+              {errors.address?.cityVillage && (
+                <p className="text-red-500 text-sm">
+                  {errors.address.cityVillage.message}
+                </p>
+              )}
+
               <Input
                 placeholder="Pincode"
-                defaultValue={member.address?.pincode}
                 {...register("address.pincode")}
-                className="mt-2"
+                className={errors.address?.pincode ? "border-red-500" : ""}
               />
-            </FormRow>
+              {errors.address?.pincode && (
+                <p className="text-red-500 text-sm">
+                  {errors.address.pincode.message}
+                </p>
+              )}
+            </div>
           </Section>
 
           <Section title="Employment Details">
@@ -247,7 +443,11 @@ export default function EditMemberPage() {
                       setValue("employment.contributionPlan", "");
                     }}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger
+                      className={
+                        errors.employment?.type ? "border-red-500" : ""
+                      }
+                    >
                       <SelectValue placeholder="Select employment type" />
                     </SelectTrigger>
                     <SelectContent>
@@ -263,6 +463,11 @@ export default function EditMemberPage() {
                   </Select>
                 )}
               />
+              {errors.employment?.type && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.employment.type.message}
+                </p>
+              )}
             </FormRow>
 
             <FormRow label="Company Name">
@@ -281,7 +486,11 @@ export default function EditMemberPage() {
                       !watchedEmploymentType || availableCompanies.length === 0
                     }
                   >
-                    <SelectTrigger>
+                    <SelectTrigger
+                      className={
+                        errors.employment?.companyName ? "border-red-500" : ""
+                      }
+                    >
                       <SelectValue placeholder="Select company" />
                     </SelectTrigger>
                     <SelectContent>
@@ -297,6 +506,11 @@ export default function EditMemberPage() {
                   </Select>
                 )}
               />
+              {errors.employment?.companyName && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.employment.companyName.message}
+                </p>
+              )}
             </FormRow>
 
             <FormRow label="Department">
@@ -314,7 +528,11 @@ export default function EditMemberPage() {
                       !watchedCompanyName || availableDepartments.length === 0
                     }
                   >
-                    <SelectTrigger>
+                    <SelectTrigger
+                      className={
+                        errors.employment?.department ? "border-red-500" : ""
+                      }
+                    >
                       <SelectValue placeholder="Select department" />
                     </SelectTrigger>
                     <SelectContent>
@@ -327,6 +545,11 @@ export default function EditMemberPage() {
                   </Select>
                 )}
               />
+              {errors.employment?.department && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.employment.department.message}
+                </p>
+              )}
             </FormRow>
 
             <FormRow label="Contribution Plan">
@@ -339,7 +562,13 @@ export default function EditMemberPage() {
                     onValueChange={field.onChange}
                     disabled={!watchedDepartment || availablePlans.length === 0}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger
+                      className={
+                        errors.employment?.contributionPlan
+                          ? "border-red-500"
+                          : ""
+                      }
+                    >
                       <SelectValue placeholder="Select a plan" />
                     </SelectTrigger>
                     <SelectContent>
@@ -352,6 +581,11 @@ export default function EditMemberPage() {
                   </Select>
                 )}
               />
+              {errors.employment?.contributionPlan && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.employment.contributionPlan.message}
+                </p>
+              )}
             </FormRow>
           </Section>
 
@@ -364,30 +598,92 @@ export default function EditMemberPage() {
                 <Input
                   placeholder="Nominee Name"
                   {...register(`nominees.${index}.name`)}
-                  className="mb-2"
+                  className={`mb-2 ${errors.nominees?.[index]?.name ? "border-red-500" : ""}`}
                 />
+                {errors.nominees?.[index]?.name && (
+                  <p className="text-red-500 text-sm mb-2">
+                    {errors.nominees[index]?.name?.message}
+                  </p>
+                )}
+
                 <Input
                   placeholder="Relation"
                   {...register(`nominees.${index}.relation`)}
-                  className="mb-2"
+                  className={`mb-2 ${errors.nominees?.[index]?.relation ? "border-red-500" : ""}`}
                 />
+                {errors.nominees?.[index]?.relation && (
+                  <p className="text-red-500 text-sm mb-2">
+                    {errors.nominees[index]?.relation?.message}
+                  </p>
+                )}
+
                 <Input
                   placeholder="Age"
                   type="number"
                   {...register(`nominees.${index}.age`)}
-                  className="mb-2"
+                  className={`mb-2 ${errors.nominees?.[index]?.age ? "border-red-500" : ""}`}
                 />
-                <Button
-                  type="button"
-                  variant="destructive"
-                  size="sm"
-                  className="absolute top-2 right-2"
-                  onClick={() => remove(index)}
-                >
-                  <Trash2 size={14} />
-                </Button>
+                {errors.nominees?.[index]?.age && (
+                  <p className="text-red-500 text-sm mb-2">
+                    {errors.nominees[index]?.age?.message}
+                  </p>
+                )}
+
+                <Controller
+                  control={control}
+                  name={`nominees.${index}.gender`}
+                  render={({ field }) => (
+                    <Select
+                      value={field.value ?? ""}
+                      onValueChange={field.onChange}
+                    >
+                      <SelectTrigger
+                        className={`mb-2 ${errors.nominees?.[index]?.gender ? "border-red-500" : ""}`}
+                      >
+                        <SelectValue placeholder="Select Gender" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Male">Male</SelectItem>
+                        <SelectItem value="Female">Female</SelectItem>
+                        <SelectItem value="Other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+                {errors.nominees?.[index]?.gender && (
+                  <p className="text-red-500 text-sm mb-2">
+                    {errors.nominees[index]?.gender?.message}
+                  </p>
+                )}
+
+                <Input
+                  placeholder="Percentage"
+                  type="number"
+                  {...register(`nominees.${index}.percentage`)}
+                  className={
+                    errors.nominees?.[index]?.percentage ? "border-red-500" : ""
+                  }
+                />
+                {errors.nominees?.[index]?.percentage && (
+                  <p className="text-red-500 text-sm">
+                    {errors.nominees[index]?.percentage?.message}
+                  </p>
+                )}
+
+                {fields.length > 1 && (
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="sm"
+                    className="absolute top-2 right-2"
+                    onClick={() => remove(index)}
+                  >
+                    <Trash2 size={14} />
+                  </Button>
+                )}
               </div>
             ))}
+
             <Button
               type="button"
               onClick={() =>
@@ -408,9 +704,9 @@ export default function EditMemberPage() {
             <Button
               type="submit"
               className="w-full"
-              disabled={memberActionStatus === "loading"}
+              disabled={updateStatus === "loading"}
             >
-              {memberActionStatus === "loading" ? (
+              {updateStatus === "loading" ? (
                 <Loader2 className="animate-spin" />
               ) : (
                 "Update Member"
@@ -432,7 +728,6 @@ export default function EditMemberPage() {
 }
 
 // --- Helper Components ---
-
 const Section = ({
   title,
   children,
@@ -459,20 +754,35 @@ const FormRow = ({
   </div>
 );
 
-const ImageUploadRow = ({ label, oldImageUrl, register, name }: any) => (
+const ImageUploadRow = ({
+  label,
+  oldImageUrl,
+  onFileChange,
+}: {
+  label: string;
+  oldImageUrl?: string;
+  onFileChange: (file: File | null) => void;
+}) => (
   <FormRow label={label}>
     {oldImageUrl && (
       <div className="mb-2">
-        <p className="text-xs text-gray-500 mb-1">Old Photo:</p>
+        <p className="text-xs text-gray-500 mb-1">Current Photo:</p>
         <Image
           src={oldImageUrl}
-          alt="Old"
+          alt="Current"
           width={100}
           height={100}
           className="rounded-md border"
         />
       </div>
     )}
-    <Input type="file" {...register(name)} />
+    <Input
+      type="file"
+      accept="image/*"
+      onChange={(e) => {
+        const file = e.target.files?.[0] || null;
+        onFileChange(file);
+      }}
+    />
   </FormRow>
 );
