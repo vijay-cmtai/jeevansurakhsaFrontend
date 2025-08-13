@@ -8,7 +8,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { AppDispatch, RootState } from "@/lib/redux/store";
 import { Member } from "@/lib/redux/features/members/membersSlice";
-import { fetchContributionGroupsForRegistration } from "@/lib/redux/features/registration/registrationSlice";
+import { 
+  fetchContributionGroupsForRegistration,
+  fetchRegistrationConfig 
+} from "@/lib/redux/features/registration/registrationSlice";
 import Image from "next/image";
 
 // Naye slice se actions import karein
@@ -72,6 +75,12 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
+// Common relation options
+const relationOptions = [
+  "Father", "Mother", "Spouse", "Son", "Daughter", "Brother", "Sister", 
+  "Uncle", "Aunt", "Cousin", "Friend", "Other"
+];
+
 export default function EditMemberPage() {
   const params = useParams();
   const router = useRouter();
@@ -88,10 +97,13 @@ export default function EditMemberPage() {
     (state: RootState) => state.adminEditMember
   );
 
-  // Contribution groups ka data registration slice se lein
-  const { contributionGroups, contributionGroupsStatus } = useSelector(
-    (state: RootState) => state.registration
-  );
+  // States and contribution groups data
+  const { 
+    states, 
+    contributionGroups, 
+    configStatus, 
+    contributionGroupsStatus 
+  } = useSelector((state: RootState) => state.registration);
 
   // React Hook Form with proper typing
   const {
@@ -111,6 +123,7 @@ export default function EditMemberPage() {
     },
   });
 
+  const watchedState = watch("state");
   const watchedEmploymentType = watch("employment.type");
   const watchedCompanyName = watch("employment.companyName");
   const watchedDepartment = watch("employment.department");
@@ -125,6 +138,7 @@ export default function EditMemberPage() {
     if (memberId) {
       dispatch(fetchMemberByIdForEdit(memberId));
     }
+    dispatch(fetchRegistrationConfig());
     dispatch(fetchContributionGroupsForRegistration());
 
     // Cleanup function
@@ -135,12 +149,12 @@ export default function EditMemberPage() {
 
   // Form ko data se bharne ke liye
   useEffect(() => {
-    if (member) {
+    if (member && states.length > 0) {
       const formData: FormData = {
         fullName: member.fullName || "",
         email: member.email || "",
         phone: member.phone || "",
-        dateOfBirth: member.dateOfBirth || "",
+        dateOfBirth: member.dateOfBirth ? member.dateOfBirth.split("T")[0] : "",
         state: member.state || "",
         district: member.district || "",
         volunteerCode: member.volunteerCode || "",
@@ -161,17 +175,24 @@ export default function EditMemberPage() {
           ? member.nominees.map((nominee) => ({
               name: nominee.name || "",
               relation: nominee.relation || "",
-              age: nominee.age || "",
+              age: nominee.age?.toString() || "",
               gender: nominee.gender || "",
-              percentage: nominee.percentage || "",
+              percentage: nominee.percentage?.toString() || "",
             }))
           : [{ name: "", relation: "", age: "", gender: "", percentage: "" }],
       };
       reset(formData);
     }
-  }, [member, reset]);
+  }, [member, states, reset]);
 
-  // Cascading Dropdown Logic
+  // Get available districts for selected state
+  const availableDistricts = useMemo(() => {
+    if (!watchedState || states.length === 0) return [];
+    const state = states.find((s) => s.name === watchedState);
+    return state?.districts || [];
+  }, [watchedState, states]);
+
+  // Cascading Dropdown Logic for Employment
   const availableCompanies = useMemo(() => {
     const selectedGroup = contributionGroups.find(
       (g) => g.employmentType === watchedEmploymentType
@@ -253,10 +274,16 @@ export default function EditMemberPage() {
     });
   };
 
-  if (fetchStatus === "loading" || !member) {
+  if (
+    fetchStatus === "loading" || 
+    !member || 
+    configStatus === "loading" || 
+    states.length === 0
+  ) {
     return (
       <div className="flex justify-center items-center h-screen">
         <Loader2 className="h-8 w-8 animate-spin" />
+        <span className="ml-2">Loading member data...</span>
       </div>
     );
   }
@@ -278,12 +305,33 @@ export default function EditMemberPage() {
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-6">
-          <Section title="State Selection">
+          <Section title="Location Details">
             <FormRow label="State">
-              <Input
-                placeholder="State"
-                {...register("state")}
-                className={errors.state ? "border-red-500" : ""}
+              <Controller
+                control={control}
+                name="state"
+                render={({ field }) => (
+                  <Select
+                    value={field.value || ""}
+                    onValueChange={(value) => {
+                      field.onChange(value);
+                      setValue("district", ""); // Reset district when state changes
+                    }}
+                  >
+                    <SelectTrigger className={errors.state ? "border-red-500" : ""}>
+                      <SelectValue placeholder="Select State">
+                        {field.value || "Select State"}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {states.map((state) => (
+                        <SelectItem key={state._id} value={state.name}>
+                          {state.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
               />
               {errors.state && (
                 <p className="text-red-500 text-sm mt-1">
@@ -293,10 +341,29 @@ export default function EditMemberPage() {
             </FormRow>
 
             <FormRow label="District">
-              <Input
-                placeholder="District"
-                {...register("district")}
-                className={errors.district ? "border-red-500" : ""}
+              <Controller
+                control={control}
+                name="district"
+                render={({ field }) => (
+                  <Select
+                    value={field.value || ""}
+                    onValueChange={field.onChange}
+                    disabled={!watchedState || availableDistricts.length === 0}
+                  >
+                    <SelectTrigger className={errors.district ? "border-red-500" : ""}>
+                      <SelectValue placeholder="Select District">
+                        {field.value || "Select District"}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {availableDistricts.map((district) => (
+                        <SelectItem key={district._id} value={district.name}>
+                          {district.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
               />
               {errors.district && (
                 <p className="text-red-500 text-sm mt-1">
@@ -305,8 +372,8 @@ export default function EditMemberPage() {
               )}
             </FormRow>
 
-            <FormRow label="Referral ID">
-              <Input placeholder="Referral ID" {...register("volunteerCode")} />
+            <FormRow label="Volunteer/Referral Code">
+              <Input placeholder="Volunteer/Referral Code" {...register("volunteerCode")} />
             </FormRow>
           </Section>
 
@@ -448,7 +515,9 @@ export default function EditMemberPage() {
                         errors.employment?.type ? "border-red-500" : ""
                       }
                     >
-                      <SelectValue placeholder="Select employment type" />
+                      <SelectValue placeholder="Select employment type">
+                        {field.value || "Select employment type"}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       {contributionGroups.map((group) => (
@@ -491,7 +560,9 @@ export default function EditMemberPage() {
                         errors.employment?.companyName ? "border-red-500" : ""
                       }
                     >
-                      <SelectValue placeholder="Select company" />
+                      <SelectValue placeholder="Select company">
+                        {field.value || "Select company"}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       {availableCompanies.map((company) => (
@@ -533,7 +604,9 @@ export default function EditMemberPage() {
                         errors.employment?.department ? "border-red-500" : ""
                       }
                     >
-                      <SelectValue placeholder="Select department" />
+                      <SelectValue placeholder="Select department">
+                        {field.value || "Select department"}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       {availableDepartments.map((dept) => (
@@ -569,7 +642,9 @@ export default function EditMemberPage() {
                           : ""
                       }
                     >
-                      <SelectValue placeholder="Select a plan" />
+                      <SelectValue placeholder="Select a plan">
+                        {field.value || "Select a plan"}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       {availablePlans.map((plan) => (
@@ -606,10 +681,31 @@ export default function EditMemberPage() {
                   </p>
                 )}
 
-                <Input
-                  placeholder="Relation"
-                  {...register(`nominees.${index}.relation`)}
-                  className={`mb-2 ${errors.nominees?.[index]?.relation ? "border-red-500" : ""}`}
+                {/* FIXED: Added Relation Dropdown */}
+                <Controller
+                  control={control}
+                  name={`nominees.${index}.relation`}
+                  render={({ field }) => (
+                    <Select
+                      value={field.value ?? ""}
+                      onValueChange={field.onChange}
+                    >
+                      <SelectTrigger
+                        className={`mb-2 ${errors.nominees?.[index]?.relation ? "border-red-500" : ""}`}
+                      >
+                        <SelectValue placeholder="Select Relation">
+                          {field.value || "Select Relation"}
+                        </SelectValue>
+                      </SelectTrigger>
+                      <SelectContent>
+                        {relationOptions.map((relation) => (
+                          <SelectItem key={relation} value={relation}>
+                            {relation}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
                 />
                 {errors.nominees?.[index]?.relation && (
                   <p className="text-red-500 text-sm mb-2">
@@ -640,7 +736,9 @@ export default function EditMemberPage() {
                       <SelectTrigger
                         className={`mb-2 ${errors.nominees?.[index]?.gender ? "border-red-500" : ""}`}
                       >
-                        <SelectValue placeholder="Select Gender" />
+                        <SelectValue placeholder="Select Gender">
+                          {field.value || "Select Gender"}
+                        </SelectValue>
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="Male">Male</SelectItem>
