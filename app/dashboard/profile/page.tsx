@@ -1,6 +1,12 @@
 "use client";
 
-import { useState, useEffect, ChangeEvent, FormEvent } from "react";
+import React, {
+  useState,
+  useEffect,
+  ChangeEvent,
+  FormEvent,
+  useMemo,
+} from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/lib/redux/store";
 import { getMemberProfile } from "@/lib/redux/features/auth/authSlice";
@@ -57,6 +63,7 @@ export default function UpdateProfilePage() {
     useSelector((state: RootState) => state.registration);
 
   const [formData, setFormData] = useState<any>({});
+  const [isFormInitialized, setIsFormInitialized] = useState(false);
   const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
   const [panImageFile, setPanImageFile] = useState<File | null>(null);
   const [profileImagePreview, setProfileImagePreview] = useState<string | null>(
@@ -68,33 +75,63 @@ export default function UpdateProfilePage() {
   const [nomineePercentageTotal, setNomineePercentageTotal] = useState(0);
   const [nomineeError, setNomineeError] = useState<string | null>(null);
 
-  // Load config data
+  // Load config data first
   useEffect(() => {
     dispatch(fetchRegistrationConfig());
     dispatch(fetchContributionGroupsForRegistration());
   }, [dispatch]);
 
+  // Initialize form data after userInfo and config data are loaded
   useEffect(() => {
     if (!userInfo) {
       dispatch(getMemberProfile());
-    } else if (Object.keys(formData).length === 0) {
-      setFormData({
-        ...userInfo,
-        address: userInfo.address || {
-          houseNumber: "",
-          street: "",
-          cityVillage: "",
-          pincode: "",
+    } else if (
+      !isFormInitialized &&
+      states.length > 0 &&
+      contributionGroups.length > 0 &&
+      configStatus === "succeeded" &&
+      contributionGroupsStatus === "succeeded"
+    ) {
+      // Initialize form with existing user data
+      const initialFormData = {
+        // Basic fields with fallbacks
+        fullName: userInfo.fullName || "",
+        phone: userInfo.phone || "",
+        email: userInfo.email || "",
+        dateOfBirth: userInfo.dateOfBirth || "",
+        state: userInfo.state || "",
+        district: userInfo.district || "",
+        volunteerCode: userInfo.volunteerCode || "",
+        panNumber: userInfo.panNumber || "",
+        profileImageUrl: userInfo.profileImageUrl || "",
+        panImageUrl: userInfo.panImageUrl || "",
+
+        // Address with proper defaults
+        address: {
+          houseNumber: userInfo.address?.houseNumber || "",
+          street: userInfo.address?.street || "",
+          cityVillage: userInfo.address?.cityVillage || "",
+          pincode: userInfo.address?.pincode || "",
         },
-        employment: userInfo.employment || {
-          type: "",
-          department: "",
-          companyName: "",
-          contributionPlan: "",
+
+        // Employment with proper defaults
+        employment: {
+          type: userInfo.employment?.type || "",
+          department: userInfo.employment?.department || "",
+          companyName: userInfo.employment?.companyName || "",
+          contributionPlan: userInfo.employment?.contributionPlan || "",
         },
+
+        // Nominees with at least one default nominee
         nominees:
           userInfo.nominees && userInfo.nominees.length > 0
-            ? userInfo.nominees
+            ? userInfo.nominees.map((nominee: any) => ({
+                name: nominee.name || "",
+                relation: nominee.relation || "",
+                age: nominee.age || "",
+                gender: nominee.gender || "",
+                percentage: nominee.percentage || 0,
+              }))
             : [
                 {
                   name: "",
@@ -104,9 +141,20 @@ export default function UpdateProfilePage() {
                   percentage: 100,
                 },
               ],
-      });
+      };
+
+      setFormData(initialFormData);
+      setIsFormInitialized(true);
     }
-  }, [userInfo, dispatch, formData]);
+  }, [
+    userInfo,
+    dispatch,
+    states,
+    contributionGroups,
+    configStatus,
+    contributionGroupsStatus,
+    isFormInitialized,
+  ]);
 
   // Nominee percentage validation
   useEffect(() => {
@@ -131,71 +179,84 @@ export default function UpdateProfilePage() {
   }, [formData.nominees]);
 
   // Get available companies based on employment type
-  const availableCompanies =
-    contributionGroups.find(
+  const availableCompanies = useMemo(() => {
+    if (!formData.employment?.type || contributionGroups.length === 0)
+      return [];
+    const group = contributionGroups.find(
       (g) => g.employmentType === formData.employment?.type
-    )?.companies || [];
+    );
+    return group?.companies || [];
+  }, [formData.employment?.type, contributionGroups]);
 
   // Get available departments based on company
-  const availableDepartments =
-    availableCompanies.find(
+  const availableDepartments = useMemo(() => {
+    if (!formData.employment?.companyName || availableCompanies.length === 0)
+      return [];
+    const company = availableCompanies.find(
       (c) => c.companyName === formData.employment?.companyName
-    )?.departments || [];
+    );
+    return company?.departments || [];
+  }, [formData.employment?.companyName, availableCompanies]);
 
   // Get available plans based on department (READ ONLY - for display only)
-  const availablePlans =
-    availableDepartments.find(
+  const availablePlans = useMemo(() => {
+    if (!formData.employment?.department || availableDepartments.length === 0)
+      return [];
+    const department = availableDepartments.find(
       (d) => d.departmentName === formData.employment?.department
-    )?.plans || [];
+    );
+    return department?.plans || [];
+  }, [formData.employment?.department, availableDepartments]);
 
   // Get districts for selected state
-  const availableDistricts =
-    states.find((s) => s.name === formData.state)?.districts || [];
+  const availableDistricts = useMemo(() => {
+    if (!formData.state || states.length === 0) return [];
+    const state = states.find((s) => s.name === formData.state);
+    return state?.districts || [];
+  }, [formData.state, states]);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSelectChange = (field: string, value: string) => {
-    setFormData({ ...formData, [field]: value });
+    const newFormData = { ...formData, [field]: value };
 
     // Reset district when state changes
     if (field === "state") {
-      setFormData({ ...formData, [field]: value, district: "" });
+      newFormData.district = "";
     }
+
+    setFormData(newFormData);
   };
 
   const handleNestedChange = (parent: string, field: string, value: string) => {
-    setFormData({
+    const newFormData = {
       ...formData,
       [parent]: { ...formData[parent], [field]: value },
-    });
+    };
 
     // Handle cascading changes for employment
     if (parent === "employment") {
       if (field === "type") {
         // Reset company, department when type changes
-        setFormData({
-          ...formData,
-          [parent]: {
-            ...formData[parent],
-            [field]: value,
-            companyName: "",
-            department: "",
-          },
-        });
+        newFormData[parent] = {
+          ...newFormData[parent],
+          companyName: "",
+          department: "",
+          contributionPlan: "",
+        };
       } else if (field === "companyName") {
         // Reset department when company changes
-        setFormData({
-          ...formData,
-          [parent]: {
-            ...formData[parent],
-            [field]: value,
-            department: "",
-          },
-        });
+        newFormData[parent] = {
+          ...newFormData[parent],
+          department: "",
+          contributionPlan: "",
+        };
       }
     }
+
+    setFormData(newFormData);
   };
 
   const handleNomineeChange = (index: number, field: string, value: string) => {
@@ -294,15 +355,20 @@ export default function UpdateProfilePage() {
     }
   };
 
+  // Show loading while data is being fetched or form is being initialized
   if (
     authStatus === "loading" ||
     configStatus === "loading" ||
+    contributionGroupsStatus === "loading" ||
     !userInfo ||
-    Object.keys(formData).length === 0
+    !isFormInitialized ||
+    states.length === 0 ||
+    contributionGroups.length === 0
   ) {
     return (
       <div className="flex justify-center items-center h-screen">
         <Loader2 className="h-12 w-12 animate-spin" />
+        <span className="ml-2 text-gray-600">Loading profile data...</span>
       </div>
     );
   }
@@ -335,7 +401,9 @@ export default function UpdateProfilePage() {
                 onValueChange={(value) => handleSelectChange("state", value)}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select State" />
+                  <SelectValue placeholder="Select State">
+                    {formData.state || "Select State"}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {states.map((state) => (
@@ -355,7 +423,9 @@ export default function UpdateProfilePage() {
                 disabled={!formData.state}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select District" />
+                  <SelectValue placeholder="Select District">
+                    {formData.district || "Select District"}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {availableDistricts.map((district) => (
@@ -558,7 +628,9 @@ export default function UpdateProfilePage() {
                 }
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select Employment Type" />
+                  <SelectValue placeholder="Select Employment Type">
+                    {formData.employment?.type || "Select Employment Type"}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {contributionGroups.map((group) => (
@@ -580,7 +652,9 @@ export default function UpdateProfilePage() {
                 disabled={!formData.employment?.type}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select Company" />
+                  <SelectValue placeholder="Select Company">
+                    {formData.employment?.companyName || "Select Company"}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {availableCompanies.map((company) => (
@@ -602,7 +676,9 @@ export default function UpdateProfilePage() {
                 disabled={!formData.employment?.companyName}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select Department" />
+                  <SelectValue placeholder="Select Department">
+                    {formData.employment?.department || "Select Department"}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {availableDepartments.map((dept) => (
@@ -621,7 +697,10 @@ export default function UpdateProfilePage() {
                 disabled
               >
                 <SelectTrigger className="bg-gray-100">
-                  <SelectValue placeholder="Plan will be assigned" />
+                  <SelectValue placeholder="Plan will be assigned">
+                    {formData.employment?.contributionPlan ||
+                      "Plan will be assigned"}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {availablePlans.map((plan) => (
@@ -716,7 +795,9 @@ export default function UpdateProfilePage() {
                         }
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder="Select Gender" />
+                          <SelectValue placeholder="Select Gender">
+                            {nominee.gender || "Select Gender"}
+                          </SelectValue>
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="Male">Male</SelectItem>
