@@ -21,18 +21,42 @@ import {
 import { Button } from "@/components/ui/button";
 
 declare const Cashfree: any;
+
+// === PRINT KE LIYE CSS COMPONENT (YAHAN SABSE ZAROORI BADLAV HAI) ===
 const PrintStyles = () => (
   <style jsx global>{`
     @media print {
-      body > header,
-      body > footer,
-      button,
-      nav {
+      /* Step 1: Sabhi elements ko invisible banao, par unki jagah bani rahe */
+      body * {
+        visibility: hidden !important;
+      }
+
+      /* Step 2: Sirf hamare print wale container aur uske andar ke sabhi elements ko wapas visible karo */
+      #printable-content-area,
+      #printable-content-area * {
+        visibility: visible !important;
+      }
+
+      /* Step 3: Print container ko page ke shuru mein lao */
+      #printable-content-area {
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
+      }
+
+      /* Step 4: Non-printable cheezon ko hide karo (agar koi ho) */
+      .no-print {
         display: none !important;
       }
 
-      .verified-badge {
-        display: none !important;
+      /* Baaki page styling */
+      body {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        background-color: white !important;
+        margin: 0;
+        padding: 0;
       }
 
       .print-container {
@@ -45,13 +69,28 @@ const PrintStyles = () => (
         height: 100vh !important;
         padding: 0 !important;
         margin: 0 !important;
-        background-color: white !important; 
       }
 
       .id-card-print {
         page-break-inside: avoid !important;
-        transform: scale(0.9); 
-        transform-origin: top center;
+        transform: scale(0.95);
+        transform-origin: top;
+        box-shadow: none !important;
+        border: 1px solid #ddd;
+      }
+
+      .print-title-blue {
+        color: #0056b3 !important;
+      }
+
+      .print-name-bar {
+        background: transparent !important;
+        color: #0056b3 !important;
+        border-top: 1px solid #eee !important;
+        border-bottom: 1px solid #eee !important;
+      }
+      .print-name-bar p {
+        color: #0056b3 !important;
       }
     }
   `}</style>
@@ -88,7 +127,7 @@ const IDCardFront = ({ member }: { member: Member }) => {
                 className="rounded-full"
               />
             </div>
-            <h2 className="text-lg font-bold text-gray-800 mt-1">
+            <h2 className="text-lg font-bold text-gray-800 mt-1 print-title-blue">
               Jeevan Suraksha
             </h2>
             <p className="text-[10px] font-semibold text-gray-600 leading-tight">
@@ -125,7 +164,7 @@ const IDCardFront = ({ member }: { member: Member }) => {
               />
             </div>
           </div>
-          <div className="bg-red-600 text-white text-center py-1 rounded">
+          <div className="bg-red-600 text-white text-center py-1 rounded print-name-bar">
             <p className="font-bold text-base uppercase">{member.fullName}</p>
             <p className="text-[10px]">
               {member.employment?.contributionPlan || "1 Crore Plan"} - Jeevan
@@ -181,7 +220,7 @@ const IDCardBack = ({ member }: { member: Member }) => (
             className="rounded-full"
           />
         </div>
-        <h2 className="text-lg font-bold text-gray-800 mt-1">
+        <h2 className="text-lg font-bold text-gray-800 mt-1 print-title-blue">
           Jeevan Suraksha
         </h2>
         <p className="text-[10px] font-semibold text-gray-600 leading-tight">
@@ -282,7 +321,7 @@ const PaymentPrompt = () => {
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           ) : (
             <CreditCard className="mr-2 h-4 w-4" />
-          )}
+          )}{" "}
           Pay Membership Fee Now
         </Button>
       </motion.div>
@@ -313,33 +352,33 @@ export default function GenerateIDCardPage() {
   if (userInfo) {
     return userInfo.paymentStatus === "Paid" ? (
       <>
-        {/* प्रिंट स्टाइल को यहाँ कॉल करें */}
         <PrintStyles />
-        <div className="bg-gray-100 min-h-screen py-10 px-4 flex flex-col items-center">
-          <div className="bg-[#37475a] text-white font-bold py-2 px-6 rounded-md mb-8 shadow-lg verified-badge">
-            This ID Card Is Verified
-          </div>
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="flex flex-col md:flex-row justify-center items-center gap-8 print-container"
-          >
-            <div className="id-card-print">
-              <IDCardFront member={userInfo} />
+        <div id="printable-content-area">
+          <div className="bg-gray-100 min-h-screen py-10 px-4 flex flex-col items-center">
+            <div className="bg-[#37475a] text-white font-bold py-2 px-6 rounded-md mb-8 shadow-lg verified-badge no-print">
+              This ID Card Is Verified
             </div>
-            <div className="id-card-print">
-              <IDCardBack member={userInfo} />
-            </div>
-          </motion.div>
-          <div className="text-center mt-8">
-            <Button
-              className="bg-[#37475a] hover:bg-[#2c3a4a] shadow-lg"
-              onClick={() => window.print()}
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="flex flex-col md:flex-row justify-center items-center gap-8 print-container"
             >
-              <Download className="mr-2 h-4 w-4" />
-              Download PDF
-            </Button>
+              <div className="id-card-print">
+                <IDCardFront member={userInfo} />
+              </div>
+              <div className="id-card-print">
+                <IDCardBack member={userInfo} />
+              </div>
+            </motion.div>
+            <div className="text-center mt-8 no-print">
+              <Button
+                className="bg-[#37475a] hover:bg-[#2c3a4a] shadow-lg"
+                onClick={() => window.print()}
+              >
+                <Download className="mr-2 h-4 w-4" /> Download PDF
+              </Button>
+            </div>
           </div>
         </div>
       </>
