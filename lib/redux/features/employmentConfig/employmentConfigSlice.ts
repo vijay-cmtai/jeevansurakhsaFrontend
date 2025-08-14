@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import axiosInstance from "@/lib/axios";
 
 export interface EmploymentConfigData {
+  _id: string;
   employmentTypes: string[];
   departments: string[];
   companyNames: string[];
@@ -49,7 +50,29 @@ export const addConfigItem = createAsyncThunk(
         `/api/employment-config/${itemType}`,
         { name }
       );
-      return data as EmploymentConfigData;
+      return { data, itemType };
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message);
+    }
+  }
+);
+
+export const updateConfigItem = createAsyncThunk(
+  "employmentConfig/updateItem",
+  async (
+    {
+      itemType,
+      oldName,
+      newName,
+    }: { itemType: string; oldName: string; newName: string },
+    { rejectWithValue }
+  ) => {
+    try {
+      const { data } = await axiosInstance.put(
+        `/api/employment-config/${itemType}`,
+        { oldName, newName }
+      );
+      return { data, itemType };
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message);
     }
@@ -67,7 +90,7 @@ export const deleteConfigItem = createAsyncThunk(
         `/api/employment-config/${itemType}`,
         { data: { name } }
       );
-      return data as EmploymentConfigData;
+      return { data, itemType };
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message);
     }
@@ -77,7 +100,12 @@ export const deleteConfigItem = createAsyncThunk(
 const employmentConfigSlice = createSlice({
   name: "employmentConfig",
   initialState,
-  reducers: {},
+  reducers: {
+    resetActionStatus: (state) => {
+      state.actionStatus = "idle";
+      state.error = null;
+    },
+  },
   extraReducers: (builder) => {
     const handleActionPending = (state: EmploymentConfigState, action: any) => {
       state.actionStatus = "loading";
@@ -93,10 +121,10 @@ const employmentConfigSlice = createSlice({
     };
     const handleActionFulfilled = (
       state: EmploymentConfigState,
-      action: PayloadAction<EmploymentConfigData>
+      action: PayloadAction<{ data: EmploymentConfigData; itemType: string }>
     ) => {
       state.actionStatus = "succeeded";
-      state.configData = action.payload;
+      state.configData = action.payload.data;
       state.lastActionType = null;
     };
 
@@ -116,10 +144,15 @@ const employmentConfigSlice = createSlice({
     builder.addCase(addConfigItem.fulfilled, handleActionFulfilled);
     builder.addCase(addConfigItem.rejected, handleActionRejected);
 
+    builder.addCase(updateConfigItem.pending, handleActionPending);
+    builder.addCase(updateConfigItem.fulfilled, handleActionFulfilled);
+    builder.addCase(updateConfigItem.rejected, handleActionRejected);
+
     builder.addCase(deleteConfigItem.pending, handleActionPending);
     builder.addCase(deleteConfigItem.fulfilled, handleActionFulfilled);
     builder.addCase(deleteConfigItem.rejected, handleActionRejected);
   },
 });
 
+export const { resetActionStatus } = employmentConfigSlice.actions;
 export default employmentConfigSlice.reducer;
