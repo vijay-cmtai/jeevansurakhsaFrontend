@@ -69,7 +69,7 @@ export function Sidebar({ onLinkClick }: SidebarProps) {
     <aside className="w-64 bg-[#2c3e50] text-gray-200 flex flex-col h-screen">
       <div className="flex items-center gap-x-3 p-4 border-b border-gray-700/50 h-16">
         <Image
-          src="https://jeevansuraksha.org/wp-content/uploads/2025/04/logo.webp"
+          src="/logoo.webp"
           alt="Jeevan Suraksha Logo"
           width={36}
           height={36}
