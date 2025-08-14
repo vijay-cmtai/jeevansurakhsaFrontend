@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import { useParams } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/lib/redux/store";
@@ -11,39 +11,99 @@ import { Loader2, Download, Phone, Mail, MapPin } from "lucide-react";
 import Image from "next/image";
 import { Member } from "@/lib/redux/features/members/membersSlice";
 
-const IDCardFrame = ({ children }: { children: React.ReactNode }) => (
-  <div className="w-[320px] h-[512px] bg-white rounded-2xl shadow-lg overflow-hidden flex flex-col print:shadow-none print:border print:border-gray-300">
+const PrintStyles = () => (
+  <style jsx global>{`
+    @media print {
+      @page {
+        size: A4 landscape;
+        margin: 0.5in;
+      }
+      body * {
+        visibility: hidden !important;
+      }
+      .print-area,
+      .print-area * {
+        visibility: visible !important;
+      }
+      .print-area {
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
+      }
+      html,
+      body {
+        margin: 0 !important;
+        padding: 0 !important;
+        background: white !important;
+      }
+      .print-container {
+        display: flex !important;
+        flex-direction: row !important;
+        justify-content: center !important;
+        align-items: flex-start !important;
+        gap: 1rem !important;
+      }
+      .print-card {
+        box-shadow: none !important;
+        border: 1px solid #e5e7eb !important;
+      }
+      .print-name-bar {
+        background-color: transparent !important;
+        color: #2563eb !important;
+        border-top: 1px solid #e5e7eb;
+        border-bottom: 1px solid #e5e7eb;
+        border-radius: 0 !important;
+      }
+      .print-name-bar p {
+        color: #2563eb !important;
+      }
+      .print-title-blue {
+        color: #0056b3 !important;
+      }
+    }
+  `}</style>
+);
+
+const IDCardFrame = ({
+  children,
+  className = "",
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) => (
+  <div
+    className={`w-[320px] h-[512px] bg-white rounded-2xl shadow-lg overflow-hidden flex flex-col ${className}`}
+  >
     {children}
   </div>
 );
 
 const IDCardFront = ({ member }: { member: Member }) => {
   const details = [
-    { label: "ID No", value: member.registrationNo || "N/A" },
-    { label: "Mob No", value: member.phone },
-    { label: "Email", value: member.email },
-    { label: "City", value: member.address?.cityVillage },
+    { label: "ID No", value: `: ${member.registrationNo || "N/A"}` },
+    { label: "Mob No", value: `: ${member.phone}` },
+    { label: "Email", value: `: ${member.email}` },
+    { label: "City", value: `: ${member.address?.cityVillage}` },
   ];
 
   return (
-    <IDCardFrame>
+    <IDCardFrame className="print-card">
       <div className="flex-grow p-4 bg-white relative">
         <div className="absolute inset-0 overflow-hidden rounded-b-2xl">
-          <div className="absolute w-[500px] h-[500px] bg-gray-50 rounded-full -top-40 -left-40 print:hidden"></div>
+          <div className="absolute w-[500px] h-[500px] bg-gray-50 rounded-full -top-40 -left-40"></div>
         </div>
 
         <div className="relative z-10 flex flex-col h-full">
           <div className="text-center">
-            <div className="inline-block p-1 border-2 border-gray-300 rounded-full">
-              <Image
-                src="https://jeevansuraksha.org/wp-content/uploads/2025/04/logo.webp"
-                alt="Logo"
-                width={64}
-                height={64}
-                className="rounded-full"
-              />
-            </div>
-            <h2 className="text-lg font-bold text-blue-600 mt-1">
+            <Image
+              src="https://jeevansuraksha.org/wp-content/uploads/2025/04/logo.webp"
+              alt="Logo"
+              width={120}
+              height={40}
+              className="mx-auto"
+            />
+            <h2 className="text-lg font-bold text-blue-600 mt-2 print-title-blue">
               Jeevan Suraksha
             </h2>
             <p className="text-[10px] font-semibold text-gray-600 leading-tight">
@@ -73,34 +133,44 @@ const IDCardFront = ({ member }: { member: Member }) => {
             </div>
             <div className="w-[88px] h-[88px] flex items-center justify-center">
               <Image
-                src={`https://api.qrserver.com/v1/create-qr-code/?size=88x88&data=${member._id}`}
-                alt="QR Code"
+                src="/logo.jpg"
+                alt="Company Logo"
                 width={88}
                 height={88}
+                className="object-contain"
               />
             </div>
           </div>
 
-          <div className="bg-red-600 text-white text-center py-1 rounded">
+          <div className="bg-red-600 text-white text-center py-1 rounded print-name-bar">
             <p className="font-bold text-base uppercase">{member.fullName}</p>
             <p className="text-[10px]">
-              {member.employment?.contributionPlan || "Default Plan"} - Jeevan
+              {member.employment?.contributionPlan || "1 Crore Plan"} - Jeevan
               Suraksha Collective
             </p>
           </div>
 
-          <div className="grid grid-cols-[auto_1fr] gap-x-2 gap-y-1 text-xs mt-2 flex-grow">
-            {details.map((item, index) => (
-              <>
-                <strong key={`${index}-label`} className="text-left">
-                  {item.label}
-                </strong>
-                <span key={`${index}-value`}>: {item.value}</span>
-              </>
+          <div className="grid grid-cols-[auto_1fr] gap-x-2 gap-y-1 text-xs mt-2">
+            {details.map((item) => (
+              <React.Fragment key={item.label}>
+                <strong className="text-left font-bold">{item.label}</strong>
+                <span>{item.value}</span>
+              </React.Fragment>
             ))}
           </div>
 
+          <div className="flex-grow"></div>
+
           <div className="text-right">
+            <div className="mb-1">
+              <Image
+                src="/signature.png"
+                alt="Signature"
+                width={90}
+                height={36}
+                className="ml-auto"
+              />
+            </div>
             <p className="text-xs font-bold">Krishnaiah Panuganti</p>
             <p className="text-[10px] text-gray-600">
               (Chief Relations Officer)
@@ -116,9 +186,11 @@ const IDCardFront = ({ member }: { member: Member }) => {
         <div className="flex items-center gap-1">
           <Mail size={10} /> info@jeevansuraksha.org
         </div>
-        <div className="flex items-center gap-1">
-          <MapPin size={10} /> 1-63, Amadabakula, Kothakota, Wanaparty,
-          Telangana - 509381
+        <div className="flex items-start gap-1.5">
+          <MapPin size={10} className="flex-shrink-0 mt-0.5" />
+          <span>
+            1-63, Amadabakula, Kothakota, Wanaparty, Telangana - 509381
+          </span>
         </div>
       </div>
     </IDCardFrame>
@@ -126,22 +198,20 @@ const IDCardFront = ({ member }: { member: Member }) => {
 };
 
 const IDCardBack = ({ member }: { member: Member }) => (
-  <IDCardFrame>
+  <IDCardFrame className="print-card">
     <div className="flex-grow p-4 bg-white relative">
-      <div className="absolute inset-0 overflow-hidden rounded-2xl">
-        <div className="absolute w-[500px] h-[500px] bg-gray-50 rounded-full -top-40 -left-40 print:hidden"></div>
+      <div className="absolute inset-0 overflow-hidden rounded-b-2xl">
+        <div className="absolute w-[500px] h-[500px] bg-gray-50 rounded-full -top-40 -left-40"></div>
       </div>
       <div className="relative z-10 flex flex-col h-full text-center">
-        <div className="inline-block p-1 border-2 border-gray-300 rounded-full mx-auto">
-          <Image
-            src="https://jeevansuraksha.org/wp-content/uploads/2025/04/logo.webp"
-            alt="Logo"
-            width={64}
-            height={64}
-            className="rounded-full"
-          />
-        </div>
-        <h2 className="text-lg font-bold text-blue-600 mt-1">
+        <Image
+          src="https://jeevansuraksha.org/wp-content/uploads/2025/04/logo.webp"
+          alt="Logo"
+          width={120}
+          height={40}
+          className="mx-auto"
+        />
+        <h2 className="text-lg font-bold text-blue-600 mt-2 print-title-blue">
           Jeevan Suraksha
         </h2>
         <p className="text-[10px] font-semibold text-gray-600 leading-tight">
@@ -195,9 +265,9 @@ const IDCardBack = ({ member }: { member: Member }) => (
       <div className="flex items-center gap-1">
         <Mail size={10} /> info@jeevansuraksha.org
       </div>
-      <div className="flex items-center gap-1">
-        <MapPin size={10} /> 1-63, Amadabakula, Kothakota, Wanaparthy, Telangana
-        - 509381
+      <div className="flex items-start gap-1.5">
+        <MapPin size={10} className="flex-shrink-0 mt-0.5" />
+        <span>1-63, Amadabakula, Kothakota, Wanaparty, Telangana - 509381</span>
       </div>
     </div>
   </IDCardFrame>
@@ -227,68 +297,21 @@ export default function IDCardPage() {
 
   return (
     <>
-      {/* Add print-specific styles */}
-      <style jsx global>{`
-        @media print {
-          /* Hide everything by default */
-          * {
-            visibility: hidden;
-          }
-
-          /* Show only the ID cards */
-          .print-cards,
-          .print-cards * {
-            visibility: visible;
-          }
-
-          /* Position the cards properly for printing */
-          .print-cards {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-            display: flex !important;
-            flex-direction: row !important;
-            justify-content: center !important;
-            align-items: flex-start !important;
-            gap: 1rem !important;
-            padding: 1rem !important;
-          }
-
-          /* Remove margins and padding from body and html */
-          html,
-          body {
-            margin: 0 !important;
-            padding: 0 !important;
-            background: white !important;
-          }
-
-          /* Landscape orientation for better side-by-side layout */
-          @page {
-            size: A4 landscape;
-            margin: 0.5in;
-          }
-
-          /* Ensure cards maintain their size */
-          .print-cards > div {
-            flex-shrink: 0 !important;
-          }
-        }
-      `}</style>
-
+      <PrintStyles />
       <div className="bg-gray-100 min-h-screen p-8 flex flex-col items-center">
-        {/* This banner will be hidden during print */}
         <div className="bg-green-500 text-white font-bold py-2 px-6 rounded-full shadow-md mb-6 print:hidden">
           This ID Card Is Verified
         </div>
 
-        {/* Only this div will be visible when printing */}
-        <div className="print-cards flex flex-col md:flex-row gap-8">
-          <IDCardFront member={member} />
-          <IDCardBack member={member} />
+        {/* === YAHAN BADLAV KIYA GAYA HAI === */}
+        {/* 'flex-col' aur 'md:flex-row' ko 'flex flex-wrap justify-center' se badla gaya hai */}
+        <div className="print-area">
+          <div className="print-container flex flex-wrap justify-center gap-8">
+            <IDCardFront member={member} />
+            <IDCardBack member={member} />
+          </div>
         </div>
 
-        {/* This button will be hidden during print */}
         <Button
           onClick={() => window.print()}
           className="mt-8 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-8 rounded-full shadow-lg print:hidden"
