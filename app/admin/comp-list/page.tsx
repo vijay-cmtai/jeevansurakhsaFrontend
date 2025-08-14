@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { format } from "date-fns";
 import { AppDispatch, RootState } from "@/lib/redux/store";
@@ -12,6 +12,7 @@ import {
   deleteContributionGroup,
 } from "@/lib/redux/features/contributionPlans/contributionPlansSlice";
 
+import EditContributionGroupModal from "@/app/admin/EditContributionGroupModal";
 interface GroupRowData {
   groupId: string;
   recordId: string;
@@ -20,10 +21,14 @@ interface GroupRowData {
   departmentNames: string;
   planDetails: string;
   createdAt: string;
+  originalGroup: any;
 }
 
 export default function CompListPage() {
   const dispatch = useDispatch<AppDispatch>();
+
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingGroup, setEditingGroup] = useState<any | null>(null);
 
   const { groups, listStatus, actionStatus } = useSelector(
     (state: RootState) => state.contributionPlans
@@ -48,6 +53,7 @@ export default function CompListPage() {
         c.departments.flatMap((d) => d.plans.map((p) => p.planDetails))
       );
       const planDetails = [...new Set(allPlans)].join(", ");
+
       return {
         groupId: group._id,
         recordId: group.recordId,
@@ -56,6 +62,7 @@ export default function CompListPage() {
         departmentNames,
         planDetails,
         createdAt: group.createdAt,
+        originalGroup: group,
       };
     });
   }, [groups]);
@@ -64,6 +71,16 @@ export default function CompListPage() {
     if (confirm("Are you sure you want to delete this entire group?")) {
       dispatch(deleteContributionGroup(groupId));
     }
+  };
+
+  const handleEditClick = (groupData: GroupRowData) => {
+    setEditingGroup(groupData.originalGroup);
+    setIsEditModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsEditModalOpen(false);
+    setEditingGroup(null);
   };
 
   const columns = [
@@ -95,6 +112,7 @@ export default function CompListPage() {
             size="icon"
             variant="ghost"
             className="bg-green-100 text-green-700 hover:bg-green-200"
+            onClick={() => handleEditClick(row)}
           >
             <Edit size={16} />
           </Button>
@@ -117,12 +135,22 @@ export default function CompListPage() {
   const dataToDisplay = groupDataForTable || [];
 
   return (
-    <DataTable
-      title="Contribution Groups Details"
-      columns={columns}
-      data={dataToDisplay}
-      totalEntries={dataToDisplay.length}
-      isLoading={listStatus === "loading"}
-    />
+    <>
+      <DataTable
+        title="Contribution Groups Details"
+        columns={columns}
+        data={dataToDisplay}
+        totalEntries={dataToDisplay.length}
+        isLoading={listStatus === "loading"}
+      />
+
+      {isEditModalOpen && editingGroup && (
+        <EditContributionGroupModal
+          isOpen={isEditModalOpen}
+          onClose={handleCloseModal}
+          groupData={editingGroup}
+        />
+      )}
+    </>
   );
 }
