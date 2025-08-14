@@ -97,7 +97,7 @@ const IDCardFront = ({ member }: { member: Member }) => {
         <div className="relative z-10 flex flex-col h-full">
           <div className="text-center">
             <Image
-              src="https://jeevansuraksha.org/wp-content/uploads/2025/04/logo.webp"
+              src="/logoo.webp"
               alt="Logo"
               width={120}
               height={40}
@@ -205,7 +205,7 @@ const IDCardBack = ({ member }: { member: Member }) => (
       </div>
       <div className="relative z-10 flex flex-col h-full text-center">
         <Image
-          src="https://jeevansuraksha.org/wp-content/uploads/2025/04/logo.webp"
+          src="/logoo.webp"
           alt="Logo"
           width={120}
           height={40}
