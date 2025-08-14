@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/lib/redux/store";
 import { getMemberProfile } from "@/lib/redux/features/auth/authSlice";
@@ -11,7 +11,6 @@ import Image from "next/image";
 import { format } from "date-fns";
 import {
   Loader2,
-  ShieldCheck,
   AlertTriangle,
   CreditCard,
   Download,
@@ -22,6 +21,41 @@ import {
 import { Button } from "@/components/ui/button";
 
 declare const Cashfree: any;
+const PrintStyles = () => (
+  <style jsx global>{`
+    @media print {
+      body > header,
+      body > footer,
+      button,
+      nav {
+        display: none !important;
+      }
+
+      .verified-badge {
+        display: none !important;
+      }
+
+      .print-container {
+        display: flex !important;
+        flex-direction: row !important;
+        justify-content: center !important;
+        align-items: center !important;
+        gap: 2rem !important;
+        width: 100% !important;
+        height: 100vh !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        background-color: white !important; 
+      }
+
+      .id-card-print {
+        page-break-inside: avoid !important;
+        transform: scale(0.9); 
+        transform-origin: top center;
+      }
+    }
+  `}</style>
+);
 
 const IDCardFrame = ({ children }: { children: React.ReactNode }) => (
   <div className="w-[320px] h-[512px] bg-white rounded-2xl shadow-lg overflow-hidden flex flex-col">
@@ -43,7 +77,6 @@ const IDCardFront = ({ member }: { member: Member }) => {
         <div className="absolute inset-0 overflow-hidden rounded-b-2xl">
           <div className="absolute w-[500px] h-[500px] bg-gray-50 rounded-full -top-40 -left-40"></div>
         </div>
-
         <div className="relative z-10 flex flex-col h-full">
           <div className="text-center">
             <div className="inline-block p-1 border-2 border-gray-300 rounded-full">
@@ -66,7 +99,6 @@ const IDCardFront = ({ member }: { member: Member }) => {
               www.jeevansuraksha.org
             </p>
           </div>
-
           <div className="flex items-center justify-center gap-2 my-3">
             <div className="w-[88px] h-[88px] p-0.5 border-2 border-gray-400">
               {member.profileImageUrl ? (
@@ -83,7 +115,6 @@ const IDCardFront = ({ member }: { member: Member }) => {
                 </div>
               )}
             </div>
-            {/* 🔻🔻🔻 यह हिस्सा बदला गया है 🔻🔻🔻 */}
             <div className="w-[88px] h-[88px] flex items-center justify-center">
               <Image
                 src="/logo.jpg"
@@ -93,9 +124,7 @@ const IDCardFront = ({ member }: { member: Member }) => {
                 className="object-contain"
               />
             </div>
-            {/* 🔺🔺🔺 बदलाव यहाँ समाप्त होता है 🔺🔺🔺 */}
           </div>
-
           <div className="bg-red-600 text-white text-center py-1 rounded">
             <p className="font-bold text-base uppercase">{member.fullName}</p>
             <p className="text-[10px]">
@@ -103,16 +132,14 @@ const IDCardFront = ({ member }: { member: Member }) => {
               Suraksha Collective
             </p>
           </div>
-
           <div className="grid grid-cols-[auto_1fr] gap-x-2 gap-y-1 text-xs mt-2 flex-grow">
-            {details.map((item) => (
-              <>
+            {details.map((item, index) => (
+              <React.Fragment key={index}>
                 <strong className="text-left">{item.label}</strong>
                 <span>: {item.value}</span>
-              </>
+              </React.Fragment>
             ))}
           </div>
-
           <div className="text-right">
             <p className="text-xs font-bold">Krishnaiah Panuganti</p>
             <p className="text-[10px] text-gray-600">
@@ -164,7 +191,6 @@ const IDCardBack = ({ member }: { member: Member }) => (
         <p className="text-xs font-semibold mt-1 text-blue-600">
           www.jeevansuraksha.org
         </p>
-
         <div className="flex-grow flex flex-col justify-center items-center mt-4">
           <h3 className="font-bold text-lg text-gray-800">
             TERMS & CONDITIONS
@@ -181,7 +207,6 @@ const IDCardBack = ({ member }: { member: Member }) => (
             </p>
           </div>
         </div>
-
         <div className="font-semibold text-xs text-gray-800">
           <p>
             Joining Date: {format(new Date(member.createdAt), "dd-MM-yyyy")}
@@ -287,29 +312,37 @@ export default function GenerateIDCardPage() {
 
   if (userInfo) {
     return userInfo.paymentStatus === "Paid" ? (
-      <div className="bg-gray-100 min-h-screen py-10 px-4 flex flex-col items-center">
-        <div className="bg-[#37475a] text-white font-bold py-2 px-6 rounded-md mb-8 shadow-lg">
-          This ID Card Is Verified
-        </div>
-        <motion.div
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="flex flex-col md:flex-row justify-center items-center gap-8"
-        >
-          <IDCardFront member={userInfo} />
-          <IDCardBack member={userInfo} />
-        </motion.div>
-        <div className="text-center mt-8">
-          <Button
-            className="bg-[#37475a] hover:bg-[#2c3a4a] shadow-lg"
-            onClick={() => window.print()}
+      <>
+        {/* प्रिंट स्टाइल को यहाँ कॉल करें */}
+        <PrintStyles />
+        <div className="bg-gray-100 min-h-screen py-10 px-4 flex flex-col items-center">
+          <div className="bg-[#37475a] text-white font-bold py-2 px-6 rounded-md mb-8 shadow-lg verified-badge">
+            This ID Card Is Verified
+          </div>
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="flex flex-col md:flex-row justify-center items-center gap-8 print-container"
           >
-            <Download className="mr-2 h-4 w-4" />
-            Download PDF
-          </Button>
+            <div className="id-card-print">
+              <IDCardFront member={userInfo} />
+            </div>
+            <div className="id-card-print">
+              <IDCardBack member={userInfo} />
+            </div>
+          </motion.div>
+          <div className="text-center mt-8">
+            <Button
+              className="bg-[#37475a] hover:bg-[#2c3a4a] shadow-lg"
+              onClick={() => window.print()}
+            >
+              <Download className="mr-2 h-4 w-4" />
+              Download PDF
+            </Button>
+          </div>
         </div>
-      </div>
+      </>
     ) : (
       <PaymentPrompt />
     );
