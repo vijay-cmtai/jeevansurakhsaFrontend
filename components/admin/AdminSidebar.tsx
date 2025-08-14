@@ -377,7 +377,7 @@ export function AdminSidebar({ onLinkClick }: { onLinkClick?: () => void }) {
     <aside className="w-64 bg-slate-800 text-slate-100 flex flex-col h-screen">
       <div className="flex items-center gap-x-3 p-4 border-b border-slate-700 h-16 flex-shrink-0">
         <Image
-          src="https://jeevansuraksha.org/wp-content/uploads/2025/04/logo.webp"
+          src="/logoo.webp"
           alt="Logo"
           width={36}
           height={36}
