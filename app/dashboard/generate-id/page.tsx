@@ -120,7 +120,7 @@ const IDCardFront = ({ member }: { member: Member }) => {
           <div className="text-center">
             <div className="inline-block p-1 border-2 border-gray-300 rounded-full">
               <Image
-                src="https://jeevansuraksha.org/wp-content/uploads/2025/04/logo.webp"
+                src="/logoo.webp"
                 alt="Logo"
                 width={100}
                 height={64}
@@ -213,7 +213,7 @@ const IDCardBack = ({ member }: { member: Member }) => (
       <div className="relative z-10 flex flex-col h-full text-center">
         <div className="inline-block p-1 border-2 border-gray-300 rounded-full mx-auto">
           <Image
-            src="https://jeevansuraksha.org/wp-content/uploads/2025/04/logo.webp"
+            src="/logoo.webp"
             alt="Logo"
             width={100}
             height={64}
