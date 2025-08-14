@@ -144,7 +144,7 @@ export function Navbar() {
         <div className="flex justify-between items-center h-20">
           <Link href="/" className="flex-shrink-0">
             <Image
-              src="https://jeevansuraksha.org/wp-content/uploads/2025/04/logo.webp"
+              src="/logoo.webp"
               alt="Jeevan Suraksha Logo"
               width={180}
               height={60}
