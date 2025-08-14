@@ -124,7 +124,7 @@ const ContributionTable = ({
                 ₹{row.contribution}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-green-700">
-                ₹{row.corpus}
+                {row.corpus}
               </td>
             </tr>
           ))}
@@ -140,18 +140,33 @@ const ContributionTable = ({
 export default function PrivateBusinessCollectivePage() {
   const { t } = useLanguage();
 
-  // Data for tables
+  // === DATA YAHAN UPDATE KIYA GAYA HAI ===
   const tableData1Cr = [
-    { members: "2,000", contribution: "500", corpus: "10 Lakhs" } /* ... */,
+    { members: "1,000", contribution: "500", corpus: "5 Lakhs" },
+    { members: "2,000", contribution: "500", corpus: "10 Lakhs" },
+    { members: "5,000", contribution: "400", corpus: "20 Lakhs" },
+    { members: "10,000", contribution: "400", corpus: "40 Lakhs" },
+    { members: "25,000", contribution: "400", corpus: "1 Crore" },
+    { members: "50,000", contribution: "200", corpus: "1 Crore" },
   ];
   const tableData50L = [
-    { members: "1,000", contribution: "300", corpus: "3 Lakhs" } /* ... */,
+    { members: "1,000", contribution: "500", corpus: "5 Lakhs" },
+    { members: "2,000", contribution: "300", corpus: "6 Lakhs" },
+    { members: "5,000", contribution: "300", corpus: "15 Lakhs" },
+    { members: "10,000", contribution: "300", corpus: "30 Lakhs" },
+    { members: "25,000", contribution: "200", corpus: "50 Lakhs" },
+    { members: "50,000", contribution: "100", corpus: "50 Lakhs" },
   ];
   const tableData25L = [
-    { members: "1,000", contribution: "150", corpus: "1.5 Lakhs" } /* ... */,
+    { members: "1,000", contribution: "200", corpus: "2 Lakhs" },
+    { members: "2,000", contribution: "200", corpus: "4 Lakhs" },
+    { members: "5,000", contribution: "100", corpus: "5 Lakhs" },
+    { members: "10,000", contribution: "100", corpus: "10 Lakhs" },
+    { members: "25,000", contribution: "100", corpus: "25 Lakhs" },
+    { members: "50,000", contribution: "50", corpus: "25 Lakhs" },
   ];
+  // === UPDATE KHATAM HUA ===
 
-  // Data for cards and lists using translation keys
   const howItWorksData = [
     {
       titleKey: "privateCollective.howItWorks.card1.title",
@@ -206,7 +221,6 @@ export default function PrivateBusinessCollectivePage() {
     <div>
       <CollectiveHeader />
       <main>
-        {/* Intro Section */}
         <section className="py-16">
           <div className="max-w-4xl mx-auto px-4 text-center">
             <h2 className="text-3xl font-bold text-blue-900 mb-4">
@@ -217,8 +231,6 @@ export default function PrivateBusinessCollectivePage() {
             </p>
           </div>
         </section>
-
-        {/* How It Works Section */}
         <section className="py-16 bg-gray-50">
           <div className="max-w-6xl mx-auto px-4">
             <SectionTitle title={t("privateCollective.howItWorks.title")} />
@@ -233,8 +245,6 @@ export default function PrivateBusinessCollectivePage() {
             </div>
           </div>
         </section>
-
-        {/* Contribution Tables */}
         <section className="py-16">
           <div className="max-w-5xl mx-auto px-4 space-y-16">
             <ContributionTable
@@ -254,8 +264,6 @@ export default function PrivateBusinessCollectivePage() {
             />
           </div>
         </section>
-
-        {/* Key Benefits Section */}
         <section className="py-16 bg-gray-50">
           <div className="max-w-3xl mx-auto px-4">
             <SectionTitle title={t("privateCollective.benefits.title")} />
@@ -266,8 +274,6 @@ export default function PrivateBusinessCollectivePage() {
             </ul>
           </div>
         </section>
-
-        {/* Join the Movement Section */}
         <section className="py-16">
           <div className="max-w-3xl mx-auto px-4 text-center">
             <SectionTitle title={t("privateCollective.join.title")} />
@@ -276,8 +282,6 @@ export default function PrivateBusinessCollectivePage() {
             </p>
           </div>
         </section>
-
-        {/* Pledge Section */}
         <section className="py-16 bg-gray-50">
           <div className="max-w-6xl mx-auto px-4 grid lg:grid-cols-2 gap-12 items-center">
             <div className="relative h-96 lg:h-full rounded-lg overflow-hidden order-last">
@@ -303,8 +307,6 @@ export default function PrivateBusinessCollectivePage() {
             </div>
           </div>
         </section>
-
-        {/* Disclaimer Section */}
         <section className="py-16">
           <div className="max-w-3xl mx-auto px-4">
             <SectionTitle title={t("privateCollective.disclaimer.title")} />
