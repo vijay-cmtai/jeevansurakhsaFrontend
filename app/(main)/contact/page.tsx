@@ -115,8 +115,9 @@ export default function ContactPage() {
                       Address
                     </h4>
                     <p className="text-gray-600">
-                      Health Guard Foundation, 123 Community Street, Karolbagh,
-                      New Delhi - 110005
+                      Health Guard Foundation 1-63, Amadabakula (Village),
+                      Kothakota (Mandal), Wanaparty (District), Telangana, India
+                      - 509381
                     </p>
                   </div>
                 </div>
@@ -259,13 +260,13 @@ export default function ContactPage() {
       {/* Map Section */}
       <section className="h-96">
         <iframe
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3501.956425375992!2d77.19790931508246!3d28.63109398241743!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390cfd42b4d32b7d%3A0x6c6e7e8b8d3f3f0!2sKarol%20Bagh%2C%20New%20Delhi%2C%20Delhi%20110005!5e0!3m2!1sen!2sin!4v1620712345678!5m2!1sen!2sin"
-          width="100%"
-          height="100%"
-          style={{ border: 0 }}
-          allowFullScreen={true}
+          src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d3828.4031708889975!2d77.946808!3d16.353411999999995!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2sin!4v1755160240159!5m2!1sen!2sin"
+          width="100%" // Changed to 100% for responsiveness
+          height="100%" // Changed to 100% to fill the section
+          style={{ border: 0 }} // Corrected style prop
+          allowFullScreen="" // Changed to camelCase allowFullScreen
           loading="lazy"
-          title="Google Map of Karolbagh"
+          referrerPolicy="no-referrer-when-downgrade"
         ></iframe>
       </section>
     </div>
