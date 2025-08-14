@@ -35,13 +35,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { CalendarIcon, Edit, UserPlus, Trash2, Loader2 } from "lucide-react";
+import { Edit, UserPlus, Trash2, Loader2 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 
 // Declare Cashfree type
@@ -105,17 +99,14 @@ export default function RegisterMultiStepPage() {
     contributionGroups,
     configStatus,
   } = useSelector((state: RootState) => state.registration);
-
   const [localFiles, setLocalFiles] = useState<{
     profileImage?: File | null;
     panImage?: File | null;
   }>({});
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
-
   const [submissionType, setSubmissionType] = useState<
     "payNow" | "payLater" | null
   >(null);
-
   const [isSDKLoaded, setIsSDKLoaded] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
 
@@ -136,7 +127,6 @@ export default function RegisterMultiStepPage() {
     script.src = "https://sdk.cashfree.com/js/v3/cashfree.js";
     script.async = true;
     script.onload = () => {
-      console.log("Cashfree SDK loaded.");
       if (window.Cashfree) setIsSDKLoaded(true);
     };
     script.onerror = () => console.error("Failed to load Cashfree SDK.");
@@ -158,7 +148,7 @@ export default function RegisterMultiStepPage() {
       return;
     }
     try {
-      const cashfree = window.Cashfree({ mode: "sandbox" }); // Use "production" for live
+      const cashfree = window.Cashfree({ mode: "sandbox" });
       const result = await cashfree.checkout({
         paymentSessionId,
         redirectTarget: "_modal",
@@ -177,9 +167,7 @@ export default function RegisterMultiStepPage() {
 
   const handleSubmit = async (isPayingNow: boolean) => {
     if (!validateStep(step)) return;
-
     setSubmissionType(isPayingNow ? "payNow" : "payLater");
-
     try {
       const resultAction = await dispatch(
         submitRegistration({ formData, files: localFiles, isPayingNow })
@@ -212,7 +200,6 @@ export default function RegisterMultiStepPage() {
     if (currentStep === 1) {
       if (!formData.state) newErrors.state = "State is required.";
       if (!formData.district) newErrors.district = "District is required.";
-      // --- VOLUNTEER VALIDATION ADDED HERE ---
       if (!formData.volunteerCode)
         newErrors.volunteerCode = "Volunteer is required.";
     } else if (currentStep === 2) {
@@ -229,7 +216,6 @@ export default function RegisterMultiStepPage() {
         ) {
           calculatedAge--;
         }
-
         if (calculatedAge < 18 || calculatedAge > 60) {
           newErrors.dateOfBirth = "Age must be between 18 and 60 years.";
         }
@@ -327,6 +313,12 @@ export default function RegisterMultiStepPage() {
     setLocalFiles((prev) => ({ ...prev, ...newFiles }));
   };
 
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    const isoValue = value ? new Date(value).toISOString() : "";
+    dispatch(updateField({ field: name, value: isoValue }));
+  };
+
   const selectedEmpType = formData.employment.type;
   const availableCompanies = useMemo(
     () =>
@@ -348,10 +340,6 @@ export default function RegisterMultiStepPage() {
         ?.plans || [],
     [selectedDepartment, availableDepartments]
   );
-
-  const today = new Date();
-  const maxDate = new Date(new Date().setFullYear(today.getFullYear() - 18));
-  const minDate = new Date(new Date().setFullYear(today.getFullYear() - 60));
 
   const renderStep = () => {
     switch (step) {
@@ -423,7 +411,6 @@ export default function RegisterMultiStepPage() {
                   ))}
                 </SelectContent>
               </Select>
-              {/* --- ERROR MESSAGE FOR VOLUNTEER ADDED HERE --- */}
               {formErrors.volunteerCode && (
                 <p className="text-red-500 text-sm mt-1">
                   {formErrors.volunteerCode}
@@ -445,45 +432,18 @@ export default function RegisterMultiStepPage() {
         return (
           <FormWrapper>
             <StepSectionHeader title="Date of Birth" />
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant={"outline"}
-                  className="w-full h-12 justify-start text-left font-normal bg-white"
-                >
-                  <span className="flex items-center w-full">
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {formData.dateOfBirth ? (
-                      format(new Date(formData.dateOfBirth), "PPP")
-                    ) : (
-                      <span>dd-mm-yyyy</span>
-                    )}
-                  </span>
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0">
-                <Calendar
-                  mode="single"
-                  selected={
-                    formData.dateOfBirth
-                      ? new Date(formData.dateOfBirth)
-                      : undefined
-                  }
-                  onSelect={(v) =>
-                    dispatch(
-                      updateField({
-                        field: "dateOfBirth",
-                        value: v?.toISOString(),
-                      })
-                    )
-                  }
-                  fromDate={minDate}
-                  toDate={maxDate}
-                  defaultMonth={maxDate}
-                  captionLayout="dropdown-buttons"
-                />
-              </PopoverContent>
-            </Popover>
+            <div>
+              <Label>Date of Birth</Label>
+              <Input
+                name="dateOfBirth"
+                type="date"
+                className="mt-2 h-12 bg-white"
+                value={
+                  formData.dateOfBirth ? formData.dateOfBirth.split("T")[0] : ""
+                }
+                onChange={handleChange}
+              />
+            </div>
             {formErrors.dateOfBirth && (
               <p className="text-red-500 text-sm mt-2">
                 {formErrors.dateOfBirth}
@@ -730,7 +690,6 @@ export default function RegisterMultiStepPage() {
             </div>
           </FormWrapper>
         );
-
       case 4:
         return (
           <FormWrapper>
@@ -775,7 +734,6 @@ export default function RegisterMultiStepPage() {
             </div>
           </FormWrapper>
         );
-
       case 4.5:
         return (
           <FormWrapper>
@@ -1048,7 +1006,6 @@ export default function RegisterMultiStepPage() {
                 {formErrors.nominee_total}
               </p>
             )}
-
             <div className="mt-6 flex items-center space-x-3">
               <Checkbox
                 id="terms"
@@ -1074,7 +1031,6 @@ export default function RegisterMultiStepPage() {
                 </Link>
               </div>
             </div>
-
             <div className="flex justify-between mt-8">
               <Button
                 variant="outline"
@@ -1231,13 +1187,11 @@ export default function RegisterMultiStepPage() {
                 </div>
               </div>
             </div>
-
             {registrationError && (
               <div className="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded text-center">
                 {registrationError}
               </div>
             )}
-
             <div className="flex justify-between mt-8">
               <Button
                 variant="outline"
@@ -1275,7 +1229,6 @@ export default function RegisterMultiStepPage() {
             </div>
           </FormWrapper>
         );
-
       default:
         return <div className="text-white">Unknown Step. Please refresh.</div>;
     }
