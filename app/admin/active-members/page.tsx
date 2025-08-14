@@ -47,6 +47,27 @@ export default function ActiveMembersPage() {
     dispatch(fetchActiveMembers({}));
   }, [dispatch]);
 
+  // Handler for changing the page
+  const handlePageChange = (newPage: number) => {
+    dispatch(
+      fetchActiveMembers({
+        page: newPage,
+        limit: activeMembersPagination.limit,
+      })
+    );
+  };
+
+  // Handler for changing the number of items per page
+  const handleLimitChange = (newLimit: number) => {
+    // When limit changes, go back to page 1
+    dispatch(
+      fetchActiveMembers({
+        page: 1,
+        limit: newLimit,
+      })
+    );
+  };
+
   const handleBlock = (memberId: string) => {
     const reason = prompt("Please enter the reason for blocking this member:");
     if (reason !== null) {
@@ -128,7 +149,7 @@ export default function ActiveMembersPage() {
       key: "view",
       label: "View",
       render: (row: Member) => (
-        <div className="flex gap-1.5">
+        <div className="flex flex-wrap gap-1.5">
           <Button
             size="sm"
             onClick={() => handleNavigation(`/admin/members/${row._id}`)}
@@ -150,6 +171,14 @@ export default function ActiveMembersPage() {
             }
           >
             ID Card
+          </Button>
+          <Button
+            size="sm"
+            onClick={() =>
+              handleNavigation(`/admin/members/${row._id}/receipt`)
+            }
+          >
+            Receipt
           </Button>
         </div>
       ),
@@ -211,7 +240,7 @@ export default function ActiveMembersPage() {
     },
   ];
 
-  if (listStatus === "loading") {
+  if (listStatus === "loading" && activeMembers.length === 0) {
     return (
       <DataTable
         title="Active Members Data"
@@ -229,6 +258,10 @@ export default function ActiveMembersPage() {
       columns={columns}
       data={activeMembers}
       totalEntries={activeMembersPagination.total}
+      isLoading={listStatus === "loading"}
+      pagination={activeMembersPagination}
+      onPageChange={handlePageChange}
+      onLimitChange={handleLimitChange}
     />
   );
 }
