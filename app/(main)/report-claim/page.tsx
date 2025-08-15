@@ -12,7 +12,6 @@ import { useLanguage } from "@/context/LanguageContext";
 import Image from "next/image";
 import { Loader2 } from "lucide-react";
 
-// The data structure the form will handle
 type FormData = {
   email: string;
   dateOfDeath: string;
@@ -41,7 +40,11 @@ const ActiveClaimsList = () => {
     );
   }
 
-  if (listStatus === "failed" || !claims || claims.length === 0) {
+  // --- ⬇️ मुख्य समाधान यहाँ है ⬇️ ---
+  // उन सभी क्लेम्स को फ़िल्टर करें जिनका deceasedMember मौजूद है
+  const validClaims = claims.filter((claim) => claim.deceasedMember);
+
+  if (listStatus === "failed" || !validClaims || validClaims.length === 0) {
     return (
       <div className="text-center p-10 text-gray-600">
         {t("reportClaim.activeClaims.noClaims")}
@@ -51,7 +54,8 @@ const ActiveClaimsList = () => {
 
   return (
     <div className="space-y-8">
-      {claims.map((claim) => (
+      {/* अब हम फ़िल्टर की हुई 'validClaims' लिस्ट पर मैप करेंगे */}
+      {validClaims.map((claim) => (
         <div
           key={claim._id}
           className="bg-white p-6 rounded-lg shadow-md grid md:grid-cols-5 gap-4 items-center"
@@ -60,10 +64,10 @@ const ActiveClaimsList = () => {
             <Image
               src={
                 claim.deceasedMemberPhotoUrl ||
-                claim.deceasedMember.profileImageUrl ||
+                claim.deceasedMember.profileImageUrl || // अब यह सुरक्षित है
                 "/default-avatar.png"
               }
-              alt={claim.deceasedMember.fullName}
+              alt={claim.deceasedMember.fullName} // अब यह सुरक्षित है
               width={80}
               height={80}
               className="rounded-full mx-auto object-cover border-2 border-gray-200"
