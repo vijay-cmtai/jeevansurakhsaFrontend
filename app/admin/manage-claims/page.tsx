@@ -89,7 +89,6 @@ const ClaimForm = ({
       className="space-y-4 max-h-[70vh] overflow-y-auto p-4 border-t"
     >
       <div className="bg-gray-50 p-3 rounded-md border">
-        {/* FIX: यहाँ भी deceasedMember की जाँच करें */}
         <p className="text-sm">
           <strong>Member:</strong>{" "}
           {initialData?.deceasedMember?.fullName || "N/A (Member Deleted)"}
@@ -217,7 +216,20 @@ const ClaimForm = ({
 };
 
 const getStatusBadgeColor = (status: string) => {
-  // ... (यह फंक्शन वैसा ही रहेगा)
+  switch (status) {
+    case "Active":
+      return "bg-green-600 hover:bg-green-700";
+    case "Pending Review":
+      return "bg-yellow-500 hover:bg-yellow-600";
+    case "Processing":
+      return "bg-blue-500 hover:bg-blue-600";
+    case "Paid":
+      return "bg-indigo-600 hover:bg-indigo-700";
+    case "Rejected":
+      return "bg-red-600 hover:bg-red-700";
+    default:
+      return "bg-gray-500 hover:bg-gray-600";
+  }
 };
 
 export default function ManageClaimsPage() {
@@ -235,8 +247,31 @@ export default function ManageClaimsPage() {
     dispatch(fetchClaimsByAdmin());
   }, [dispatch]);
 
+  // --- ⬇️ FIX #1: यहाँ लॉजिक जोड़ा गया है ⬇️ ---
   const handleFormSubmit = (data: FormData) => {
-    // ... (यह फंक्शन वैसा ही रहेगा)
+    if (!editingClaim) return;
+
+    const formData = new FormData();
+    const { deceasedMemberPhoto, deathCertificate, ...claimDetails } = data;
+    formData.append("claimData", JSON.stringify(claimDetails));
+
+    if (deceasedMemberPhoto?.[0]) {
+      formData.append("deceasedMemberPhoto", deceasedMemberPhoto[0]);
+    }
+    if (deathCertificate?.[0]) {
+      formData.append("deathCertificate", deathCertificate[0]);
+    }
+
+    dispatch(
+      updateClaimByAdmin({ id: editingClaim._id, claimData: formData })
+    ).then((result) => {
+      if (updateClaimByAdmin.fulfilled.match(result)) {
+        setIsModalOpen(false);
+        setEditingClaim(null);
+      } else {
+        alert(`Error updating claim: ${result.payload}`);
+      }
+    });
   };
 
   const handleEdit = (claim: Claim) => {
@@ -244,8 +279,15 @@ export default function ManageClaimsPage() {
     setIsModalOpen(true);
   };
 
+  // --- ⬇️ FIX #2: यहाँ लॉजिक जोड़ा गया है ⬇️ ---
   const handleDelete = (id: string) => {
-    // ... (यह फंक्शन वैसा ही रहेगा)
+    if (
+      confirm(
+        "Are you sure you want to permanently delete this claim? This action cannot be undone."
+      )
+    ) {
+      dispatch(deleteClaimByAdmin(id));
+    }
   };
 
   const columns = [
@@ -253,8 +295,6 @@ export default function ManageClaimsPage() {
       key: "deceased",
       label: "Deceased Member",
       render: (row: Claim) => {
-        // --- ⬇️ मुख्य समाधान यहाँ है ⬇️ ---
-        // पहले जाँचें कि row.deceasedMember मौजूद है या नहीं
         if (!row.deceasedMember) {
           return (
             <div className="flex items-center gap-3">
@@ -274,8 +314,6 @@ export default function ManageClaimsPage() {
             </div>
           );
         }
-
-        // अगर सदस्य मौजूद है, तो सामान्य जानकारी दिखाएं
         return (
           <div className="flex items-center gap-3">
             <Image
@@ -284,7 +322,7 @@ export default function ManageClaimsPage() {
                 row.deceasedMember.profileImageUrl ||
                 "/default-avatar.png"
               }
-              alt={row.deceasedMember.fullName} // अब यह सुरक्षित है
+              alt={row.deceasedMember.fullName}
               width={40}
               height={40}
               className="rounded-full object-cover border"
@@ -299,7 +337,6 @@ export default function ManageClaimsPage() {
         );
       },
     },
-    // ... (बाकी कॉलम्स वैसे ही रहेंगे)
     {
       key: "nominee",
       label: "Nominee",
@@ -363,7 +400,6 @@ export default function ManageClaimsPage() {
         <DialogContent className="max-w-3xl">
           <DialogHeader>
             <DialogTitle>
-              {/* FIX: यहाँ भी जाँच करें */}
               Edit Claim:{" "}
               {editingClaim?.deceasedMember?.fullName || "Deleted Member"}
             </DialogTitle>
