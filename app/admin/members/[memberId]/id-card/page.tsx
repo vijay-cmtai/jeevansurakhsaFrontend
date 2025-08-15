@@ -167,7 +167,7 @@ const IDCardFront = ({ member }: { member: Member }) => {
               </React.Fragment>
             ))}
           </div>
-          <div className="text-right -mt-20">
+          <div className="text-right  -mt-[70px]">
             <div className="mb-1">
               <Image
                 src="/signature.png"
