@@ -6,21 +6,20 @@ import { AppDispatch, RootState } from "@/lib/redux/store";
 import {
   reportPublicClaim,
   fetchPublicClaims,
-  Claim,
 } from "@/lib/redux/features/claims/claimsSlice";
 import { useLanguage } from "@/context/LanguageContext";
 import Image from "next/image";
 import { Loader2 } from "lucide-react";
 
 type FormData = {
-  email: string;
+  registrationNo: string;
+  fullName: string;
   dateOfDeath: string;
   nomineeDetails: { name: string; accountNumber: string };
   deceasedMemberPhoto: FileList;
   deathCertificate: FileList;
 };
 
-// --- Reusable Component to Display the List of Active Claims ---
 const ActiveClaimsList = () => {
   const { t } = useLanguage();
   const dispatch = useDispatch<AppDispatch>();
@@ -40,8 +39,6 @@ const ActiveClaimsList = () => {
     );
   }
 
-  // --- ⬇️ मुख्य समाधान यहाँ है ⬇️ ---
-  // उन सभी क्लेम्स को फ़िल्टर करें जिनका deceasedMember मौजूद है
   const validClaims = claims.filter((claim) => claim.deceasedMember);
 
   if (listStatus === "failed" || !validClaims || validClaims.length === 0) {
@@ -54,7 +51,6 @@ const ActiveClaimsList = () => {
 
   return (
     <div className="space-y-8">
-      {/* अब हम फ़िल्टर की हुई 'validClaims' लिस्ट पर मैप करेंगे */}
       {validClaims.map((claim) => (
         <div
           key={claim._id}
@@ -64,10 +60,10 @@ const ActiveClaimsList = () => {
             <Image
               src={
                 claim.deceasedMemberPhotoUrl ||
-                claim.deceasedMember.profileImageUrl || // अब यह सुरक्षित है
+                claim.deceasedMember.profileImageUrl ||
                 "/default-avatar.png"
               }
-              alt={claim.deceasedMember.fullName} // अब यह सुरक्षित है
+              alt={claim.deceasedMember.fullName}
               width={80}
               height={80}
               className="rounded-full mx-auto object-cover border-2 border-gray-200"
@@ -105,7 +101,6 @@ const ActiveClaimsList = () => {
   );
 };
 
-// --- The Main Page Component ---
 export default function ReportClaimPage() {
   const { t } = useLanguage();
   const dispatch = useDispatch<AppDispatch>();
@@ -171,23 +166,38 @@ export default function ReportClaimPage() {
           >
             <div>
               <label className="block font-medium mb-1">
-                Deceased Member's Email ID
+                Deceased Member's Registration Number
               </label>
               <input
-                type="email"
-                placeholder="Enter member's registered email address"
-                {...register("email", {
-                  required: "Email is required",
-                  pattern: {
-                    value: /^\S+@\S+$/i,
-                    message: "Please enter a valid email address",
-                  },
+                type="text"
+                placeholder="Enter member's registration number (e.g., TS25L-001)"
+                {...register("registrationNo", {
+                  required: "Registration number is required",
                 })}
                 className="w-full px-4 py-3 border rounded-md"
               />
-              {errors.email && (
+              {errors.registrationNo && (
                 <p className="text-red-500 text-sm mt-1">
-                  {errors.email.message}
+                  {errors.registrationNo.message}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label className="block font-medium mb-1">
+                Deceased Member's Full Name
+              </label>
+              <input
+                type="text"
+                placeholder="Enter member's full name as per records"
+                {...register("fullName", {
+                  required: "Full name is required",
+                })}
+                className="w-full px-4 py-3 border rounded-md"
+              />
+              {errors.fullName && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.fullName.message}
                 </p>
               )}
             </div>
