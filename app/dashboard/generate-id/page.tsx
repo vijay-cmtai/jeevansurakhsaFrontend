@@ -22,35 +22,26 @@ import { Button } from "@/components/ui/button";
 
 declare const Cashfree: any;
 
-// === PRINT KE LIYE CSS COMPONENT (YAHAN SABSE ZAROORI BADLAV HAI) ===
+// === PRINT KE LIYE CSS COMPONENT ===
 const PrintStyles = () => (
   <style jsx global>{`
     @media print {
-      /* Step 1: Sabhi elements ko invisible banao, par unki jagah bani rahe */
       body * {
         visibility: hidden !important;
       }
-
-      /* Step 2: Sirf hamare print wale container aur uske andar ke sabhi elements ko wapas visible karo */
       #printable-content-area,
       #printable-content-area * {
         visibility: visible !important;
       }
-
-      /* Step 3: Print container ko page ke shuru mein lao */
       #printable-content-area {
         position: absolute !important;
         left: 0 !important;
         top: 0 !important;
         width: 100% !important;
       }
-
-      /* Step 4: Non-printable cheezon ko hide karo (agar koi ho) */
       .no-print {
         display: none !important;
       }
-
-      /* Baaki page styling */
       body {
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
@@ -58,7 +49,6 @@ const PrintStyles = () => (
         margin: 0;
         padding: 0;
       }
-
       .print-container {
         display: flex !important;
         flex-direction: row !important;
@@ -70,7 +60,6 @@ const PrintStyles = () => (
         padding: 0 !important;
         margin: 0 !important;
       }
-
       .id-card-print {
         page-break-inside: avoid !important;
         transform: scale(0.95);
@@ -78,11 +67,9 @@ const PrintStyles = () => (
         box-shadow: none !important;
         border: 1px solid #ddd;
       }
-
       .print-title-blue {
         color: #0056b3 !important;
       }
-
       .print-name-bar {
         background: transparent !important;
         color: #0056b3 !important;
@@ -171,7 +158,8 @@ const IDCardFront = ({ member }: { member: Member }) => {
               Suraksha Collective
             </p>
           </div>
-          <div className="grid grid-cols-[auto_1fr] gap-x-2 gap-y-1 text-xs mt-2 flex-grow">
+
+          <div className="grid grid-cols-[auto_1fr] gap-x-2 gap-y-1 text-xs mt-2">
             {details.map((item, index) => (
               <React.Fragment key={index}>
                 <strong className="text-left">{item.label}</strong>
@@ -179,7 +167,20 @@ const IDCardFront = ({ member }: { member: Member }) => {
               </React.Fragment>
             ))}
           </div>
-          <div className="text-right">
+
+          {/* Spacer div jo signature ko neeche push karega */}
+          <div className="flex-grow"></div>
+
+          <div className="text-right -mt-20">
+            <div className="mb-1">
+              <Image
+                src="/signature.png"
+                alt="Signature of Chief Relations Officer"
+                width={90} // Thoda chhota kar diya
+                height={36}
+                className="ml-auto"
+              />
+            </div>
             <p className="text-xs font-bold">Krishnaiah Panuganti</p>
             <p className="text-[10px] text-gray-600">
               (Chief Relations Officer)
@@ -188,16 +189,20 @@ const IDCardFront = ({ member }: { member: Member }) => {
         </div>
       </div>
       <div className="bg-[#37475a] text-white p-2 text-[10px]">
-        <p className="text-center font-semibold mb-1">Contact Us</p>
-        <div className="flex items-center gap-1">
-          <Phone size={10} /> +91 78160 58717
+        <p className="text-center font-semibold mb-2">Contact Us</p>
+        <div className="grid grid-cols-2 gap-1 mb-1">
+          <div className="flex items-center gap-1">
+            <Phone size={10} /> +91 78160 58717
+          </div>
+          <div className="flex items-center gap-1">
+            <Mail size={10} /> info@jeevansuraksha.org
+          </div>
         </div>
-        <div className="flex items-center gap-1">
-          <Mail size={10} /> info@jeevansuraksha.org
-        </div>
-        <div className="flex items-center gap-1">
-          <MapPin size={10} /> 1-63, Amadabakula, Kothakota, Wanaparty,
-          Telangana - 509381
+        <div className="flex items-start gap-1">
+          <MapPin size={10} className="flex-shrink-0 mt-0.5" />
+          <span className="text-[9px] leading-tight">
+            1-63, Amadabakula, Kothakota, Wanaparty, Telangana - 509381
+          </span>
         </div>
       </div>
     </IDCardFrame>
@@ -272,9 +277,10 @@ const IDCardBack = ({ member }: { member: Member }) => (
       <div className="flex items-center gap-1">
         <Mail size={10} /> info@jeevansuraksha.org
       </div>
-      <div className="flex items-center gap-1">
-        <MapPin size={10} /> 1-63, Amadabakula, Kothakota, Wanaparty, Telangana
-        - 509381
+      {/* Address ko wrap karne ke liye badlav */}
+      <div className="flex items-start gap-1.5">
+        <MapPin size={10} className="flex-shrink-0 mt-0.5" />
+        <span>1-63, Amadabakula, Kothakota, Wanaparty, Telangana - 509381</span>
       </div>
     </div>
   </IDCardFrame>
