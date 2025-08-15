@@ -61,6 +61,16 @@ const PrintStyles = () => (
       .print-title-blue {
         color: #0056b3 !important;
       }
+
+      .print-footer {
+        background-color: #37475a !important;
+        color: white !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      .print-footer * {
+        color: white !important;
+      }
     }
   `}</style>
 );
@@ -89,11 +99,10 @@ const IDCardFront = ({ member }: { member: Member }) => {
 
   return (
     <IDCardFrame className="print-card">
-      <div className="flex-grow p-4 bg-white relative">
+      <div className="flex-grow p-4 bg-white relative flex flex-col">
         <div className="absolute inset-0 overflow-hidden rounded-b-2xl">
           <div className="absolute w-[500px] h-[500px] bg-gray-50 rounded-full -top-40 -left-40"></div>
         </div>
-
         <div className="relative z-10 flex flex-col h-full">
           <div className="text-center">
             <Image
@@ -150,7 +159,7 @@ const IDCardFront = ({ member }: { member: Member }) => {
             </p>
           </div>
 
-          <div className="grid grid-cols-[auto_1fr] gap-x-2 gap-y-1 text-xs mt-2">
+          <div className="grid grid-cols-[auto_1fr] gap-x-2 gap-y-1 text-xs mt-3">
             {details.map((item) => (
               <React.Fragment key={item.label}>
                 <strong className="text-left font-bold">{item.label}</strong>
@@ -158,10 +167,7 @@ const IDCardFront = ({ member }: { member: Member }) => {
               </React.Fragment>
             ))}
           </div>
-
-          <div className="flex-grow"></div>
-
-          <div className="text-right">
+          <div className="text-right -mt-20">
             <div className="mb-1">
               <Image
                 src="/signature.png"
@@ -178,7 +184,7 @@ const IDCardFront = ({ member }: { member: Member }) => {
           </div>
         </div>
       </div>
-      <div className="bg-[#37475a] text-white p-2 text-[10px]">
+      <div className="bg-[#37475a] text-white p-2 text-[10px] print-footer">
         <p className="text-center font-semibold mb-1">Contact Us</p>
         <div className="flex items-center gap-1">
           <Phone size={10} /> +91 78160 58717
@@ -257,7 +263,7 @@ const IDCardBack = ({ member }: { member: Member }) => (
         </div>
       </div>
     </div>
-    <div className="bg-[#37475a] text-white p-2 text-[10px]">
+    <div className="bg-[#37475a] text-white p-2 text-[10px] print-footer">
       <p className="text-center font-semibold mb-1">Contact Us</p>
       <div className="flex items-center gap-1">
         <Phone size={10} /> +91 78160 58717
@@ -303,8 +309,6 @@ export default function IDCardPage() {
           This ID Card Is Verified
         </div>
 
-        {/* === YAHAN BADLAV KIYA GAYA HAI === */}
-        {/* 'flex-col' aur 'md:flex-row' ko 'flex flex-wrap justify-center' se badla gaya hai */}
         <div className="print-area">
           <div className="print-container flex flex-wrap justify-center gap-8">
             <IDCardFront member={member} />
