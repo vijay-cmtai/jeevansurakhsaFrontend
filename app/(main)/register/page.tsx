@@ -343,6 +343,7 @@ export default function RegisterMultiStepPage() {
 
   const renderStep = () => {
     switch (step) {
+      // ... cases 1 to 5 remain unchanged ...
       case 1:
         return (
           <FormWrapper>
@@ -1049,6 +1050,7 @@ export default function RegisterMultiStepPage() {
             </div>
           </FormWrapper>
         );
+
       case 6:
         return (
           <FormWrapper>
@@ -1192,21 +1194,23 @@ export default function RegisterMultiStepPage() {
                 {registrationError}
               </div>
             )}
-            <div className="flex justify-between mt-8">
+
+            {/* ======================= YAHAN BADLAV KIYA GAYA HAI ======================== */}
+            <div className="flex flex-col sm:flex-row sm:justify-between gap-4 mt-8">
               <Button
                 variant="outline"
                 onClick={handlePrev}
                 disabled={submissionType !== null}
-                className="h-11 px-6 bg-white"
+                className="h-11 px-6 bg-white w-full sm:w-auto"
               >
                 Previous
               </Button>
-              <div className="flex gap-4">
+              <div className="flex flex-col sm:flex-row gap-4">
                 <Button
                   variant="secondary"
                   onClick={() => handleSubmit(false)}
                   disabled={submissionType !== null}
-                  className="h-11 px-8"
+                  className="h-11 px-8 w-full sm:w-auto"
                 >
                   {submissionType === "payLater" ? (
                     <Loader2 className="animate-spin" />
@@ -1217,7 +1221,7 @@ export default function RegisterMultiStepPage() {
                 <Button
                   onClick={() => handleSubmit(true)}
                   disabled={submissionType !== null || !isSDKLoaded}
-                  className="bg-green-500 hover:bg-green-600 h-11 px-8"
+                  className="bg-green-500 hover:bg-green-600 h-11 px-8 w-full sm:w-auto"
                 >
                   {submissionType === "payNow" ? (
                     <Loader2 className="animate-spin" />
@@ -1227,6 +1231,7 @@ export default function RegisterMultiStepPage() {
                 </Button>
               </div>
             </div>
+            {/* ========================================================================= */}
           </FormWrapper>
         );
       default:
