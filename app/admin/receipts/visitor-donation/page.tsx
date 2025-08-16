@@ -1,3 +1,5 @@
+// File: components/AllVisitorDonationPage.js
+
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -17,6 +19,7 @@ import Image from "next/image";
 import { QRCodeSVG } from "qrcode.react";
 import { ToWords } from "to-words";
 
+// ... (keep all sub-components: PrintStyles, VisitorDonationReceipt, StatusBadge)
 // Interface
 interface Donation extends VisitorDonation {}
 
@@ -257,7 +260,6 @@ const VisitorDonationReceipt = ({ donation }: { donation: Donation }) => {
   );
 };
 
-// Status Badge Component
 const StatusBadge = ({ status }: { status: Donation["status"] }) => {
   const styles = {
     SUCCESS: "bg-green-100 text-green-800",
@@ -273,7 +275,7 @@ export default function AllVisitorDonationPage() {
   const {
     donations,
     listStatus,
-    status: actionStatus,
+    actionStatus, // ✅ Get the new actionStatus from the state
   } = useSelector((state: RootState) => state.visitorDonation);
   const { userInfo } = useSelector((state: RootState) => state.auth);
   const userIsAdmin = userInfo?.role === "Admin";
@@ -294,7 +296,7 @@ export default function AllVisitorDonationPage() {
   }, [receiptToPrint]);
 
   const handleDelete = (donationId: string) => {
-    if (confirm("Are you sure?")) {
+    if (confirm("Are you sure you want to delete this donation record?")) {
       dispatch(deleteVisitorDonation(donationId));
     }
   };
@@ -304,6 +306,7 @@ export default function AllVisitorDonationPage() {
   };
 
   const columns = [
+    // ... (keep all other columns)
     { key: "sr", label: "Sr.No.", render: (_: Donation, i: number) => i + 1 },
     {
       key: "receiptNo",
@@ -361,7 +364,7 @@ export default function AllVisitorDonationPage() {
               size="sm"
               variant="destructive"
               onClick={() => handleDelete(row._id)}
-              disabled={actionStatus === "loading"}
+              disabled={actionStatus === "loading"} // This now works correctly
             >
               <Trash2 className="h-4 w-4" />
             </Button>
