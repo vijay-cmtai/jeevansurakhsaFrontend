@@ -12,15 +12,11 @@ import { Trash2, Download, PlusCircle, Loader2, Eye } from "lucide-react";
 import {
   CashDonation,
   fetchCashDonations,
-  deleteCashDonation,
+  deleteCashDonation, // ✅ Action is correctly imported
 } from "@/lib/redux/features/donations/cashDonationsSlice";
 import { format } from "date-fns";
 import { QRCodeSVG } from "qrcode.react";
 import { ToWords } from "to-words";
-
-// ================================================================
-// 1. PRINT STYLES COMPONENT (Koi badlav nahi)
-// ================================================================
 const PrintStyles = () => (
   <style jsx global>{`
     @media print {
@@ -63,9 +59,6 @@ const PrintStyles = () => (
   `}</style>
 );
 
-// ================================================================
-// 2. RECEIPT DESIGN COMPONENT (Sirf ismein badlav kiya gaya hai)
-// ================================================================
 const DonationReceipt = ({ donation }: { donation: CashDonation }) => {
   const colors = {
     primaryGreen: "#338547",
@@ -90,7 +83,6 @@ const DonationReceipt = ({ donation }: { donation: CashDonation }) => {
         />
       </div>
       <div className="relative z-10">
-        {/* Header Section */}
         <header
           style={{ backgroundColor: colors.primaryGreen }}
           className="p-4 flex items-center justify-between text-white rounded-t-lg"
@@ -121,8 +113,6 @@ const DonationReceipt = ({ donation }: { donation: CashDonation }) => {
           </div>
         </header>
 
-        {/* ▼▼▼▼▼ BADLAV YAHAN KIYA GAYA HAI ▼▼▼▼▼ */}
-        {/* Receipt Title Section (Header ke baad aur Main content se pehle) */}
         <div className="relative -mt-2 flex justify-center z-20">
           <span
             style={{ backgroundColor: colors.darkGrey }}
@@ -131,11 +121,8 @@ const DonationReceipt = ({ donation }: { donation: CashDonation }) => {
             CASH DONATION RECEIPT
           </span>
         </div>
-        {/* ▲▲▲▲▲ BADLAV YAHAN KHATAM ▲▲▲▲▲ */}
 
         <main className="p-6">
-          {" "}
-          {/* Padding ab normal hai */}
           <table className="w-full border-collapse text-center text-sm">
             <thead>
               <tr
@@ -259,10 +246,6 @@ const DonationReceipt = ({ donation }: { donation: CashDonation }) => {
     </div>
   );
 };
-
-// ================================================================
-// 3. MAIN COMPONENT (Ismein koi badlav nahi hai)
-// ================================================================
 const DonorDetailsCell = ({ donation }: { donation: CashDonation }) => (
   <div className="text-left text-sm">
     <p className="font-semibold">{donation.name}</p>
