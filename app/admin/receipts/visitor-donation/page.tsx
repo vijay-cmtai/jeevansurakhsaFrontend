@@ -129,10 +129,10 @@ const VisitorDonationReceipt = ({ donation }: { donation: Donation }) => {
               />
             </div>
           </header>
-          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2">
+          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 -mt-10">
             <span
               style={{ backgroundColor: colors.darkGrey }}
-              className="text-white text-md font-bold px-10 py-2.5 rounded-lg shadow-lg mt-5"
+              className="text-white text-md font-bold px-10 py-2.5 rounded-lg shadow-lg "
             >
               VISITOR DONATION RECEIPT
             </span>
