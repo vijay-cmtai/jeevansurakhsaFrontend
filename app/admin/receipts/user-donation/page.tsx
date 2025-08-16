@@ -1,17 +1,19 @@
 "use client";
 
-import { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/lib/redux/store";
 import { DataTable } from "@/components/admin/DataTable";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { fetchAllMemberDonations } from "@/lib/redux/features/payment/memberDonationSlice";
-import { Download, Trash2 } from "lucide-react";
+import { Download, Trash2, Loader2 } from "lucide-react";
 import { format } from "date-fns";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
+import Image from "next/image";
+import { QRCodeSVG } from "qrcode.react";
+import { ToWords } from "to-words";
 
+// Interface
 interface Donation {
   _id: string;
   amount: number;
@@ -19,73 +21,244 @@ interface Donation {
   transactionId: string;
   receiptNo?: string;
   createdAt: string;
-  member: { fullName: string; email: string; mobile: string; memberId: string };
+  member: {
+    _id: string;
+    fullName: string;
+    email: string;
+    mobile?: string;
+    memberId?: string;
+    address?: string;
+  } | null;
 }
 
-const generatePdfReceipt = async (donation: Donation) => {
-  const doc = new jsPDF();
-
-  const imageResponse = await fetch("/logo.jpg");
-  const imageBlob = await imageResponse.blob();
-  const imageBase64 = await new Promise<string>((resolve) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(imageBlob);
-    reader.onloadend = () => {
-      resolve(reader.result as string);
-    };
-  });
-
-  doc.addImage(imageBase64, "JPEG", 85, 15, 40, 40);
-
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(22);
-  doc.text("Jeevan Suraksha", 105, 65, { align: "center" });
-
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(10);
-  doc.text(
-    "A Social Security Collective, An Initiative of Health Guard Foundation.",
-    105,
-    72,
-    { align: "center" }
-  );
-
-  autoTable(doc, {
-    startY: 85,
-    theme: "grid",
-    head: [["Field", "Details"]],
-    body: [
-      ["Receipt No:", donation.receiptNo || "N/A"],
-      ["Date:", format(new Date(donation.createdAt), "dd MMM, yyyy")],
-      ["Member ID:", donation.member.memberId],
-      ["Member Name:", donation.member.fullName],
-      [
-        "Email / Mobile:",
-        `${donation.member.email} / ${donation.member.mobile}`,
-      ],
-      ["Type:", "Member Donation"],
-      ["Transaction ID:", donation.transactionId],
-      ["Amount Paid:", `₹ ${donation.amount.toFixed(2)}`],
-      ["Status:", donation.status],
-    ],
-    headStyles: { fillColor: [45, 55, 72] },
-    styles: { cellPadding: 2.5, fontSize: 10 },
-  });
-
-  const finalY = (doc as any).lastAutoTable.finalY || 100;
-  doc.setFontSize(10);
-  doc.text(
-    "This is a computer-generated receipt and does not require a signature.",
-    105,
-    finalY + 15,
-    {
-      align: "center",
+// ================================================================
+// 1. PRINT STYLES COMPONENT
+// ================================================================
+const PrintStyles = () => (
+  <style jsx global>{`
+    @media print {
+      @page {
+        size: A4 portrait;
+        margin: 0;
+      }
+      body {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        background-color: white !important;
+      }
+      body * {
+        visibility: hidden;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .print-area,
+      .print-area * {
+        visibility: visible;
+      }
+      .print-area {
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .receipt-container {
+        transform: scale(0.9);
+        box-shadow: none !important;
+        border: 1px solid #ddd !important;
+        margin-top: -50px;
+      }
     }
-  );
+  `}</style>
+);
 
-  doc.save(`Member-Donation-Receipt-${donation.receiptNo || donation._id}.pdf`);
+// ================================================================
+// 2. RECEIPT DESIGN COMPONENT
+// ================================================================
+const MemberDonationReceipt = ({ donation }: { donation: Donation }) => {
+  const colors = {
+    primaryGreen: "#338547",
+    darkerGreen: "#235d31",
+    darkGrey: "#2d3748",
+  };
+  const toWords = new ToWords({
+    localeCode: "en-IN",
+    converterOptions: { currency: true, ignoreDecimal: true },
+  });
+  const amountInWords = toWords.convert(donation.amount);
+
+  return (
+    <div className="receipt-container w-[820px] bg-white rounded-lg shadow-2xl border border-gray-200 overflow-hidden font-sans relative mt-10">
+      <div className="absolute inset-0 flex items-center justify-center z-0">
+        <Image
+          src="/watermark.png"
+          alt="Watermark"
+          width={350}
+          height={350}
+          className="opacity-10"
+        />
+      </div>
+      <div className="relative z-10">
+        <div className="relative">
+          <header
+            style={{ backgroundColor: colors.primaryGreen }}
+            className="p-4 flex items-center justify-between text-white rounded-t-lg"
+          >
+            <div className="flex items-center gap-4">
+              <div className="w-[65px] h-[65px] bg-white rounded-full shadow-md"></div>
+              <div>
+                <h1 className="text-4xl font-extrabold tracking-wide">
+                  Jeevan Suraksha
+                </h1>
+                <p className="text-md font-light">Social Security Collective</p>
+                <div className="text-xs mt-1 leading-tight space-y-0.5">
+                  <p>NGO ID: TS/2025/0519895 | PAN No: AADTH2289P</p>
+                  <p>80G Reg. No. AADTH2289PF2025101</p>
+                  <p>
+                    📍 1-63, Amadabakula, Kothakota, Wanaparthy, Telangana,
+                    India – 509381
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="bg-white p-1.5 rounded-lg shadow-md">
+              <QRCodeSVG
+                value={`Receipt: ${donation.receiptNo ?? "N/A"}, Member ID: ${donation.member?.memberId ?? "N/A"}`}
+                size={85}
+              />
+            </div>
+          </header>
+          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 mt-[5px] translate-y-1/2">
+            <span
+              style={{ backgroundColor: colors.darkGrey }}
+              className="text-white text-md font-bold px-10 py-2.5 rounded-lg shadow-lg"
+            >
+              MEMBER DONATION RECEIPT
+            </span>
+          </div>
+        </div>
+        <main className="p-6 pt-12">
+          <table className="w-full border-collapse text-center text-sm">
+            <thead>
+              <tr
+                style={{ backgroundColor: colors.darkerGreen, color: "#fff" }}
+              >
+                <th className="p-2 border-l border-t border-b border-gray-300">
+                  Receipt No
+                </th>
+                <th className="p-2 border-t border-b border-gray-300">
+                  Amount
+                </th>
+                <th className="p-2 border-t border-b border-gray-300">
+                  Payment Status
+                </th>
+                <th className="p-2 border-t border-b border-r border-gray-300">
+                  Date
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr className="bg-white">
+                <td className="p-2 border-l border-b border-r border-gray-300 font-medium">
+                  {donation.receiptNo || "N/A"}
+                </td>
+                <td className="p-2 border-b border-r border-gray-300 font-bold">
+                  ₹{donation.amount.toLocaleString("en-IN")}
+                </td>
+                <td className="p-2 border-b border-r border-gray-300 text-green-600 font-semibold">
+                  {donation.status}
+                </td>
+                <td className="p-2 border-b border-r border-gray-300">
+                  {format(new Date(donation.createdAt), "dd-MM-yyyy")}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div className="mt-1 text-sm">
+            <div className="flex border border-gray-300 border-t-0">
+              <div
+                style={{ backgroundColor: colors.darkerGreen }}
+                className="w-48 text-white font-bold p-2.5"
+              >
+                Received From
+              </div>
+              <div className="p-2.5 flex-1 bg-white">
+                {donation.member?.fullName ?? "Unknown Member"} (ID:{" "}
+                {donation.member?.memberId ?? "N/A"})
+              </div>
+            </div>
+            <div className="flex border border-gray-300 border-t-0">
+              <div
+                style={{ backgroundColor: colors.darkerGreen }}
+                className="w-48 text-white font-bold p-2.5"
+              >
+                Rupees(in words)
+              </div>
+              <div className="p-2.5 flex-1 bg-white capitalize">
+                {amountInWords}
+              </div>
+            </div>
+            <div className="flex border border-gray-300 border-t-0">
+              <div
+                style={{ backgroundColor: colors.darkerGreen }}
+                className="w-48 text-white font-bold p-2.5"
+              >
+                Address
+              </div>
+              <div className="p-2.5 flex-1 bg-white">
+                {donation.member?.address ?? "N/A"}
+              </div>
+            </div>
+          </div>
+          <div className="mt-8 flex justify-between items-end">
+            <div>
+              <h3 className="font-bold text-xl text-gray-800">
+                Thank You For Your Contribution
+              </h3>
+            </div>
+            <div className="text-center">
+              <Image
+                src="/signature.png"
+                alt="Signature"
+                width={150}
+                height={50}
+              />
+              <p className="border-t border-black mt-1 pt-1 font-bold text-sm">
+                Krishnaiah Panuganti
+              </p>
+              <p className="text-xs text-gray-600">(Chief Relations Officer)</p>
+            </div>
+          </div>
+        </main>
+        <div className="px-6 pb-4">
+          <div
+            style={{ backgroundColor: "#f0f2f5" }}
+            className="p-3 text-xs text-center border border-gray-300 rounded-md"
+          >
+            This is a system generated receipt. For queries, contact
+            info@jeevansuraksha.org. Amount received: ₹
+            {donation.amount.toLocaleString("en-IN")}.
+          </div>
+        </div>
+        <footer
+          style={{ backgroundColor: colors.darkGrey }}
+          className="p-3 text-white text-center text-sm font-semibold rounded-b-lg"
+        >
+          📞 +91 78160 58717 | 📧 info@jeevansuraksha.org | 🌐
+          www.jeevansuraksha.org
+        </footer>
+      </div>
+    </div>
+  );
 };
 
+// ================================================================
+// 3. MAIN COMPONENT
+// ================================================================
 const StatusBadge = ({ status }: { status: Donation["status"] }) => {
   const styles = {
     SUCCESS: "bg-green-100 text-green-800",
@@ -100,15 +273,30 @@ export default function AllMemberDonationsPage() {
   const { allDonations, allDonationsStatus } = useSelector(
     (state: RootState) => state.memberDonation
   );
+  const [receiptToPrint, setReceiptToPrint] = useState<Donation | null>(null);
 
   useEffect(() => {
     dispatch(fetchAllMemberDonations());
   }, [dispatch]);
 
+  useEffect(() => {
+    if (receiptToPrint) {
+      const timer = setTimeout(() => {
+        window.print();
+        setReceiptToPrint(null);
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [receiptToPrint]);
+
   const handleDelete = (id: string) => {
     if (confirm("Are you sure? This action cannot be undone.")) {
       console.log("Delete functionality to be implemented for ID:", id);
     }
+  };
+
+  const handleDownload = (donation: Donation) => {
+    setReceiptToPrint(donation);
   };
 
   const columns = [
@@ -123,10 +311,14 @@ export default function AllMemberDonationsPage() {
       label: "Member Details",
       render: (row: Donation) => (
         <div>
-          <p className="font-semibold">{row.member?.fullName || "N/A"}</p>
-          <p className="text-xs text-gray-500">{row.member?.memberId}</p>
+          <p className="font-semibold">
+            {row.member?.fullName || "Unknown Member"}
+          </p>
           <p className="text-xs text-gray-500">
-            {row.member?.email} / {row.member?.mobile}
+            {row.member?.memberId ?? "N/A"}
+          </p>
+          <p className="text-xs text-gray-500">
+            {row.member?.email ?? "N/A"} / {row.member?.mobile ?? "N/A"}
           </p>
         </div>
       ),
@@ -140,7 +332,7 @@ export default function AllMemberDonationsPage() {
     {
       key: "amount",
       label: "Amount",
-      render: (row: Donation) => `₹${row.amount.toFixed(2)}`,
+      render: (row: Donation) => `₹${row.amount.toLocaleString("en-IN")}`,
     },
     {
       key: "download",
@@ -148,12 +340,14 @@ export default function AllMemberDonationsPage() {
       render: (row: Donation) => (
         <Button
           size="sm"
-          variant="outline"
-          onClick={() => generatePdfReceipt(row)}
-          disabled={row.status !== "SUCCESS"}
+          onClick={() => handleDownload(row)}
+          disabled={!!receiptToPrint || row.status !== "SUCCESS"}
         >
-          <Download size={16} className="mr-2" />
-          Receipt
+          {receiptToPrint?._id === row._id ? (
+            <Loader2 className="animate-spin h-4 w-4" />
+          ) : (
+            <Download size={16} />
+          )}
         </Button>
       ),
     },
@@ -179,14 +373,25 @@ export default function AllMemberDonationsPage() {
   );
 
   return (
-    <DataTable
-      title="All Member Donations"
-      columns={columns}
-      data={allDonations || []}
-      totalEntries={allDonations?.length || 0}
-      isLoading={allDonationsStatus === "loading"}
-      totalLabel="Total Successful Donation Amount"
-      totalValue={totalAmount}
-    />
+    <div>
+      <PrintStyles />
+      {receiptToPrint ? (
+        <div className="print-area">
+          <MemberDonationReceipt donation={receiptToPrint} />
+        </div>
+      ) : (
+        <div className="p-4 sm:p-6 no-print">
+          <DataTable
+            title="All Member Donations"
+            columns={columns}
+            data={allDonations || []}
+            totalEntries={allDonations?.length || 0}
+            isLoading={allDonationsStatus === "loading"}
+            totalLabel="Total Successful Donation Amount"
+            totalValue={totalAmount}
+          />
+        </div>
+      )}
+    </div>
   );
 }
