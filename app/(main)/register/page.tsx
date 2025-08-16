@@ -110,6 +110,20 @@ export default function RegisterMultiStepPage() {
   const [isSDKLoaded, setIsSDKLoaded] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
 
+  const [volunteerSearchTerm, setVolunteerSearchTerm] = useState("");
+
+  const filteredVolunteers = useMemo(() => {
+    if (!volunteerSearchTerm) {
+      return volunteers;
+    }
+    const lowercasedFilter = volunteerSearchTerm.toLowerCase();
+    return volunteers.filter(
+      (v) =>
+        v.name.toLowerCase().includes(lowercasedFilter) ||
+        v.code.toLowerCase().includes(lowercasedFilter)
+    );
+  }, [volunteers, volunteerSearchTerm]);
+
   useEffect(() => {
     if (!formData.nominees || formData.nominees.length === 0) {
       dispatch(addNominee());
@@ -343,12 +357,12 @@ export default function RegisterMultiStepPage() {
 
   const renderStep = () => {
     switch (step) {
-      // ... cases 1 to 5 remain unchanged ...
       case 1:
         return (
           <FormWrapper>
             <StepSectionHeader title="State Selection" />
             <div className="space-y-4">
+              {/* State Dropdown */}
               <Select
                 value={formData.state}
                 onValueChange={(v) => {
@@ -370,6 +384,8 @@ export default function RegisterMultiStepPage() {
               {formErrors.state && (
                 <p className="text-red-500 text-sm mt-1">{formErrors.state}</p>
               )}
+
+              {/* District Dropdown */}
               <Select
                 value={formData.district}
                 onValueChange={(v) =>
@@ -395,6 +411,8 @@ export default function RegisterMultiStepPage() {
                   {formErrors.district}
                 </p>
               )}
+
+              {/* Volunteer Dropdown with Search */}
               <Select
                 value={formData.volunteerCode}
                 onValueChange={(v) =>
@@ -405,11 +423,28 @@ export default function RegisterMultiStepPage() {
                   <SelectValue placeholder="Select Volunteer" />
                 </SelectTrigger>
                 <SelectContent>
-                  {volunteers.map((v) => (
-                    <SelectItem key={v._id} value={v.code}>
-                      {v.name} - {v.code}
-                    </SelectItem>
-                  ))}
+                  <div className="p-2">
+                    <Input
+                      placeholder="Search by name or code..."
+                      value={volunteerSearchTerm}
+                      onChange={(e) => setVolunteerSearchTerm(e.target.value)}
+                      onClick={(e) => e.stopPropagation()}
+                      className="w-full"
+                    />
+                  </div>
+                  <div className="max-h-[200px] overflow-y-auto">
+                    {filteredVolunteers.length > 0 ? (
+                      filteredVolunteers.map((v) => (
+                        <SelectItem key={v._id} value={v.code}>
+                          {v.name} - {v.code}
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <p className="p-4 text-center text-sm text-gray-500">
+                        No volunteer found.
+                      </p>
+                    )}
+                  </div>
                 </SelectContent>
               </Select>
               {formErrors.volunteerCode && (
@@ -1050,7 +1085,6 @@ export default function RegisterMultiStepPage() {
             </div>
           </FormWrapper>
         );
-
       case 6:
         return (
           <FormWrapper>
@@ -1195,22 +1229,22 @@ export default function RegisterMultiStepPage() {
               </div>
             )}
 
-            {/* ======================= YAHAN BADLAV KIYA GAYA HAI ======================== */}
-            <div className="flex flex-col sm:flex-row sm:justify-between gap-4 mt-8">
+            {/* <--- BADLAV SHURU: Responsive button layout --- */}
+            <div className="mt-8 flex flex-col md:flex-row md:justify-between gap-3">
               <Button
                 variant="outline"
                 onClick={handlePrev}
                 disabled={submissionType !== null}
-                className="h-11 px-6 bg-white w-full sm:w-auto"
+                className="h-11 w-full md:w-auto px-6 bg-white"
               >
                 Previous
               </Button>
-              <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex w-full md:w-auto gap-3">
                 <Button
                   variant="secondary"
                   onClick={() => handleSubmit(false)}
                   disabled={submissionType !== null}
-                  className="h-11 px-8 w-full sm:w-auto"
+                  className="h-11 flex-1 px-4 md:px-8" // flex-1 to take equal space
                 >
                   {submissionType === "payLater" ? (
                     <Loader2 className="animate-spin" />
@@ -1221,7 +1255,7 @@ export default function RegisterMultiStepPage() {
                 <Button
                   onClick={() => handleSubmit(true)}
                   disabled={submissionType !== null || !isSDKLoaded}
-                  className="bg-green-500 hover:bg-green-600 h-11 px-8 w-full sm:w-auto"
+                  className="bg-green-500 hover:bg-green-600 h-11 flex-1 px-4 md:px-8" // flex-1 to take equal space
                 >
                   {submissionType === "payNow" ? (
                     <Loader2 className="animate-spin" />
@@ -1231,7 +1265,7 @@ export default function RegisterMultiStepPage() {
                 </Button>
               </div>
             </div>
-            {/* ========================================================================= */}
+            {/* <--- BADLAV KHATAM --- */}
           </FormWrapper>
         );
       default:
