@@ -1,6 +1,11 @@
+// File: lib/redux/features/visitordonations/visitorDonationSlice.js
+
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import axiosInstance from "@/lib/axios";
 
+// --- TypeScript Interfaces ---
+
+// Data jo user donation form mein bharta hai
 export interface DonationFormData {
   name: string;
   email?: string;
@@ -12,6 +17,7 @@ export interface DonationFormData {
   branchName?: string;
 }
 
+// Database se aane wala poora donation object
 export interface VisitorDonation extends DonationFormData {
   _id: string;
   transactionId: string;
@@ -21,11 +27,13 @@ export interface VisitorDonation extends DonationFormData {
   updatedAt: string;
 }
 
+// Donation initiate karne par backend se milne wala response
 export interface PaymentInitResponse {
   payment_session_id: string;
   order_id: string;
 }
 
+// Donation status check karne par milne wala response
 export interface DonationStatusResponse {
   status: "PENDING" | "SUCCESS" | "FAILED";
   receiptNo?: string;
@@ -33,17 +41,28 @@ export interface DonationStatusResponse {
   createdAt: string;
 }
 
+// Slice ki state ka structure
 interface VisitorDonationState {
+  // Donation initiate karne ke liye status
   status: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
   paymentSessionId: string | null;
   orderId: string | null;
+
+  // Admin panel mein donations ki list ke liye status
   donations: VisitorDonation[];
   listStatus: "idle" | "loading" | "succeeded" | "failed";
   listError: string | null;
+
+  // List par kiye jaane wale actions (jaise delete) ke liye alag status
+  actionStatus: "idle" | "loading" | "succeeded" | "failed";
+  actionError: string | null;
+
+  // Current donation ka status track karne ke liye
   currentDonationStatus: DonationStatusResponse | null;
 }
 
+// Initial State
 const initialState: VisitorDonationState = {
   status: "idle",
   error: null,
@@ -52,26 +71,24 @@ const initialState: VisitorDonationState = {
   donations: [],
   listStatus: "idle",
   listError: null,
+  actionStatus: "idle",
+  actionError: null,
   currentDonationStatus: null,
 };
 
-// Initiate donation with correct endpoint
+// --- Async Thunks (API Calls) ---
+
+// 1. Donation initiate karne ke liye
 export const initiateVisitorDonation = createAsyncThunk(
   "visitorDonation/initiate",
   async (formData: DonationFormData, { rejectWithValue }) => {
     try {
-      console.log("Initiating donation with data:", formData);
       const { data } = await axiosInstance.post(
-        "/api/donate/initiate", // Match with server route
+        "/api/donate/initiate",
         formData
       );
-      console.log("Donation initiated successfully:", data);
       return data as PaymentInitResponse;
     } catch (error: any) {
-      console.error(
-        "Donation initiation failed:",
-        error.response?.data || error.message
-      );
       return rejectWithValue(
         error.response?.data?.message || "Payment initiation failed"
       );
@@ -79,7 +96,7 @@ export const initiateVisitorDonation = createAsyncThunk(
   }
 );
 
-// Check donation status
+// 2. Donation ka status check karne ke liye
 export const checkDonationStatus = createAsyncThunk(
   "visitorDonation/checkStatus",
   async (orderId: string, { rejectWithValue }) => {
@@ -94,12 +111,12 @@ export const checkDonationStatus = createAsyncThunk(
   }
 );
 
-// Fetch all donations for admin
+// 3. Admin ke liye saare donations fetch karne ke liye
 export const fetchAllVisitorDonations = createAsyncThunk(
   "visitorDonation/fetchAllAdmin",
   async (_, { rejectWithValue }) => {
     try {
-      const { data } = await axiosInstance.get("/api/donate/admin/all"); // Match with server route
+      const { data } = await axiosInstance.get("/api/donate/admin/all");
       return data as VisitorDonation[];
     } catch (error: any) {
       return rejectWithValue(
@@ -109,13 +126,14 @@ export const fetchAllVisitorDonations = createAsyncThunk(
   }
 );
 
-// Delete donation (if you have this functionality)
+// 4. Admin dwara ek donation delete karne ke liye
 export const deleteVisitorDonation = createAsyncThunk(
   "visitorDonation/delete",
   async (donationId: string, { rejectWithValue }) => {
     try {
-      await axiosInstance.delete(`/api/visitor-donations/admin/${donationId}`);
-      return donationId;
+      // Backend route se match karta hua URL
+      await axiosInstance.delete(`/api/donate/admin/${donationId}`);
+      return donationId; // Success par ID wapas bhejte hain
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to delete donation"
@@ -124,10 +142,12 @@ export const deleteVisitorDonation = createAsyncThunk(
   }
 );
 
+// --- Slice Definition ---
 const visitorDonationSlice = createSlice({
   name: "visitorDonation",
   initialState,
   reducers: {
+    // State ko reset karne ke liye
     resetDonationState: (state) => {
       state.status = "idle";
       state.error = null;
@@ -135,79 +155,70 @@ const visitorDonationSlice = createSlice({
       state.orderId = null;
       state.currentDonationStatus = null;
     },
-    setOrderId: (state, action: PayloadAction<string>) => {
-      state.orderId = action.payload;
-    },
+    // Error clear karne ke liye
     clearError: (state) => {
       state.error = null;
       state.listError = null;
+      state.actionError = null;
     },
   },
   extraReducers: (builder) => {
     builder
-      // Initiate donation cases
+      // Initiate donation
       .addCase(initiateVisitorDonation.pending, (state) => {
         state.status = "loading";
         state.error = null;
-        state.paymentSessionId = null;
-        state.orderId = null;
       })
       .addCase(initiateVisitorDonation.fulfilled, (state, action) => {
         state.status = "succeeded";
         state.paymentSessionId = action.payload.payment_session_id;
         state.orderId = action.payload.order_id;
-        state.error = null;
       })
       .addCase(initiateVisitorDonation.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload as string;
-        state.paymentSessionId = null;
-        state.orderId = null;
       })
 
-      // Check donation status cases
-      .addCase(checkDonationStatus.pending, (state) => {
-        // Don't change main status, just track the checking
-      })
+      // Check donation status
       .addCase(checkDonationStatus.fulfilled, (state, action) => {
         state.currentDonationStatus = action.payload;
       })
       .addCase(checkDonationStatus.rejected, (state, action) => {
-        state.error = action.payload as string;
+        state.error = action.payload as string; // Status page par error dikhane ke liye
       })
 
-      // Fetch all donations cases
+      // Fetch all donations (List)
       .addCase(fetchAllVisitorDonations.pending, (state) => {
         state.listStatus = "loading";
-        state.listError = null;
       })
       .addCase(fetchAllVisitorDonations.fulfilled, (state, action) => {
         state.listStatus = "succeeded";
         state.donations = action.payload;
-        state.listError = null;
       })
       .addCase(fetchAllVisitorDonations.rejected, (state, action) => {
         state.listStatus = "failed";
         state.listError = action.payload as string;
       })
 
-      // Delete donation cases
+      // Delete a donation (Action)
       .addCase(deleteVisitorDonation.pending, (state) => {
-        state.listStatus = "loading";
+        state.actionStatus = "loading"; // Sirf actionStatus ko loading karte hain
+        state.actionError = null;
       })
       .addCase(deleteVisitorDonation.fulfilled, (state, action) => {
-        state.listStatus = "succeeded";
+        state.actionStatus = "succeeded";
+        // State se us donation ko filter karke hata dete hain jiska ID match karta hai
         state.donations = state.donations.filter(
           (d) => d._id !== action.payload
         );
       })
       .addCase(deleteVisitorDonation.rejected, (state, action) => {
-        state.listStatus = "failed";
-        state.listError = action.payload as string;
+        state.actionStatus = "failed";
+        state.actionError = action.payload as string;
       });
   },
 });
 
-export const { resetDonationState, setOrderId, clearError } =
-  visitorDonationSlice.actions;
+export const { resetDonationState, clearError } = visitorDonationSlice.actions;
+
 export default visitorDonationSlice.reducer;
