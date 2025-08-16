@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import { AppDispatch, RootState } from "@/lib/redux/store";
@@ -15,9 +15,254 @@ import {
   deleteCashDonation,
 } from "@/lib/redux/features/donations/cashDonationsSlice";
 import { format } from "date-fns";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
+import { QRCodeSVG } from "qrcode.react";
+import { ToWords } from "to-words";
 
+// ================================================================
+// 1. PRINT STYLES COMPONENT (Koi badlav nahi)
+// ================================================================
+const PrintStyles = () => (
+  <style jsx global>{`
+    @media print {
+      @page {
+        size: A4 portrait;
+        margin: 0;
+      }
+      body {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        background-color: white !important;
+      }
+      body * {
+        visibility: hidden !important;
+      }
+      .print-area,
+      .print-area * {
+        visibility: visible !important;
+      }
+      .print-area {
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding-top: 2rem;
+      }
+      .receipt-container {
+        transform: scale(0.92);
+        box-shadow: none !important;
+        border: 1px solid #ddd !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+    }
+  `}</style>
+);
+
+// ================================================================
+// 2. RECEIPT DESIGN COMPONENT (Sirf ismein badlav kiya gaya hai)
+// ================================================================
+const DonationReceipt = ({ donation }: { donation: CashDonation }) => {
+  const colors = {
+    primaryGreen: "#338547",
+    darkerGreen: "#235d31",
+    darkGrey: "#2d3748",
+  };
+  const toWords = new ToWords({
+    localeCode: "en-IN",
+    converterOptions: { currency: true, ignoreDecimal: true },
+  });
+  const amountInWords = toWords.convert(donation.amount);
+
+  return (
+    <div className="receipt-container w-[820px] bg-white rounded-lg shadow-2xl border border-gray-200 overflow-hidden font-sans relative">
+      <div className="absolute inset-0 flex items-center justify-center z-0">
+        <Image
+          src="/watermark.png"
+          alt="Watermark"
+          width={350}
+          height={350}
+          className="opacity-10"
+        />
+      </div>
+      <div className="relative z-10">
+        {/* Header Section */}
+        <header
+          style={{ backgroundColor: colors.primaryGreen }}
+          className="p-4 flex items-center justify-between text-white rounded-t-lg"
+        >
+          <div className="flex items-center gap-4">
+            <div className="bg-white p-1 rounded-full shadow-md">
+              <Image src="/logo.jpg" alt="Logo" width={65} height={65} />
+            </div>
+            <div>
+              <h1 className="text-4xl font-extrabold tracking-wide">
+                Jeevan Suraksha
+              </h1>
+              <p className="text-md font-light">Social Security Collective</p>
+              <p className="text-xs mt-2">
+                NGO ID:TS/2025/0519895 | 80G Reg No:AADTH2289PF2025101
+              </p>
+              <p className="text-xs">
+                📍 1-63, Amadabakula, Kothakota, Wanaparthy, Telangana, India –
+                509381
+              </p>
+            </div>
+          </div>
+          <div className="bg-white p-1.5 rounded-lg shadow-md">
+            <QRCodeSVG
+              value={`Receipt No: ${donation.receiptNo}, Amount: ${donation.amount}`}
+              size={85}
+            />
+          </div>
+        </header>
+
+        {/* ▼▼▼▼▼ BADLAV YAHAN KIYA GAYA HAI ▼▼▼▼▼ */}
+        {/* Receipt Title Section (Header ke baad aur Main content se pehle) */}
+        <div className="relative -mt-2 flex justify-center z-20">
+          <span
+            style={{ backgroundColor: colors.darkGrey }}
+            className="text-white text-md font-bold px-10 py-2.5 rounded-lg shadow-lg"
+          >
+            CASH DONATION RECEIPT
+          </span>
+        </div>
+        {/* ▲▲▲▲▲ BADLAV YAHAN KHATAM ▲▲▲▲▲ */}
+
+        <main className="p-6">
+          {" "}
+          {/* Padding ab normal hai */}
+          <table className="w-full border-collapse text-center text-sm">
+            <thead>
+              <tr
+                style={{ backgroundColor: colors.darkerGreen, color: "#fff" }}
+              >
+                <th className="p-2 border-l border-t border-b border-gray-300">
+                  Receipt No
+                </th>
+                <th className="p-2 border-t border-b border-gray-300">
+                  Amount
+                </th>
+                <th className="p-2 border-t border-b border-gray-300">Mode</th>
+                <th className="p-2 border-t border-b border-gray-300">
+                  Payment Status
+                </th>
+                <th className="p-2 border-t border-b border-r border-gray-300">
+                  Date
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr className="bg-white">
+                <td className="p-2 border-l border-b border-r border-gray-300 font-medium">
+                  {donation.receiptNo}
+                </td>
+                <td className="p-2 border-b border-r border-gray-300 font-bold">
+                  ₹{donation.amount.toLocaleString("en-IN")}
+                </td>
+                <td className="p-2 border-b border-r border-gray-300">Cash</td>
+                <td className="p-2 border-b border-r border-gray-300 text-green-600 font-semibold">
+                  Success
+                </td>
+                <td className="p-2 border-b border-r border-gray-300">
+                  {format(new Date(donation.createdAt), "dd-MM-yyyy")}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div className="mt-1 text-sm">
+            <div className="flex border border-gray-300 border-t-0">
+              <div
+                style={{ backgroundColor: colors.darkerGreen }}
+                className="w-48 text-white font-bold p-2.5"
+              >
+                Received From
+              </div>
+              <div className="p-2.5 flex-1 bg-white">{donation.name}</div>
+            </div>
+            <div className="flex border border-gray-300 border-t-0">
+              <div
+                style={{ backgroundColor: colors.darkerGreen }}
+                className="w-48 text-white font-bold p-2.5"
+              >
+                Rupees(in words)
+              </div>
+              <div className="p-2.5 flex-1 bg-white capitalize">
+                {amountInWords}
+              </div>
+            </div>
+            <div className="flex border border-gray-300 border-t-0">
+              <div
+                style={{ backgroundColor: colors.darkerGreen }}
+                className="w-48 text-white font-bold p-2.5"
+              >
+                Address
+              </div>
+              <div className="p-2.5 flex-1 bg-white">
+                {donation.address || "N/A"}
+              </div>
+            </div>
+          </div>
+          <div
+            style={{ backgroundColor: colors.darkGrey }}
+            className="mt-1 text-white p-2.5 text-sm font-semibold flex justify-around"
+          >
+            <span>Bank: {donation.bankName || "HDFC Bank"}</span>
+            <span>Branch: {donation.branchName || "Hi-Tech City"}</span>
+            <span>PAN: {donation.panNumber || "AMVPM7764Q"}</span>
+          </div>
+          <div className="mt-8 flex justify-between items-end">
+            <div>
+              <h3 className="font-bold text-xl text-gray-800">
+                Thank You For Your Generous Contribution
+              </h3>
+            </div>
+            <div className="text-center">
+              <Image
+                src="/signature.png"
+                alt="Signature"
+                width={150}
+                height={50}
+              />
+              <p className="border-t border-black mt-1 pt-1 font-bold text-sm">
+                Krishnaiah Panuganti
+              </p>
+              <p className="text-xs text-gray-600">(Chief Relations Officer)</p>
+              <p className="text-xs text-gray-600">Jeevan Suraksha</p>
+              <p className="text-xs text-gray-600">Authorised Signatory</p>
+            </div>
+          </div>
+        </main>
+        <div className="px-6 pb-4">
+          <div
+            style={{ backgroundColor: "#f0f2f5" }}
+            className="p-3 text-xs text-center border border-gray-300 rounded-md"
+          >
+            Donations made to "Jeevan Suraksha" are eligible for the benefit of
+            deduction under Section 80G of the Income Tax Act, 1961. Amount
+            donated: ₹{donation.amount.toLocaleString("en-IN")}. Authorized by
+            "Jeevan Suraksha".
+          </div>
+        </div>
+        <footer
+          style={{ backgroundColor: colors.darkGrey }}
+          className="p-3 text-white text-center text-sm font-semibold rounded-b-lg"
+        >
+          📞 +91 78160 58717 | 📧 info@jeevansuraksha.org | 🌐
+          www.jeevansuraksha.org
+        </footer>
+      </div>
+    </div>
+  );
+};
+
+// ================================================================
+// 3. MAIN COMPONENT (Ismein koi badlav nahi hai)
+// ================================================================
 const DonorDetailsCell = ({ donation }: { donation: CashDonation }) => (
   <div className="text-left text-sm">
     <p className="font-semibold">{donation.name}</p>
@@ -27,94 +272,9 @@ const DonorDetailsCell = ({ donation }: { donation: CashDonation }) => (
   </div>
 );
 
-const generatePdfReceipt = async (donation: CashDonation) => {
-  const doc = new jsPDF();
-
-  const imageResponse = await fetch("/logo.jpg");
-  const imageBlob = await imageResponse.blob();
-  const imageBase64 = await new Promise<string>((resolve) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(imageBlob);
-    reader.onloadend = () => {
-      resolve(reader.result as string);
-    };
-  });
-
-  doc.addImage(imageBase64, "JPEG", 85, 15, 40, 40);
-
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(22);
-  doc.text("Jeevan Suraksha", 105, 65, { align: "center" });
-
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(10);
-  doc.text(
-    "A Social Security Collective, An Initiative of Health Guard Foundation.",
-    105,
-    72,
-    { align: "center" }
-  );
-
-  autoTable(doc, {
-    startY: 85,
-    theme: "grid",
-    head: [["Field", "Details"]],
-    body: [
-      ["Receipt No:", donation.receiptNo],
-      [
-        "Date of Donation:",
-        donation.createdAt
-          ? format(new Date(donation.createdAt), "dd MMM, yyyy")
-          : "N/A",
-      ],
-      ["Type:", "Cash Donation"],
-      ["Donor Name:", donation.name],
-      ["Donor Mobile:", donation.mobile],
-      ["Donation Amount:", `₹ ${donation.amount.toFixed(2)}`],
-      ["Payment Mode:", donation.mode || "Cash"],
-    ],
-    headStyles: { fillColor: [45, 55, 72] },
-    styles: { cellPadding: 2.5, fontSize: 10 },
-  });
-
-  // 🔻🔻🔻 यह हिस्सा बदला गया है (फुटर) 🔻🔻🔻
-  const finalY = (doc as any).lastAutoTable.finalY || 100;
-  doc.setFontSize(9);
-  doc.setTextColor(100);
-
-  let footerY = finalY + 12;
-  doc.setLineWidth(0.2);
-  doc.line(20, footerY, 190, footerY);
-  footerY += 5;
-
-  doc.setFont("helvetica", "bold");
-  doc.text("Health Guard Foundation", 105, footerY, { align: "center" });
-  footerY += 4;
-  doc.setFont("helvetica", "normal");
-  doc.text(
-    "1-63, Amadabakula (Village), Kothakota (Mandal), Wanaparty (District),",
-    105,
-    footerY,
-    { align: "center" }
-  );
-  footerY += 4;
-  doc.text("Telangana, India - 509381", 105, footerY, { align: "center" });
-  footerY += 5;
-  doc.text(
-    "Email: info@jeevansuraksha.org | Phone: +91-78160 58717",
-    105,
-    footerY,
-    { align: "center" }
-  );
-  // 🔺🔺🔺 बदलाव यहाँ समाप्त होता है 🔺🔺🔺
-
-  doc.save(`Cash-Donation-Receipt-${donation.receiptNo}.pdf`);
-};
-
 export default function CashDonationReceiptsPage() {
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
-
   const {
     donations,
     pagination,
@@ -124,11 +284,24 @@ export default function CashDonationReceiptsPage() {
   } = useSelector((state: RootState) => state.cashDonations);
   const { userInfo } = useSelector((state: RootState) => state.auth);
   const userIsAdmin = userInfo?.role === "Admin";
-  const [downloadingId, setDownloadingId] = useState<string | null>(null);
+
+  const [receiptToPrint, setReceiptToPrint] = useState<CashDonation | null>(
+    null
+  );
 
   useEffect(() => {
     dispatch(fetchCashDonations({}));
   }, [dispatch]);
+
+  useEffect(() => {
+    if (receiptToPrint) {
+      const timer = setTimeout(() => {
+        window.print();
+        setReceiptToPrint(null);
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [receiptToPrint]);
 
   const handleDelete = (donationId: string) => {
     if (confirm("Are you sure you want to delete this donation record?")) {
@@ -136,17 +309,8 @@ export default function CashDonationReceiptsPage() {
     }
   };
 
-  const handleDownload = async (donation: CashDonation) => {
-    if (downloadingId) return;
-    setDownloadingId(donation._id);
-    try {
-      await generatePdfReceipt(donation);
-    } catch (error) {
-      console.error("Failed to generate PDF:", error);
-      alert("Could not generate the PDF. Please try again.");
-    } finally {
-      setDownloadingId(null);
-    }
+  const handleDownload = (donation: CashDonation) => {
+    setReceiptToPrint(donation);
   };
 
   const columns = [
@@ -172,9 +336,9 @@ export default function CashDonationReceiptsPage() {
       render: (row: CashDonation) => `₹${row.amount.toLocaleString("en-IN")}`,
     },
     {
-      key: "paymentMode",
+      key: "mode",
       label: "Mode",
-      render: (row: CashDonation) => row.mode || "Cash",
+      render: (row: CashDonation) => row.bankName || "Cash",
     },
     {
       key: "paymentImage",
@@ -210,22 +374,19 @@ export default function CashDonationReceiptsPage() {
     {
       key: "download",
       label: "Download",
-      render: (row: CashDonation) => {
-        const isDownloading = downloadingId === row._id;
-        return (
-          <Button
-            size="sm"
-            onClick={() => handleDownload(row)}
-            disabled={isDownloading}
-          >
-            {isDownloading ? (
-              <Loader2 className="animate-spin" />
-            ) : (
-              <Download size={16} />
-            )}
-          </Button>
-        );
-      },
+      render: (row: CashDonation) => (
+        <Button
+          size="sm"
+          onClick={() => handleDownload(row)}
+          disabled={!!receiptToPrint}
+        >
+          {receiptToPrint && receiptToPrint._id === row._id ? (
+            <Loader2 className="animate-spin h-4 w-4" />
+          ) : (
+            <Download size={16} />
+          )}
+        </Button>
+      ),
     },
     {
       key: "action",
@@ -247,8 +408,19 @@ export default function CashDonationReceiptsPage() {
     },
   ];
 
+  if (receiptToPrint) {
+    return (
+      <>
+        <PrintStyles />
+        <div className="print-area">
+          <DonationReceipt donation={receiptToPrint} />
+        </div>
+      </>
+    );
+  }
+
   return (
-    <div className="p-4 sm:p-6">
+    <div className="p-4 sm:p-6 no-print">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-xl md:text-2xl font-bold text-gray-800">
           Total Cash Donations:{" "}
