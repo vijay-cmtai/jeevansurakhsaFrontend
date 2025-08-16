@@ -55,6 +55,7 @@
     "next": "14.2.16",
     "next-intl": "^4.3.4",
     "next-themes": "^0.4.4",
+    "qrcode.react": "^4.2.0",
     "react": "^18",
     "react-confetti": "^6.4.0",
     "react-day-picker": "9.8.0",
@@ -66,6 +67,7 @@
     "sonner": "^1.7.1",
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7",
+    "to-words": "^4.7.0",
     "vaul": "^0.9.6",
     "zod": "^3.24.1"
   },
