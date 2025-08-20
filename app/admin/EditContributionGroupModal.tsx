@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Plus, Loader2, Trash2, X } from "lucide-react";
 
-// यह एक हेल्पर कंपोनेंट है जो आपके Add पेज में भी था
+// Helper component to manage dynamic lists
 const DynamicListInput = ({
   title,
   placeholder,
@@ -28,14 +28,14 @@ const DynamicListInput = ({
   const [inputValue, setInputValue] = useState("");
 
   const handleAdd = () => {
-    if (inputValue.trim()) {
+    if (inputValue.trim() && !items.includes(inputValue.trim())) {
       onAddItem(inputValue.trim());
       setInputValue("");
     }
   };
 
   return (
-    <div className="space-y-3 rounded-md border p-4">
+    <div className="space-y-3 rounded-md border p-4 bg-gray-50/50">
       <Label className="font-semibold">{title}</Label>
       <div className="flex items-center gap-2">
         <Input
@@ -66,6 +66,7 @@ const DynamicListInput = ({
                 variant="ghost"
                 size="icon"
                 onClick={() => onRemoveItem(item)}
+                className="hover:bg-red-100"
               >
                 <Trash2 className="h-4 w-4 text-red-500" />
               </Button>
@@ -101,6 +102,7 @@ export default function EditContributionGroupModal({
     register,
     handleSubmit,
     setValue,
+    reset,
     formState: { errors },
   } = useForm<{ employmentType: string }>();
 
@@ -118,19 +120,20 @@ export default function EditContributionGroupModal({
       );
       setDepartmentNames([...new Set(allDeptNames)]);
 
-      // --- ⬇️ FIX #1: ऑब्जेक्ट ऐरे को स्ट्रिंग ऐरे में बदलें ---
-      // पहले plans का ऐरे निकालें
       const allPlansAsObjects = groupData.companies.flatMap((c: any) =>
         c.departments.flatMap((d: any) => d.plans)
       );
-      // अब हर ऑब्जेक्ट से सिर्फ 'planDetails' स्ट्रिंग निकालें
       const allPlansAsStrings = allPlansAsObjects.map(
         (p: any) => p.planDetails
       );
-      // डुप्लीकेट हटाने के लिए Set का उपयोग करें
       setPlanDetails([...new Set(allPlansAsStrings)]);
+    } else {
+      reset();
+      setCompanyNames([]);
+      setDepartmentNames([]);
+      setPlanDetails([]);
     }
-  }, [groupData, setValue]);
+  }, [groupData, setValue, reset]);
 
   const onSubmit: SubmitHandler<{ employmentType: string }> = (data) => {
     if (
@@ -142,12 +145,10 @@ export default function EditContributionGroupModal({
       return;
     }
 
-    // --- ⬇️ FIX #2: सबमिट करते समय स्ट्रिंग ऐरे को वापस ऑब्जेक्ट ऐरे में बदलें ---
     const companiesPayload = companyNames.map((companyName) => ({
       companyName,
       departments: departmentNames.map((departmentName) => ({
         departmentName,
-        // `planDetails` (जो एक स्ट्रिंग ऐरे है) को ऑब्जेक्ट के ऐरे में बदलें
         plans: planDetails.map((planStr) => ({ planDetails: planStr })),
       })),
     }));
@@ -170,14 +171,14 @@ export default function EditContributionGroupModal({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center p-4 z-50">
-      <Card className="w-full max-w-3xl max-h-[90vh] overflow-y-auto">
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <CardHeader className="flex flex-row items-center justify-between sticky top-0 bg-white z-10 border-b">
-            <CardTitle className="text-2xl">Edit Contribution Group</CardTitle>
-            <Button variant="ghost" size="icon" type="button" onClick={onClose}>
-              <X className="h-6 w-6" />
-            </Button>
-          </CardHeader>
+      <Card className="w-full max-w-3xl max-h-[90vh] flex flex-col">
+        <CardHeader className="flex flex-row items-center justify-between sticky top-0 bg-white z-10 border-b">
+          <CardTitle className="text-2xl">Edit Contribution Group</CardTitle>
+          <Button variant="ghost" size="icon" type="button" onClick={onClose}>
+            <X className="h-6 w-6" />
+          </Button>
+        </CardHeader>
+        <form onSubmit={handleSubmit(onSubmit)} className="overflow-y-auto">
           <CardContent className="p-6 space-y-6">
             <div>
               <Label htmlFor="employmentType" className="font-semibold text-lg">
